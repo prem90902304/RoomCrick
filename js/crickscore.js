@@ -2,7 +2,7 @@ let score = 0, wickets = 0, balls = 0, oversLimit = 0;
 let teamA = '', teamB = '';
 let batsmen = [], currentBatsman = null;
 
-let bowlers = []; // multiple bowlers
+let bowlers = [];
 let currentBowlerIndex = 0;
 let legByeCount = 0;
 
@@ -19,7 +19,6 @@ function startMatch() {
   currentBatsman = { name: batsmanName, runs: 0, balls: 0, fours: 0, sixes: 0 };
   batsmen.push(currentBatsman);
 
-  // Get multiple bowler names
   let bowlerNames = prompt("Enter bowler names (comma separated):");
   let bowlerList = (bowlerNames || "Bowler 1").split(",").map(name => name.trim());
   bowlers = bowlerList.map(name => ({ name, balls: 0, runs: 0, wickets: 0 }));
@@ -36,12 +35,14 @@ function getCurrentBowler() {
 }
 
 function switchBowlerIfNeeded() {
-  if (balls % 6 === 0 && balls !== 0) {
+  if (balls > 0 && balls % 6 === 0) {
     currentBowlerIndex = (currentBowlerIndex + 1) % bowlers.length;
   }
 }
 
 function addRun(run) {
+  switchBowlerIfNeeded();
+
   score += run;
   currentBatsman.runs += run;
   currentBatsman.balls += 1;
@@ -68,11 +69,14 @@ function addLegBye() {
     legByeCount = 0;
     addWicket();
   } else {
+    switchBowlerIfNeeded();
     nextBall();
   }
 }
 
 function addWicket() {
+  switchBowlerIfNeeded();
+
   wickets++;
   const bowler = getCurrentBowler();
   bowler.wickets++;
@@ -90,7 +94,6 @@ function addWicket() {
 function nextBall() {
   balls++;
   getCurrentBowler().balls++;
-  switchBowlerIfNeeded();
   updateDisplay();
 
   const totalBalls = oversLimit * 6;
@@ -110,7 +113,7 @@ function endMatch() {
 function updateDisplay() {
   const overs = `${Math.floor(balls / 6)}.${balls % 6}`;
   const runRate = (score / (balls / 6 || 1)).toFixed(2);
-  const oversLeft = (oversLimit - Math.floor(balls / 6)) + "." + (6 - (balls % 6)) % 6;
+  const oversLeft = (oversLimit - Math.floor(balls / 6)) + "." + ((6 - (balls % 6)) % 6);
 
   document.getElementById("score").innerText = `${score}/${wickets}`;
   document.getElementById("overs").innerText = overs;

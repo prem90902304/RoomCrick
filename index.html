@@ -1,32 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CrickScore</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrickScore - Live Cricket Scoring</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
-<body>
-  <div class="container">
-    <h1>🏏 CrickScore</h1>
+<body class="bg-gray-100 text-gray-900">
+  <div class="max-w-xl mx-auto py-6">
+    <h1 class="text-3xl font-bold text-center mb-6">🏏 CrickScore</h1>
 
-    <div class="match-setup">
-      <input type="text" id="teamA" placeholder="Team A Name" />
-      <input type="text" id="teamB" placeholder="Team B Name" />
-      <button onclick="startMatch()">Start Match</button>
+    <!-- Match Setup -->
+    <div class="bg-white p-4 rounded shadow mb-6" id="setupPanel">
+      <input id="teamA" type="text" placeholder="Team A" class="input" />
+      <input id="teamB" type="text" placeholder="Team B" class="input" />
+      <input id="totalOvers" type="number" placeholder="Total Overs" min="1" class="input" />
+      <button onclick="startMatch()" class="btn">Start Match</button>
     </div>
 
-    <div class="score-panel" style="display:none;">
-      <h2 id="scoreDisplay">Team A: 0/0 (0.0)</h2>
-      <button onclick="addRun(1)">1 Run</button>
-      <button onclick="addRun(2)">2 Runs</button>
-      <button onclick="addRun(4)">4 Runs</button>
-      <button onclick="addRun(6)">6 Runs</button>
-      <button onclick="addWicket()">Wicket</button>
-      <button onclick="nextBall()">Next Ball</button>
+    <!-- Score Panel -->
+    <div id="scorePanel" class="bg-white p-4 rounded shadow hidden">
+      <div id="scoreHeader" class="text-xl font-semibold mb-4"></div>
+      <div id="stats" class="mb-4 text-sm text-gray-600"></div>
+
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <button onclick="addRun(1)" class="btn">1 Run</button>
+        <button onclick="addRun(2)" class="btn">2 Runs</button>
+        <button onclick="addRun(4)" class="btn">4 Runs</button>
+        <button onclick="addRun(6)" class="btn">6 Runs</button>
+        <button onclick="addWicket()" class="btn">Wicket</button>
+        <button onclick="nextBall()" class="btn">Dot Ball</button>
+      </div>
+
+      <button onclick="endMatch()" class="btn bg-red-500 hover:bg-red-600">End Match</button>
+    </div>
+
+    <!-- Match Summary -->
+    <div id="summaryPanel" class="bg-white p-4 rounded shadow hidden">
+      <h2 class="text-xl font-bold mb-2">Match Summary</h2>
+      <div id="summaryDetails"></div>
+      <button onclick="resetApp()" class="btn mt-4">New Match</button>
+    </div>
+
+    <!-- Match History -->
+    <div id="historyPanel" class="bg-white p-4 rounded shadow mt-6">
+      <h2 class="text-lg font-bold mb-2">Past Matches</h2>
+      <ul id="historyList" class="text-sm"></ul>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    let teamA, teamB, totalOvers;
+    let runs = 0, wickets = 0, balls = 0;
+    let isMatchRunning = false;
+
+    function startMatch() {
+      teamA = document.getElementById('teamA').value;
+      teamB = document.getElementById('teamB').value;
+      totalOvers = parseInt(document.getElementById('totalOvers').value);
+      if (!teamA || !teamB || isNaN(totalOvers)) return alert("Please fill all fields");
+
+      isMatchRunning = true;
+      document.getElementById('setupPanel').classList.add('hidden');
+      document.getElementById('scorePanel').classList.remove('hidden');
+      updateDisplay();
+    }
+
+    function addRun(run) {
+      if (!isMatchRunning) return;
+      runs += run;
+      nextBall();
+    }
+
+    function addWicket() {
+      if (!isMatchRunning) return;
+      wickets += 1;
+      nextBall();
+    }
+
+    function nextBall() {
+      if (!isMatchRunning) return;
+      balls += 1;
+      const maxBalls = totalOvers * 6;
+      if (balls >= maxBalls || wickets >= 10) {
+        endMatch();
+        return;
+      }
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      let overs = Math.floor(balls / 6) + "." + (balls % 6);
+      let oversLeft = totalOvers - (balls / 6);
+      let runRate = balls === 0 ? 0 : (runs / (balls / 6)).toFixed(2);
+      document.getElementById("scoreHeader").innerText = `${teamA} vs ${teamB}`;
+      document.getElementById("stats").innerText = `Score: ${runs}/${wickets} | Overs: ${overs} | Run Rate: ${runRate} | Overs Left: ${oversLeft.toFixed(1)}`;
+    }
+
+    function endMatch() {
+      isMatchRunning = false;
+      document.getElementById("scorePanel").classList.add("hidden");
+      document.getElementById("summaryPanel").classList.remove("hidden");
+      const winner = runs > 50 ? teamA : teamB;
+      const summary = `Winner: ${winner}<br>Final Score: ${runs}/${wickets} in ${Math.floor(balls/6)}.${balls%6} overs`;
+      document.getElementById("summaryDetails").innerHTML = summary;
+      saveMatch(winner);
+    }
+
+    function resetApp() {
+      window.location.reload();
+    }
+
+    function saveMatch(winner) {
+      const history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
+      history.unshift({ teamA, teamB, winner, runs, wickets, balls, date: new Date().toLocaleString() });
+      localStorage.setItem("matchHistory", JSON.stringify(history));
+      loadHistory();
+    }
+
+    function loadHistory() {
+      const list = document.getElementById("historyList");
+      const history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
+      list.innerHTML = "";
+      history.forEach(match => {
+        const li = document.createElement("li");
+        li.textContent = `${match.teamA} vs ${match.teamB} | Winner: ${match.winner} | Score: ${match.runs}/${match.wickets} | ${match.date}`;
+        list.appendChild(li);
+      });
+    }
+
+    loadHistory();
+  </script>
+
+  <style>
+    .input { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #ccc; border-radius: 0.375rem; }
+    .btn { background-color: #1d4ed8; color: white; padding: 0.5rem; border-radius: 0.375rem; font-weight: bold; }
+    .btn:hover { background-color: #2563eb; }
+  </style>
 </body>
 </html>

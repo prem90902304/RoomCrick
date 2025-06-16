@@ -21,10 +21,6 @@
       <button onclick="startMatch()" class="btn ml-4">Start Match</button>
     </div>
 
-    <div>
-      <label>Bowler Name: <input id="bowlerName" class="input" /></label>
-    </div>
-
     <div id="matchPanel" class="hidden space-y-4">
       <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span></div>
       <div class="text-md">
@@ -40,6 +36,8 @@
         <button onclick="addRun(3)" class="btn">3</button>
         <button onclick="addRun(4)" class="btn">4</button>
         <button onclick="addRun(6)" class="btn">6</button>
+        <button onclick="addWide()" class="btn bg-yellow-400">Wide</button>
+        <button onclick="addLegBye()" class="btn bg-green-400">Leg Bye</button>
         <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600">Wicket</button>
         <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
       </div>
@@ -117,11 +115,13 @@
       oversLimit = parseInt(document.getElementById("totalOvers").value) || 2;
       score = 0; wickets = 0; balls = 0;
       batsmen = [];
-      bowler.name = document.getElementById("bowlerName").value || "Bowler 1";
+
+      let batsmanName = prompt("Enter first batsman name:");
+      let bowlerName = prompt("Enter bowler name:");
+      bowler.name = bowlerName || "Bowler 1";
       bowler.balls = 0; bowler.runs = 0; bowler.wickets = 0;
 
-      let playerName = prompt("Enter first batsman name:");
-      currentBatsman = { name: playerName, runs: 0, balls: 0, fours: 0, sixes: 0 };
+      currentBatsman = { name: batsmanName, runs: 0, balls: 0, fours: 0, sixes: 0 };
       batsmen.push(currentBatsman);
 
       document.getElementById("matchTeams").innerText = `${teamA} vs ${teamB}`;
@@ -138,6 +138,17 @@
       if (run === 4) currentBatsman.fours += 1;
       if (run === 6) currentBatsman.sixes += 1;
       bowler.runs += run;
+      nextBall();
+    }
+
+    function addWide() {
+      score += 1;
+      bowler.runs += 1;
+      updateDisplay();
+    }
+
+    function addLegBye() {
+      score += 1;
       nextBall();
     }
 

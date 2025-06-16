@@ -27,7 +27,9 @@
         Score: <span id="score">0/0</span><br />
         Overs: <span id="overs">0.0</span><br />
         Run Rate: <span id="runRate">0.00</span><br />
-        Overs Left: <span id="oversLeft">0.0</span>
+        Overs Left: <span id="oversLeft">0.0</span><br />
+        Bowler:
+        <select id="bowlerSelect" onchange="changeBowler()" class="input ml-2"></select>
       </div>
 
       <div class="space-x-2">
@@ -39,7 +41,6 @@
         <button onclick="addWide()" class="btn bg-yellow-400">Wide</button>
         <button onclick="addLegBye()" class="btn bg-green-400">Leg Bye</button>
         <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600">Wicket</button>
-        <button onclick="undoLastBall()" class="btn bg-purple-500 hover:bg-purple-600">Undo</button>
         <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
       </div>
     </div>
@@ -62,7 +63,7 @@
         <tbody id="batsmanTable"></tbody>
       </table>
 
-      <h3 class="text-lg font-semibold">Bowler</h3>
+      <h3 class="text-lg font-semibold">Bowlers</h3>
       <table class="w-full text-sm border">
         <thead>
           <tr class="bg-gray-100">
@@ -108,22 +109,19 @@
   <script>
     let score = 0, wickets = 0, balls = 0, oversLimit = 0;
     let teamA = '', teamB = '', batsmen = [], currentBatsman = null;
-    let bowler = { name: "", balls: 0, runs: 0, wickets: 0 };
+    let bowlers = [], currentBowler = null;
     let legByeCount = 0;
-    let historyStack = [];
 
     function startMatch() {
       teamA = document.getElementById("teamA").value || "Team A";
       teamB = document.getElementById("teamB").value || "Team B";
       oversLimit = parseInt(document.getElementById("totalOvers").value) || 2;
       score = 0; wickets = 0; balls = 0; legByeCount = 0;
-      batsmen = [];
-      historyStack = [];
+      batsmen = []; bowlers = [];
 
       let batsmanName = prompt("Enter first batsman name:");
       let bowlerName = prompt("Enter bowler name:");
-      bowler.name = bowlerName || "Bowler 1";
-      bowler.balls = 0; bowler.runs = 0; bowler.wickets = 0;
+      addBowler(bowlerName || "Bowler 1");
 
       currentBatsman = { name: batsmanName, runs: 0, balls: 0, fours: 0, sixes: 0 };
       batsmen.push(currentBatsman);
@@ -135,36 +133,47 @@
       updateDisplay();
     }
 
-    function saveState() {
-      historyStack.push({
-        score, wickets, balls,
-        batsmen: JSON.parse(JSON.stringify(batsmen)),
-        currentBatsmanIndex: batsmen.indexOf(currentBatsman),
-        bowler: { ...bowler },
-        legByeCount
-      });
+    function addBowler(name) {
+      let existing = bowlers.find(b => b.name === name);
+      if (existing) {
+        currentBowler = existing;
+      } else {
+        let newBowler = { name, balls: 0, runs: 0, wickets: 0 };
+        bowlers.push(newBowler);
+        currentBowler = newBowler;
+        updateBowlerSelect();
+      }
+    }
+
+    function updateBowlerSelect() {
+      const select = document.getElementById("bowlerSelect");
+      select.innerHTML = bowlers.map(b =>
+        `<option ${b === currentBowler ? "selected" : ""}>${b.name}</option>`
+      ).join('');
+    }
+
+    function changeBowler() {
+      const name = document.getElementById("bowlerSelect").value;
+      addBowler(name);
     }
 
     function addRun(run) {
-      saveState();
       score += run;
       currentBatsman.runs += run;
       currentBatsman.balls += 1;
       if (run === 4) currentBatsman.fours += 1;
       if (run === 6) currentBatsman.sixes += 1;
-      bowler.runs += run;
+      currentBowler.runs += run;
       nextBall();
     }
 
     function addWide() {
-      saveState();
       score += 1;
-      bowler.runs += 1;
+      currentBowler.runs += 1;
       updateDisplay();
     }
 
     function addLegBye() {
-      saveState();
       legByeCount++;
       if (legByeCount >= 3) {
         alert("Out due to 3 Leg Byes!");
@@ -176,23 +185,22 @@
     }
 
     function addWicket() {
-      saveState();
       wickets++;
-      bowler.wickets++;
+      currentBowler.wickets++;
       currentBatsman.balls += 1;
       nextBall();
       setTimeout(() => {
         let newName = prompt("New Batsman Name:");
         currentBatsman = { name: newName, runs: 0, balls: 0, fours: 0, sixes: 0 };
         batsmen.push(currentBatsman);
+        updateDisplay();
       }, 100);
     }
 
     function nextBall() {
       balls++;
-      bowler.balls++;
+      currentBowler.balls++;
       updateDisplay();
-
       const totalBalls = oversLimit * 6;
       if (balls >= totalBalls || wickets >= 10) {
         endMatch();
@@ -230,30 +238,17 @@
           <td class="border px-2">${p.sixes}</td>
         </tr>`).join('');
 
-      const overs = `${Math.floor(bowler.balls / 6)}.${bowler.balls % 6}`;
-      document.getElementById("bowlerTable").innerHTML = `
-        <tr>
-          <td class="border px-2">${bowler.name}</td>
-          <td class="border px-2">${overs}</td>
-          <td class="border px-2">${bowler.runs}</td>
-          <td class="border px-2">${bowler.wickets}</td>
-        </tr>
-      `;
-    }
-
-    function undoLastBall() {
-      if (historyStack.length === 0) return alert("Nothing to undo!");
-
-      const lastState = historyStack.pop();
-      score = lastState.score;
-      wickets = lastState.wickets;
-      balls = lastState.balls;
-      batsmen = lastState.batsmen;
-      currentBatsman = batsmen[lastState.currentBatsmanIndex];
-      bowler = lastState.bowler;
-      legByeCount = lastState.legByeCount;
-
-      updateDisplay();
+      const bowlerRows = bowlers.map(b => {
+        const overs = `${Math.floor(b.balls / 6)}.${b.balls % 6}`;
+        return `
+          <tr>
+            <td class="border px-2">${b.name}</td>
+            <td class="border px-2">${overs}</td>
+            <td class="border px-2">${b.runs}</td>
+            <td class="border px-2">${b.wickets}</td>
+          </tr>`;
+      }).join('');
+      document.getElementById("bowlerTable").innerHTML = bowlerRows;
     }
 
     function saveHistory(summary) {
@@ -270,5 +265,6 @@
 
     renderHistory();
   </script>
+
 </body>
 </html>

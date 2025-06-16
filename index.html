@@ -117,17 +117,16 @@
   let firstInningsScore = 0;
   let totalOvers = 0;
 
-  // Match state
   let score = 0;
   let wickets = 0;
-  let balls = 0; // legal balls bowled in current innings
+  let balls = 0;
+  let extras = 0;
+  let legByeCount = 0;
+
   let batsmen = [];
   let bowlers = [];
   let currentBatsmanIndex = 0;
   let currentBowlerIndex = 0;
-  let extras = 0;
-
-  // Ball history stack for undo
   let ballHistory = [];
 
   function startMatch() {
@@ -146,23 +145,20 @@
     wickets = 0;
     balls = 0;
     extras = 0;
+    legByeCount = 0;
     ballHistory = [];
 
-    // Prompt for opening batsmen and opening bowler
     batsmen = [];
     bowlers = [];
     currentBatsmanIndex = 0;
     currentBowlerIndex = 0;
 
-    let striker = prompt("Enter name of opening striker batsman:");
+    let striker = prompt("Enter name of batsman:");
     if (!striker) striker = "Batsman 1";
-    let nonStriker = prompt("Enter name of non-striker batsman:");
-    if (!nonStriker) nonStriker = "Batsman 2";
     let bowlerName = prompt("Enter name of opening bowler:");
     if (!bowlerName) bowlerName = "Bowler 1";
 
     batsmen.push({name: striker, runs:0, balls:0, fours:0, sixes:0, out:false});
-    batsmen.push({name: nonStriker, runs:0, balls:0, fours:0, sixes:0, out:false});
     bowlers.push({name: bowlerName, balls:0, runs:0, wickets:0});
 
     document.getElementById("matchPanel").classList.remove("hidden");
@@ -177,25 +173,22 @@
   }
 
   function addRun(runs) {
-    if (isInningsOver()) return alert("Innings is over. End match or start 2nd innings.");
+    if (isInningsOver()) return alert("Innings is over.");
 
     const striker = batsmen[currentBatsmanIndex];
     const bowler = bowlers[currentBowlerIndex];
 
-    // Update scores
     score += runs;
     striker.runs += runs;
     striker.balls++;
     bowler.runs += runs;
 
-    // Count boundaries
     if (runs === 4) striker.fours++;
     if (runs === 6) striker.sixes++;
 
     balls++;
     bowler.balls++;
 
-    // Save ball event for undo
     ballHistory.push({
       type: 'run',
       runs: runs,
@@ -204,12 +197,9 @@
       wicketsBefore: wickets,
       ballsBefore: balls - 1,
       scoreBefore: score - runs,
-      batsmenBefore: JSON.parse(JSON.stringify(batsmen)),
-      bowlersBefore: JSON.parse(JSON.stringify(bowlers)),
+      batsmenBefore: JSON.stringify(batsmen),
+      bowlersBefore: JSON.stringify(bowlers),
     });
-
-    // Swap strike on odd runs
-    if (runs % 2 === 1) swapStrike();
 
     checkOverComplete();
     updateDisplay();
@@ -218,15 +208,12 @@
   }
 
   function addWide() {
-    if (isInningsOver()) return alert("Innings is over. End match or start 2nd innings.");
+    if (isInningsOver()) return alert("Innings is over.");
 
     score++;
     extras++;
-
     const bowler = bowlers[currentBowlerIndex];
     bowler.runs++;
-
-    // Wide balls do NOT count as legal balls, so balls and bowler.balls stay same
 
     ballHistory.push({
       type: 'wide',
@@ -236,8 +223,8 @@
       wicketsBefore: wickets,
       ballsBefore: balls,
       scoreBefore: score - 1,
-      batsmenBefore: JSON.parse(JSON.stringify(batsmen)),
-      bowlersBefore: JSON.parse(JSON.stringify(bowlers)),
+      batsmenBefore: JSON.stringify(batsmen),
+      bowlersBefore: JSON.stringify(bowlers),
     });
 
     updateDisplay();
@@ -245,30 +232,40 @@
   }
 
   function addLegBye() {
-    if (isInningsOver()) return alert("Innings is over. End match or start 2nd innings.");
+    if (isInningsOver()) return alert("Innings is over.");
 
-    score++;
-    extras++;
-
+    legByeCount++;
     const bowler = bowlers[currentBowlerIndex];
-    bowler.runs++;
-
     balls++;
     bowler.balls++;
 
     ballHistory.push({
       type: 'legbye',
-      runs: 1,
       strikerIndex: currentBatsmanIndex,
       bowlerIndex: currentBowlerIndex,
       wicketsBefore: wickets,
       ballsBefore: balls - 1,
-      scoreBefore: score - 1,
-      batsmenBefore: JSON.parse(JSON.stringify(batsmen)),
-      bowlersBefore: JSON.parse(JSON.stringify(bowlers)),
+      scoreBefore: score,
+      batsmenBefore: JSON.stringify(batsmen),
+      bowlersBefore: JSON.stringify(bowlers),
+      legByeCountBefore: legByeCount - 1
     });
 
-    swapStrike();
+    if (legByeCount >= 3) {
+      const outBatsman = batsmen[currentBatsmanIndex];
+      outBatsman.out = true;
+      wickets++;
+      alert(`${outBatsman.name} is OUT after 3 leg byes!`);
+
+      if (wickets < 10) {
+        let newBatsman = prompt("Enter name of new batsman:");
+        if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
+        batsmen[currentBatsmanIndex] = { name: newBatsman, runs:0, balls:0, fours:0, sixes:0, out:false };
+        legByeCount = 0;
+      } else {
+        alert("All out!");
+      }
+    }
 
     checkOverComplete();
     updateDisplay();
@@ -277,15 +274,14 @@
   }
 
   function addWicket() {
-    if (isInningsOver()) return alert("Innings is over. End match or start 2nd innings.");
+    if (isInningsOver()) return alert("Innings is over.");
 
     wickets++;
     balls++;
-    bowlers[currentBowlerIndex].wickets++;
     bowlers[currentBowlerIndex].balls++;
+    bowlers[currentBowlerIndex].wickets++;
 
-    const outBatsman = batsmen[currentBatsmanIndex];
-    outBatsman.out = true;
+    batsmen[currentBatsmanIndex].out = true;
 
     ballHistory.push({
       type: 'wicket',
@@ -294,21 +290,16 @@
       wicketsBefore: wickets - 1,
       ballsBefore: balls - 1,
       scoreBefore: score,
-      batsmenBefore: JSON.parse(JSON.stringify(batsmen)),
-      bowlersBefore: JSON.parse(JSON.stringify(bowlers)),
+      batsmenBefore: JSON.stringify(batsmen),
+      bowlersBefore: JSON.stringify(bowlers),
     });
 
-    // New batsman
     if (wickets < 10) {
       let newBatsmanName = prompt("Enter name of new batsman:");
-      if (!newBatsmanName) newBatsmanName = `Batsman ${wickets + 2}`;
+      if (!newBatsmanName) newBatsmanName = `Batsman ${wickets + 1}`;
       batsmen[currentBatsmanIndex] = {name: newBatsmanName, runs:0, balls:0, fours:0, sixes:0, out:false};
     } else {
       alert("All out!");
-      updateDisplay();
-      renderScoreboard();
-      checkInningsEnd();
-      return;
     }
 
     updateDisplay();
@@ -316,87 +307,37 @@
     checkInningsEnd();
   }
 
-  // Swap striker and non-striker indexes 0 and 1
-  function swapStrike() {
-    currentBatsmanIndex = currentBatsmanIndex === 0 ? 1 : 0;
-  }
-
-  // Check if over complete (6 legal balls)
   function checkOverComplete() {
     if (balls > 0 && balls % 6 === 0) {
-      swapStrike();
-      // Prompt for new bowler
-      let newBowlerName = prompt("Over completed. Enter new bowler name:");
-      if (!newBowlerName) newBowlerName = `Bowler ${bowlers.length + 1}`;
-      bowlers.push({name: newBowlerName, balls: 0, runs: 0, wickets: 0});
+      let newBowler = prompt("Over completed. Enter new bowler name:");
+      if (!newBowler) newBowler = `Bowler ${bowlers.length + 1}`;
+      bowlers.push({name: newBowler, balls:0, runs:0, wickets:0});
       currentBowlerIndex = bowlers.length - 1;
     }
   }
 
-  // Undo last ball event
   function undoLastBall() {
     if (ballHistory.length === 0) {
       alert("No balls to undo!");
       return;
     }
-    const lastBall = ballHistory.pop();
 
-    // Restore previous state
+    const lastBall = ballHistory.pop();
     score = lastBall.scoreBefore;
     wickets = lastBall.wicketsBefore;
     balls = lastBall.ballsBefore;
-    batsmen = JSON.parse(JSON.stringify(lastBall.batsmenBefore));
-    bowlers = JSON.parse(JSON.stringify(lastBall.bowlersBefore));
+    batsmen = JSON.parse(lastBall.batsmenBefore);
+    bowlers = JSON.parse(lastBall.bowlersBefore);
 
-    // Reset striker and bowler index if needed
-    // Find striker: first not out batsman
+    if (lastBall.type === 'legbye' && 'legByeCountBefore' in lastBall) {
+      legByeCount = lastBall.legByeCountBefore;
+    }
+
     currentBatsmanIndex = batsmen.findIndex(b => !b.out);
-    if (currentBatsmanIndex === -1) currentBatsmanIndex = 0;
     currentBowlerIndex = lastBall.bowlerIndex;
 
     updateDisplay();
     renderScoreboard();
-  }
-
-  function updateDisplay() {
-    document.getElementById("score").textContent = `${score}/${wickets}`;
-    document.getElementById("overs").textContent = `${Math.floor(balls/6)}.${balls%6}`;
-    let runRate = balls > 0 ? (score / (balls/6)) : 0;
-    document.getElementById("runRate").textContent = runRate.toFixed(2);
-    let oversLeft = totalOvers - Math.floor(balls/6) - ((balls%6)/6);
-    oversLeft = oversLeft < 0 ? 0 : oversLeft;
-    document.getElementById("oversLeft").textContent = oversLeft.toFixed(1);
-  }
-
-  function renderScoreboard() {
-    const batsmanTable = document.getElementById("batsmanTable");
-    batsmanTable.innerHTML = "";
-    batsmen.forEach((b, i) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="border px-2">${b.name}${i === currentBatsmanIndex && !b.out ? " (striker)" : ""}</td>
-        <td class="border px-2">${b.runs}</td>
-        <td class="border px-2">${b.balls}</td>
-        <td class="border px-2">${b.fours}</td>
-        <td class="border px-2">${b.sixes}</td>
-        <td class="border px-2">${b.out ? "Out" : "Not Out"}</td>
-      `;
-      batsmanTable.appendChild(tr);
-    });
-
-    const bowlerTable = document.getElementById("bowlerTable");
-    bowlerTable.innerHTML = "";
-    bowlers.forEach(b => {
-      const oversBowled = Math.floor(b.balls/6) + "." + (b.balls%6);
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="border px-2">${b.name}${b === bowlers[currentBowlerIndex] ? " (current)" : ""}</td>
-        <td class="border px-2">${oversBowled}</td>
-        <td class="border px-2">${b.runs}</td>
-        <td class="border px-2">${b.wickets}</td>
-      `;
-      bowlerTable.appendChild(tr);
-    });
   }
 
   function isInningsOver() {
@@ -414,34 +355,25 @@
     const teamB = document.getElementById("teamB").value.trim();
 
     if (inning === 1) {
-      if (!isInningsOver()) {
-        if (!confirm("1st Innings is not complete. Are you sure you want to end it?")) return;
-      }
       firstInningsScore = score;
       inning = 2;
-
-      // Reset stats for second innings
       score = 0;
       wickets = 0;
       balls = 0;
       extras = 0;
+      legByeCount = 0;
       ballHistory = [];
-
-      // Prompt for new opening batsmen and bowler for 2nd innings
       batsmen = [];
       bowlers = [];
       currentBatsmanIndex = 0;
       currentBowlerIndex = 0;
 
-      let striker = prompt("Enter name of opening striker batsman for 2nd Innings:");
+      let striker = prompt("Enter name of batsman for 2nd Innings:");
       if (!striker) striker = "Batsman 1";
-      let nonStriker = prompt("Enter name of non-striker batsman for 2nd Innings:");
-      if (!nonStriker) nonStriker = "Batsman 2";
       let bowlerName = prompt("Enter name of opening bowler for 2nd Innings:");
       if (!bowlerName) bowlerName = "Bowler 1";
 
       batsmen.push({name: striker, runs:0, balls:0, fours:0, sixes:0, out:false});
-      batsmen.push({name: nonStriker, runs:0, balls:0, fours:0, sixes:0, out:false});
       bowlers.push({name: bowlerName, balls:0, runs:0, wickets:0});
 
       document.getElementById("inningLabel").textContent = `(2nd Innings)`;
@@ -450,20 +382,15 @@
       document.getElementById("summary").classList.add("hidden");
 
     } else {
-      if (!confirm("Are you sure you want to end the match?")) return;
-
-      // Determine winner
       let winnerText = "";
       if (score > firstInningsScore) {
         winnerText = `${teamB} won by ${10 - wickets} wicket(s)!`;
       } else if (score < firstInningsScore) {
-        let runsDiff = firstInningsScore - score;
-        winnerText = `${teamA} won by ${runsDiff} run(s)!`;
+        winnerText = `${teamA} won by ${firstInningsScore - score} run(s)!`;
       } else {
         winnerText = "Match tied!";
       }
 
-      // Save match history
       const matchSummary = {
         teams: `${teamA} vs ${teamB}`,
         score1: `${firstInningsScore}/10 (max overs)`,
@@ -484,6 +411,46 @@
     }
   }
 
+  function updateDisplay() {
+    document.getElementById("score").textContent = `${score}/${wickets}`;
+    document.getElementById("overs").textContent = `${Math.floor(balls/6)}.${balls%6}`;
+    let runRate = balls > 0 ? (score / (balls/6)) : 0;
+    document.getElementById("runRate").textContent = runRate.toFixed(2);
+    let oversLeft = totalOvers - Math.floor(balls/6) - ((balls%6)/6);
+    document.getElementById("oversLeft").textContent = oversLeft.toFixed(1);
+  }
+
+  function renderScoreboard() {
+    const batsmanTable = document.getElementById("batsmanTable");
+    batsmanTable.innerHTML = "";
+    batsmen.forEach(b => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="border px-2">${b.name}</td>
+        <td class="border px-2">${b.runs}</td>
+        <td class="border px-2">${b.balls}</td>
+        <td class="border px-2">${b.fours}</td>
+        <td class="border px-2">${b.sixes}</td>
+        <td class="border px-2">${b.out ? "Out" : "Not Out"}</td>
+      `;
+      batsmanTable.appendChild(tr);
+    });
+
+    const bowlerTable = document.getElementById("bowlerTable");
+    bowlerTable.innerHTML = "";
+    bowlers.forEach(b => {
+      const overs = Math.floor(b.balls / 6) + "." + (b.balls % 6);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="border px-2">${b.name}${b === bowlers[currentBowlerIndex] ? " (current)" : ""}</td>
+        <td class="border px-2">${overs}</td>
+        <td class="border px-2">${b.runs}</td>
+        <td class="border px-2">${b.wickets}</td>
+      `;
+      bowlerTable.appendChild(tr);
+    });
+  }
+
   function renderHistory() {
     const historyList = document.getElementById("matchHistory");
     historyList.innerHTML = "";
@@ -491,7 +458,7 @@
       historyList.innerHTML = "<li>No matches played yet.</li>";
       return;
     }
-    history.forEach((match, idx) => {
+    history.forEach(match => {
       const li = document.createElement("li");
       li.textContent = `[${match.date}] ${match.teams} - 1st Innings: ${match.score1}, 2nd Innings: ${match.score2} => Winner: ${match.winner}`;
       historyList.appendChild(li);
@@ -506,9 +473,7 @@
     }
   }
 
-  // Initial render of history on page load
   renderHistory();
-
 </script>
 </body>
 </html>

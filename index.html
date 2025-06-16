@@ -21,6 +21,10 @@
       <button onclick="startMatch()" class="btn ml-4">Start Match</button>
     </div>
 
+    <div>
+      <label>Bowler Name: <input id="bowlerName" class="input" /></label>
+    </div>
+
     <div id="matchPanel" class="hidden space-y-4">
       <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span></div>
       <div class="text-md">
@@ -37,6 +41,7 @@
         <button onclick="addRun(4)" class="btn">4</button>
         <button onclick="addRun(6)" class="btn">6</button>
         <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600">Wicket</button>
+        <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
       </div>
     </div>
 
@@ -104,7 +109,7 @@
   <script>
     let score = 0, wickets = 0, balls = 0, oversLimit = 0;
     let teamA = '', teamB = '', batsmen = [], currentBatsman = null;
-    let bowler = { name: "Bowler 1", balls: 0, runs: 0, wickets: 0 };
+    let bowler = { name: "", balls: 0, runs: 0, wickets: 0 };
 
     function startMatch() {
       teamA = document.getElementById("teamA").value || "Team A";
@@ -112,8 +117,11 @@
       oversLimit = parseInt(document.getElementById("totalOvers").value) || 2;
       score = 0; wickets = 0; balls = 0;
       batsmen = [];
-      bowler = { name: "Bowler 1", balls: 0, runs: 0, wickets: 0 };
-      currentBatsman = { name: prompt("Enter Batsman 1"), runs: 0, balls: 0, fours: 0, sixes: 0 };
+      bowler.name = document.getElementById("bowlerName").value || "Bowler 1";
+      bowler.balls = 0; bowler.runs = 0; bowler.wickets = 0;
+
+      let playerName = prompt("Enter first batsman name:");
+      currentBatsman = { name: playerName, runs: 0, balls: 0, fours: 0, sixes: 0 };
       batsmen.push(currentBatsman);
 
       document.getElementById("matchTeams").innerText = `${teamA} vs ${teamB}`;
@@ -152,11 +160,16 @@
 
       const totalBalls = oversLimit * 6;
       if (balls >= totalBalls || wickets >= 10) {
-        const winner = `${teamA} scored ${score}/${wickets} in ${Math.floor(balls / 6)}.${balls % 6} overs.`;
-        document.getElementById("summary").classList.remove("hidden");
-        document.getElementById("winner").innerText = winner;
-        saveHistory(winner);
+        endMatch();
       }
+    }
+
+    function endMatch() {
+      const overs = `${Math.floor(balls / 6)}.${balls % 6}`;
+      const winner = `${teamA} scored ${score}/${wickets} in ${overs} overs.`;
+      document.getElementById("summary").classList.remove("hidden");
+      document.getElementById("winner").innerText = winner;
+      saveHistory(winner);
     }
 
     function updateDisplay() {

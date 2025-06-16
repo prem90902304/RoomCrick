@@ -1,143 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CrickScore - Live Cricket Scoring</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrickScore</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
-<body class="bg-gray-100 text-gray-900">
-  <div class="max-w-xl mx-auto py-6">
-    <h1 class="text-3xl font-bold text-center mb-6">🏏 CrickScore</h1>
+<body class="bg-white text-gray-800 font-sans p-4 max-w-xl mx-auto">
 
-    <!-- Match Setup -->
-    <div class="bg-white p-4 rounded shadow mb-6" id="setupPanel">
-      <input id="teamA" type="text" placeholder="Team A" class="input" />
-      <input id="teamB" type="text" placeholder="Team B" class="input" />
-      <input id="totalOvers" type="number" placeholder="Total Overs" min="1" class="input" />
-      <button onclick="startMatch()" class="btn">Start Match</button>
+  <h1 class="text-3xl font-bold mb-4 text-center">🏏 CrickScore</h1>
+
+  <div class="space-y-4">
+    <div>
+      <label>Team A: <input id="teamA" class="input" /></label>
+      <label class="ml-4">Team B: <input id="teamB" class="input" /></label>
     </div>
 
-    <!-- Score Panel -->
-    <div id="scorePanel" class="bg-white p-4 rounded shadow hidden">
-      <div id="scoreHeader" class="text-xl font-semibold mb-4"></div>
-      <div id="stats" class="mb-4 text-sm text-gray-600"></div>
+    <div>
+      <label>Overs: <input id="totalOvers" class="input w-20" type="number" min="1" /></label>
+      <button onclick="startMatch()" class="btn ml-4">Start Match</button>
+    </div>
 
-      <div class="grid grid-cols-3 gap-2 mb-4">
-        <button onclick="addRun(1)" class="btn">1 Run</button>
-        <button onclick="addRun(2)" class="btn">2 Runs</button>
-        <button onclick="addRun(4)" class="btn">4 Runs</button>
-        <button onclick="addRun(6)" class="btn">6 Runs</button>
-        <button onclick="addWicket()" class="btn">Wicket</button>
-        <button onclick="nextBall()" class="btn">Dot Ball</button>
+    <div id="matchPanel" class="hidden space-y-4">
+      <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span></div>
+      <div class="text-md">
+        Score: <span id="score">0/0</span><br />
+        Overs: <span id="overs">0.0</span><br />
+        Run Rate: <span id="runRate">0.00</span><br />
+        Overs Left: <span id="oversLeft">0.0</span>
       </div>
 
-      <button onclick="endMatch()" class="btn bg-red-500 hover:bg-red-600">End Match</button>
+      <div class="space-x-2">
+        <button onclick="addRun(1)" class="btn">1</button>
+        <button onclick="addRun(2)" class="btn">2</button>
+        <button onclick="addRun(3)" class="btn">3</button>
+        <button onclick="addRun(4)" class="btn">4</button>
+        <button onclick="addRun(6)" class="btn">6</button>
+        <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600">Wicket</button>
+      </div>
     </div>
 
-    <!-- Match Summary -->
-    <div id="summaryPanel" class="bg-white p-4 rounded shadow hidden">
-      <h2 class="text-xl font-bold mb-2">Match Summary</h2>
-      <div id="summaryDetails"></div>
-      <button onclick="resetApp()" class="btn mt-4">New Match</button>
+    <!-- Scoreboard Section -->
+    <div id="scoreboard" class="mt-6 hidden">
+      <h2 class="text-xl font-semibold mb-2">Full Scoreboard</h2>
+
+      <h3 class="text-lg font-semibold">Batsmen</h3>
+      <table class="w-full text-sm mb-4 border">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border px-2">Name</th>
+            <th class="border px-2">Runs</th>
+            <th class="border px-2">Balls</th>
+            <th class="border px-2">4s</th>
+            <th class="border px-2">6s</th>
+          </tr>
+        </thead>
+        <tbody id="batsmanTable"></tbody>
+      </table>
+
+      <h3 class="text-lg font-semibold">Bowler</h3>
+      <table class="w-full text-sm border">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border px-2">Name</th>
+            <th class="border px-2">Overs</th>
+            <th class="border px-2">Runs</th>
+            <th class="border px-2">Wickets</th>
+          </tr>
+        </thead>
+        <tbody id="bowlerTable"></tbody>
+      </table>
     </div>
 
-    <!-- Match History -->
-    <div id="historyPanel" class="bg-white p-4 rounded shadow mt-6">
-      <h2 class="text-lg font-bold mb-2">Past Matches</h2>
-      <ul id="historyList" class="text-sm"></ul>
+    <div id="summary" class="mt-6 hidden">
+      <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
+      <p id="winner"></p>
+    </div>
+
+    <div id="history" class="mt-6">
+      <h3 class="font-bold text-lg mb-2">📜 Past Matches</h3>
+      <ul id="matchHistory" class="list-disc pl-5 space-y-1"></ul>
     </div>
   </div>
 
+  <style>
+    .input {
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .btn {
+      background-color: #1d4ed8;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .btn:hover {
+      background-color: #2563eb;
+    }
+  </style>
+
   <script>
-    let teamA, teamB, totalOvers;
-    let runs = 0, wickets = 0, balls = 0;
-    let isMatchRunning = false;
+    let score = 0, wickets = 0, balls = 0, oversLimit = 0;
+    let teamA = '', teamB = '', batsmen = [], currentBatsman = null;
+    let bowler = { name: "Bowler 1", balls: 0, runs: 0, wickets: 0 };
 
     function startMatch() {
-      teamA = document.getElementById('teamA').value;
-      teamB = document.getElementById('teamB').value;
-      totalOvers = parseInt(document.getElementById('totalOvers').value);
-      if (!teamA || !teamB || isNaN(totalOvers)) return alert("Please fill all fields");
+      teamA = document.getElementById("teamA").value || "Team A";
+      teamB = document.getElementById("teamB").value || "Team B";
+      oversLimit = parseInt(document.getElementById("totalOvers").value) || 2;
+      score = 0; wickets = 0; balls = 0;
+      batsmen = [];
+      bowler = { name: "Bowler 1", balls: 0, runs: 0, wickets: 0 };
+      currentBatsman = { name: prompt("Enter Batsman 1"), runs: 0, balls: 0, fours: 0, sixes: 0 };
+      batsmen.push(currentBatsman);
 
-      isMatchRunning = true;
-      document.getElementById('setupPanel').classList.add('hidden');
-      document.getElementById('scorePanel').classList.remove('hidden');
+      document.getElementById("matchTeams").innerText = `${teamA} vs ${teamB}`;
+      document.getElementById("matchPanel").classList.remove("hidden");
+      document.getElementById("summary").classList.add("hidden");
+      document.getElementById("scoreboard").classList.remove("hidden");
       updateDisplay();
     }
 
     function addRun(run) {
-      if (!isMatchRunning) return;
-      runs += run;
+      score += run;
+      currentBatsman.runs += run;
+      currentBatsman.balls += 1;
+      if (run === 4) currentBatsman.fours += 1;
+      if (run === 6) currentBatsman.sixes += 1;
+      bowler.runs += run;
       nextBall();
     }
 
     function addWicket() {
-      if (!isMatchRunning) return;
-      wickets += 1;
+      wickets++;
+      bowler.wickets++;
+      currentBatsman.balls += 1;
       nextBall();
+      setTimeout(() => {
+        let newName = prompt("New Batsman Name:");
+        currentBatsman = { name: newName, runs: 0, balls: 0, fours: 0, sixes: 0 };
+        batsmen.push(currentBatsman);
+      }, 100);
     }
 
     function nextBall() {
-      if (!isMatchRunning) return;
-      balls += 1;
-      const maxBalls = totalOvers * 6;
-      if (balls >= maxBalls || wickets >= 10) {
-        endMatch();
-        return;
-      }
+      balls++;
+      bowler.balls++;
       updateDisplay();
+
+      const totalBalls = oversLimit * 6;
+      if (balls >= totalBalls || wickets >= 10) {
+        const winner = `${teamA} scored ${score}/${wickets} in ${Math.floor(balls / 6)}.${balls % 6} overs.`;
+        document.getElementById("summary").classList.remove("hidden");
+        document.getElementById("winner").innerText = winner;
+        saveHistory(winner);
+      }
     }
 
     function updateDisplay() {
-      let overs = Math.floor(balls / 6) + "." + (balls % 6);
-      let oversLeft = totalOvers - (balls / 6);
-      let runRate = balls === 0 ? 0 : (runs / (balls / 6)).toFixed(2);
-      document.getElementById("scoreHeader").innerText = `${teamA} vs ${teamB}`;
-      document.getElementById("stats").innerText = `Score: ${runs}/${wickets} | Overs: ${overs} | Run Rate: ${runRate} | Overs Left: ${oversLeft.toFixed(1)}`;
+      const overs = `${Math.floor(balls / 6)}.${balls % 6}`;
+      const runRate = (score / (balls / 6 || 1)).toFixed(2);
+      const oversLeft = (oversLimit - Math.floor(balls / 6)) + "." + (6 - (balls % 6)) % 6;
+
+      document.getElementById("score").innerText = `${score}/${wickets}`;
+      document.getElementById("overs").innerText = overs;
+      document.getElementById("runRate").innerText = runRate;
+      document.getElementById("oversLeft").innerText = oversLeft;
+      updateScoreboard();
     }
 
-    function endMatch() {
-      isMatchRunning = false;
-      document.getElementById("scorePanel").classList.add("hidden");
-      document.getElementById("summaryPanel").classList.remove("hidden");
-      const winner = runs > 50 ? teamA : teamB;
-      const summary = `Winner: ${winner}<br>Final Score: ${runs}/${wickets} in ${Math.floor(balls/6)}.${balls%6} overs`;
-      document.getElementById("summaryDetails").innerHTML = summary;
-      saveMatch(winner);
+    function updateScoreboard() {
+      const bTable = document.getElementById("batsmanTable");
+      bTable.innerHTML = batsmen.map(p =>
+        `<tr>
+          <td class="border px-2">${p.name}</td>
+          <td class="border px-2">${p.runs}</td>
+          <td class="border px-2">${p.balls}</td>
+          <td class="border px-2">${p.fours}</td>
+          <td class="border px-2">${p.sixes}</td>
+        </tr>`).join('');
+
+      const overs = `${Math.floor(bowler.balls / 6)}.${bowler.balls % 6}`;
+      document.getElementById("bowlerTable").innerHTML = `
+        <tr>
+          <td class="border px-2">${bowler.name}</td>
+          <td class="border px-2">${overs}</td>
+          <td class="border px-2">${bowler.runs}</td>
+          <td class="border px-2">${bowler.wickets}</td>
+        </tr>
+      `;
     }
 
-    function resetApp() {
-      window.location.reload();
-    }
-
-    function saveMatch(winner) {
+    function saveHistory(summary) {
       const history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
-      history.unshift({ teamA, teamB, winner, runs, wickets, balls, date: new Date().toLocaleString() });
+      history.unshift(summary);
       localStorage.setItem("matchHistory", JSON.stringify(history));
-      loadHistory();
+      renderHistory();
     }
 
-    function loadHistory() {
-      const list = document.getElementById("historyList");
+    function renderHistory() {
       const history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
-      list.innerHTML = "";
-      history.forEach(match => {
-        const li = document.createElement("li");
-        li.textContent = `${match.teamA} vs ${match.teamB} | Winner: ${match.winner} | Score: ${match.runs}/${match.wickets} | ${match.date}`;
-        list.appendChild(li);
-      });
+      document.getElementById("matchHistory").innerHTML = history.map(s => `<li>${s}</li>`).join('');
     }
 
-    loadHistory();
+    renderHistory();
   </script>
 
-  <style>
-    .input { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #ccc; border-radius: 0.375rem; }
-    .btn { background-color: #1d4ed8; color: white; padding: 0.5rem; border-radius: 0.375rem; font-weight: bold; }
-    .btn:hover { background-color: #2563eb; }
-  </style>
 </body>
 </html>

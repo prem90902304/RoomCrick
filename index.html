@@ -38,7 +38,7 @@
     </div>
 
     <div id="matchPanel" class="hidden space-y-4">
-      <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span></div>
+      <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span> <span id="inningLabel">(1st Innings)</span></div>
       <div class="text-md">
         Score: <span id="score">0/0</span><br />
         Overs: <span id="overs">0.0</span><br />
@@ -57,7 +57,7 @@
         <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600">Wicket</button>
       </div>
 
-      <div class="space-x-2 mt-2">
+      <div class="space-x-2 mt-4">
         <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
         <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
       </div>
@@ -107,6 +107,8 @@
 
   <script>
     let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
+    let inning = 1;
+    let firstInningsScore = 0;
 
     function startMatch() {
       const teamA = document.getElementById("teamA").value.trim();
@@ -118,8 +120,12 @@
         return;
       }
 
+      inning = 1;
+      firstInningsScore = 0;
+
       document.getElementById("matchPanel").classList.remove("hidden");
       document.getElementById("matchTeams").textContent = `${teamA} vs ${teamB}`;
+      document.getElementById("inningLabel").textContent = "(1st Innings)";
       document.getElementById("score").textContent = "0/0";
       document.getElementById("overs").textContent = "0.0";
       document.getElementById("runRate").textContent = "0.00";
@@ -130,6 +136,37 @@
       if (confirm("Are you sure you want to clear match history?")) {
         localStorage.removeItem("crickHistory");
         document.getElementById("matchHistory").innerHTML = "";
+      }
+    }
+
+    function endMatch() {
+      const teamA = document.getElementById("teamA").value.trim();
+      const teamB = document.getElementById("teamB").value.trim();
+      const score = document.getElementById("score").textContent;
+
+      if (inning === 1) {
+        firstInningsScore = parseInt(score.split("/")[0]);
+        inning = 2;
+        alert("End of 1st Innings. Start 2nd Innings");
+        document.getElementById("inningLabel").textContent = "(2nd Innings)";
+        document.getElementById("score").textContent = "0/0";
+        document.getElementById("overs").textContent = "0.0";
+        document.getElementById("runRate").textContent = "0.00";
+        document.getElementById("oversLeft").textContent = document.getElementById("totalOvers").value;
+      } else {
+        const secondScore = parseInt(score.split("/")[0]);
+        let result = secondScore > firstInningsScore ? `${teamB} wins` : secondScore < firstInningsScore ? `${teamA} wins` : "Match Draw";
+
+        document.getElementById("summary").classList.remove("hidden");
+        document.getElementById("winner").textContent = result;
+
+        const matchDetails = `${teamA} vs ${teamB}: ${result}`;
+        history.push(matchDetails);
+        localStorage.setItem("crickHistory", JSON.stringify(history));
+
+        const li = document.createElement("li");
+        li.textContent = matchDetails;
+        document.getElementById("matchHistory").appendChild(li);
       }
     }
   </script>

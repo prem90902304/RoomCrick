@@ -39,6 +39,7 @@
         <button onclick="addWide()" class="btn bg-yellow-400">Wide</button>
         <button onclick="addLegBye()" class="btn bg-green-400">Leg Bye</button>
         <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600">Wicket</button>
+        <button onclick="undoLastBall()" class="btn bg-purple-500 hover:bg-purple-600">Undo</button>
         <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
       </div>
     </div>
@@ -109,6 +110,7 @@
     let teamA = '', teamB = '', batsmen = [], currentBatsman = null;
     let bowler = { name: "", balls: 0, runs: 0, wickets: 0 };
     let legByeCount = 0;
+    let historyStack = [];
 
     function startMatch() {
       teamA = document.getElementById("teamA").value || "Team A";
@@ -116,6 +118,7 @@
       oversLimit = parseInt(document.getElementById("totalOvers").value) || 2;
       score = 0; wickets = 0; balls = 0; legByeCount = 0;
       batsmen = [];
+      historyStack = [];
 
       let batsmanName = prompt("Enter first batsman name:");
       let bowlerName = prompt("Enter bowler name:");
@@ -132,7 +135,18 @@
       updateDisplay();
     }
 
+    function saveState() {
+      historyStack.push({
+        score, wickets, balls,
+        batsmen: JSON.parse(JSON.stringify(batsmen)),
+        currentBatsmanIndex: batsmen.indexOf(currentBatsman),
+        bowler: { ...bowler },
+        legByeCount
+      });
+    }
+
     function addRun(run) {
+      saveState();
       score += run;
       currentBatsman.runs += run;
       currentBatsman.balls += 1;
@@ -143,12 +157,14 @@
     }
 
     function addWide() {
+      saveState();
       score += 1;
       bowler.runs += 1;
       updateDisplay();
     }
 
     function addLegBye() {
+      saveState();
       legByeCount++;
       if (legByeCount >= 3) {
         alert("Out due to 3 Leg Byes!");
@@ -160,6 +176,7 @@
     }
 
     function addWicket() {
+      saveState();
       wickets++;
       bowler.wickets++;
       currentBatsman.balls += 1;
@@ -224,6 +241,21 @@
       `;
     }
 
+    function undoLastBall() {
+      if (historyStack.length === 0) return alert("Nothing to undo!");
+
+      const lastState = historyStack.pop();
+      score = lastState.score;
+      wickets = lastState.wickets;
+      balls = lastState.balls;
+      batsmen = lastState.batsmen;
+      currentBatsman = batsmen[lastState.currentBatsmanIndex];
+      bowler = lastState.bowler;
+      legByeCount = lastState.legByeCount;
+
+      updateDisplay();
+    }
+
     function saveHistory(summary) {
       const history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
       history.unshift(summary);
@@ -238,6 +270,5 @@
 
     renderHistory();
   </script>
-
 </body>
 </html>

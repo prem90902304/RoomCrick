@@ -86,7 +86,9 @@
       alert(`New Bowler: ${bowlers[currentBowlerIndex].name}`);
     }
 
+    // End match if 2nd innings target is reached
     if (innings === 2 && firstInningsData && score > firstInningsData.score) {
+      alert(`${teamB} chased the target successfully!`);
       endMatch();
       return;
     }
@@ -141,6 +143,8 @@
         bowlers.push({ name: bname, balls: 0, runs: 0, wickets: 0 });
       }
 
+      document.getElementById("matchTeams").innerText = `${teamB} batting now`;
+      document.getElementById("matchPanel").classList.remove("hidden"); // Ensure panel is visible
       updateDisplay();
     } else {
       let result;
@@ -167,15 +171,6 @@
     document.getElementById("overs").innerText = overs;
     document.getElementById("runRate").innerText = runRate;
     document.getElementById("oversLeft").innerText = oversLeft.toFixed(1);
-
-    const targetInfo = document.getElementById("targetInfo");
-    if (innings === 2 && firstInningsData) {
-      const target = firstInningsData.score + 1;
-      const runsLeft = target - score;
-      targetInfo.innerText = `Target: ${target} | Runs remaining: ${runsLeft}`;
-    } else {
-      targetInfo.innerText = '';
-    }
 
     updateScoreboard();
   }

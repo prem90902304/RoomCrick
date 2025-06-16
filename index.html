@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-white text-gray-800 font-sans p-4 max-w-xl mx-auto">
-
   <h1 class="text-3xl font-bold mb-4 text-center">🏏 CrickScore</h1>
 
   <div class="space-y-4">
@@ -18,253 +17,42 @@
 
     <div>
       <label>Overs: <input id="totalOvers" class="input w-20" type="number" min="1" /></label>
-      <button onclick="startMatch()" class="btn ml-4">Start Match</button>
+      <button id="startBtn" class="btn ml-4">Start Match</button>
     </div>
 
     <div id="matchPanel" class="hidden space-y-4">
-      <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span></div>
-      <div class="text-md">
-        Score: <span id="score">0/0</span><br />
-        Overs: <span id="overs">0.0</span><br />
-        Run Rate: <span id="runRate">0.00</span><br />
-        Overs Left: <span id="oversLeft">0.0</span><br />
-        Bowler:
-        <select id="bowlerSelect" onchange="changeBowler()" class="input ml-2"></select>
-      </div>
-
-      <div class="space-x-2">
-        <button onclick="addRun(1)" class="btn">1</button>
-        <button onclick="addRun(2)" class="btn">2</button>
-        <button onclick="addRun(3)" class="btn">3</button>
-        <button onclick="addRun(4)" class="btn">4</button>
-        <button onclick="addRun(6)" class="btn">6</button>
-        <button onclick="addWide()" class="btn bg-yellow-400">Wide</button>
-        <button onclick="addLegBye()" class="btn bg-green-400">Leg Bye</button>
-        <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600">Wicket</button>
-        <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
+      <!-- Score Display -->
+      <div id="scoreInfo" class="text-md"></div>
+      <!-- Run Buttons -->
+      <div id="runButtons" class="space-x-2"></div>
+      <!-- Bowler Dropdown -->
+      <div>
+        <label>Select Bowler: </label>
+        <select id="bowlerSelect" class="input w-40 mt-2"></select>
       </div>
     </div>
 
-    <!-- Scoreboard Section -->
+    <!-- Scoreboard -->
     <div id="scoreboard" class="mt-6 hidden">
       <h2 class="text-xl font-semibold mb-2">Full Scoreboard</h2>
-
       <h3 class="text-lg font-semibold">Batsmen</h3>
-      <table class="w-full text-sm mb-4 border">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="border px-2">Name</th>
-            <th class="border px-2">Runs</th>
-            <th class="border px-2">Balls</th>
-            <th class="border px-2">4s</th>
-            <th class="border px-2">6s</th>
-          </tr>
-        </thead>
-        <tbody id="batsmanTable"></tbody>
-      </table>
-
+      <table id="batsmanTable" class="w-full text-sm mb-4 border"></table>
       <h3 class="text-lg font-semibold">Bowlers</h3>
-      <table class="w-full text-sm border">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="border px-2">Name</th>
-            <th class="border px-2">Overs</th>
-            <th class="border px-2">Runs</th>
-            <th class="border px-2">Wickets</th>
-          </tr>
-        </thead>
-        <tbody id="bowlerTable"></tbody>
-      </table>
+      <table id="bowlerTable" class="w-full text-sm border"></table>
     </div>
 
+    <!-- Summary & History -->
     <div id="summary" class="mt-6 hidden">
       <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
       <p id="winner"></p>
     </div>
-
     <div id="history" class="mt-6">
       <h3 class="font-bold text-lg mb-2">📜 Past Matches</h3>
       <ul id="matchHistory" class="list-disc pl-5 space-y-1"></ul>
     </div>
   </div>
 
-  <style>
-    .input {
-      border: 1px solid #ccc;
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
-    .btn {
-      background-color: #1d4ed8;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-weight: bold;
-    }
-    .btn:hover {
-      background-color: #2563eb;
-    }
-  </style>
-
-  <script>
-    let score = 0, wickets = 0, balls = 0, oversLimit = 0;
-    let teamA = '', teamB = '', batsmen = [], currentBatsman = null;
-    let bowlers = [], currentBowler = null;
-    let legByeCount = 0;
-
-    function startMatch() {
-      teamA = document.getElementById("teamA").value || "Team A";
-      teamB = document.getElementById("teamB").value || "Team B";
-      oversLimit = parseInt(document.getElementById("totalOvers").value) || 2;
-      score = 0; wickets = 0; balls = 0; legByeCount = 0;
-      batsmen = []; bowlers = [];
-
-      let batsmanName = prompt("Enter first batsman name:");
-      let bowlerName = prompt("Enter bowler name:");
-      addBowler(bowlerName || "Bowler 1");
-
-      currentBatsman = { name: batsmanName, runs: 0, balls: 0, fours: 0, sixes: 0 };
-      batsmen.push(currentBatsman);
-
-      document.getElementById("matchTeams").innerText = `${teamA} vs ${teamB}`;
-      document.getElementById("matchPanel").classList.remove("hidden");
-      document.getElementById("summary").classList.add("hidden");
-      document.getElementById("scoreboard").classList.remove("hidden");
-      updateDisplay();
-    }
-
-    function addBowler(name) {
-      let existing = bowlers.find(b => b.name === name);
-      if (existing) {
-        currentBowler = existing;
-      } else {
-        let newBowler = { name, balls: 0, runs: 0, wickets: 0 };
-        bowlers.push(newBowler);
-        currentBowler = newBowler;
-        updateBowlerSelect();
-      }
-    }
-
-    function updateBowlerSelect() {
-      const select = document.getElementById("bowlerSelect");
-      select.innerHTML = bowlers.map(b =>
-        `<option ${b === currentBowler ? "selected" : ""}>${b.name}</option>`
-      ).join('');
-    }
-
-    function changeBowler() {
-      const name = document.getElementById("bowlerSelect").value;
-      addBowler(name);
-    }
-
-    function addRun(run) {
-      score += run;
-      currentBatsman.runs += run;
-      currentBatsman.balls += 1;
-      if (run === 4) currentBatsman.fours += 1;
-      if (run === 6) currentBatsman.sixes += 1;
-      currentBowler.runs += run;
-      nextBall();
-    }
-
-    function addWide() {
-      score += 1;
-      currentBowler.runs += 1;
-      updateDisplay();
-    }
-
-    function addLegBye() {
-      legByeCount++;
-      if (legByeCount >= 3) {
-        alert("Out due to 3 Leg Byes!");
-        legByeCount = 0;
-        addWicket();
-      } else {
-        nextBall();
-      }
-    }
-
-    function addWicket() {
-      wickets++;
-      currentBowler.wickets++;
-      currentBatsman.balls += 1;
-      nextBall();
-      setTimeout(() => {
-        let newName = prompt("New Batsman Name:");
-        currentBatsman = { name: newName, runs: 0, balls: 0, fours: 0, sixes: 0 };
-        batsmen.push(currentBatsman);
-        updateDisplay();
-      }, 100);
-    }
-
-    function nextBall() {
-      balls++;
-      currentBowler.balls++;
-      updateDisplay();
-      const totalBalls = oversLimit * 6;
-      if (balls >= totalBalls || wickets >= 10) {
-        endMatch();
-      }
-    }
-
-    function endMatch() {
-      const overs = `${Math.floor(balls / 6)}.${balls % 6}`;
-      const winner = `${teamA} scored ${score}/${wickets} in ${overs} overs.`;
-      document.getElementById("summary").classList.remove("hidden");
-      document.getElementById("winner").innerText = winner;
-      saveHistory(winner);
-    }
-
-    function updateDisplay() {
-      const overs = `${Math.floor(balls / 6)}.${balls % 6}`;
-      const runRate = (score / (balls / 6 || 1)).toFixed(2);
-      const oversLeft = (oversLimit - Math.floor(balls / 6)) + "." + (6 - (balls % 6)) % 6;
-
-      document.getElementById("score").innerText = `${score}/${wickets}`;
-      document.getElementById("overs").innerText = overs;
-      document.getElementById("runRate").innerText = runRate;
-      document.getElementById("oversLeft").innerText = oversLeft;
-      updateScoreboard();
-    }
-
-    function updateScoreboard() {
-      const bTable = document.getElementById("batsmanTable");
-      bTable.innerHTML = batsmen.map(p =>
-        `<tr>
-          <td class="border px-2">${p.name}</td>
-          <td class="border px-2">${p.runs}</td>
-          <td class="border px-2">${p.balls}</td>
-          <td class="border px-2">${p.fours}</td>
-          <td class="border px-2">${p.sixes}</td>
-        </tr>`).join('');
-
-      const bowlerRows = bowlers.map(b => {
-        const overs = `${Math.floor(b.balls / 6)}.${b.balls % 6}`;
-        return `
-          <tr>
-            <td class="border px-2">${b.name}</td>
-            <td class="border px-2">${overs}</td>
-            <td class="border px-2">${b.runs}</td>
-            <td class="border px-2">${b.wickets}</td>
-          </tr>`;
-      }).join('');
-      document.getElementById("bowlerTable").innerHTML = bowlerRows;
-    }
-
-    function saveHistory(summary) {
-      const history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
-      history.unshift(summary);
-      localStorage.setItem("matchHistory", JSON.stringify(history));
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
-      document.getElementById("matchHistory").innerHTML = history.map(s => `<li>${s}</li>`).join('');
-    }
-
-    renderHistory();
-  </script>
-
+  <link rel="stylesheet" href="scripts/match.js">
+  <script type="module" src="scripts/match.js"></script>
 </body>
 </html>

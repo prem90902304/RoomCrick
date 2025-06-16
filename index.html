@@ -108,12 +108,13 @@
     let score = 0, wickets = 0, balls = 0, oversLimit = 0;
     let teamA = '', teamB = '', batsmen = [], currentBatsman = null;
     let bowler = { name: "", balls: 0, runs: 0, wickets: 0 };
+    let legByeCount = 0;
 
     function startMatch() {
       teamA = document.getElementById("teamA").value || "Team A";
       teamB = document.getElementById("teamB").value || "Team B";
       oversLimit = parseInt(document.getElementById("totalOvers").value) || 2;
-      score = 0; wickets = 0; balls = 0;
+      score = 0; wickets = 0; balls = 0; legByeCount = 0;
       batsmen = [];
 
       let batsmanName = prompt("Enter first batsman name:");
@@ -148,8 +149,14 @@
     }
 
     function addLegBye() {
-      score += 1;
-      nextBall();
+      legByeCount++;
+      if (legByeCount >= 3) {
+        alert("Out due to 3 Leg Byes!");
+        legByeCount = 0;
+        addWicket();
+      } else {
+        nextBall();
+      }
     }
 
     function addWicket() {

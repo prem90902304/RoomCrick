@@ -168,6 +168,15 @@
     document.getElementById("runRate").innerText = runRate;
     document.getElementById("oversLeft").innerText = oversLeft.toFixed(1);
 
+    const targetInfo = document.getElementById("targetInfo");
+    if (innings === 2 && firstInningsData) {
+      const target = firstInningsData.score + 1;
+      const runsLeft = target - score;
+      targetInfo.innerText = `Target: ${target} | Runs remaining: ${runsLeft}`;
+    } else {
+      targetInfo.innerText = '';
+    }
+
     updateScoreboard();
   }
 

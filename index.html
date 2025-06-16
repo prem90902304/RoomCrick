@@ -34,6 +34,7 @@
     <div>
       <label>Overs: <input id="totalOvers" class="input w-20" type="number" min="1" /></label>
       <button onclick="startMatch()" class="btn ml-4">Start Match</button>
+      <button onclick="clearHistory()" class="btn ml-2 bg-red-500 hover:bg-red-600">Clear History</button>
     </div>
 
     <div id="matchPanel" class="hidden space-y-4">
@@ -54,6 +55,9 @@
         <button onclick="addWide()" class="btn bg-yellow-400">Wide</button>
         <button onclick="addLegBye()" class="btn bg-green-400">Leg Bye</button>
         <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600">Wicket</button>
+      </div>
+
+      <div class="space-x-2 mt-2">
         <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
         <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
       </div>
@@ -102,6 +106,8 @@
   </div>
 
   <script>
+    let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
+
     function startMatch() {
       const teamA = document.getElementById("teamA").value.trim();
       const teamB = document.getElementById("teamB").value.trim();
@@ -114,12 +120,17 @@
 
       document.getElementById("matchPanel").classList.remove("hidden");
       document.getElementById("matchTeams").textContent = `${teamA} vs ${teamB}`;
-
-      // Initialize match data (you can expand this with additional logic)
       document.getElementById("score").textContent = "0/0";
       document.getElementById("overs").textContent = "0.0";
       document.getElementById("runRate").textContent = "0.00";
       document.getElementById("oversLeft").textContent = totalOvers.toFixed(1);
+    }
+
+    function clearHistory() {
+      if (confirm("Are you sure you want to clear match history?")) {
+        localStorage.removeItem("crickHistory");
+        document.getElementById("matchHistory").innerHTML = "";
+      }
     }
   </script>
 </body>

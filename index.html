@@ -352,20 +352,38 @@ function undoLastBall() {
   currentBatsmanIndex = batsmen.findIndex(b => !b.out);
   currentBowlerIndex = lastBall.bowlerIndex;
 
-  updateDisplay();
-  renderScoreboard();
-}
+  function updateDisplay() {
+    document.getElementById("score").textContent = `${score}/${wickets}`;
+    document.getElementById("overs").textContent = `${Math.floor(balls / 6)}.${balls % 6}`;
+    
+    let runRate = balls > 0 ? (score / (balls / 6)) : 0;
+    document.getElementById("runRate").textContent = runRate.toFixed(2);
+    
+    let oversLeft = totalOvers - Math.floor(balls / 6) - ((balls % 6) / 6);
+    document.getElementById("oversLeft").textContent = oversLeft.toFixed(1);
 
-function isInningsOver() {
-  return wickets >= 10 || balls >= totalOvers * 6;
-}
+    const targetInfo = document.getElementById("targetInfo");
+    targetInfo.textContent = '';
 
-function checkInningsEnd() {
-  if (isInningsOver()) {
-    alert(`Innings over! Total Score: ${score}/${wickets}`);
+    if (inning === 2) {
+      const runsNeeded = (firstInningsScore + 1) - score;
+      const ballsLeft = (totalOvers * 6) - balls;
+
+      if (runsNeeded > 0 && ballsLeft > 0) {
+        const requiredRunRate = (runsNeeded / (ballsLeft / 6)).toFixed(2);
+        if (runsNeeded === 1) {
+          targetInfo.textContent = `Scores level! 1 run to win in ${ballsLeft} balls (RRR: ${requiredRunRate})`;
+        } else {
+          targetInfo.textContent = `${runsNeeded} runs needed in ${ballsLeft} balls (RRR: ${requiredRunRate})`;
+        }
+      } else if (runsNeeded <= 0) {
+        targetInfo.textContent = "🎉 Target achieved!";
+      } else if (ballsLeft <= 0) {
+        targetInfo.textContent = "⛔ All balls used. Target not reached.";
+      }
+    }
   }
-}
-
+  
 function endMatch() {
   const teamA = document.getElementById("teamA").value.trim();
   const teamB = document.getElementById("teamB").value.trim();

@@ -40,11 +40,11 @@
   <h1 class="text-3xl font-bold mb-4 text-center">🏏 CrickScore</h1>
 
   <div class="space-y-4">
-    <div>
-      <label>Team A: <input id="teamA" class="input" /></label>
-      <label class="ml-4">Team B: <input id="teamB" class="input" /></label>
-    </div>
-
+    <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
+  <label class="flex items-center gap-2">Team A: <input id="teamA" class="input" /></label>
+  <label class="flex items-center gap-2">Team B: <input id="teamB" class="input" /></label>
+</div>
+    
     <div>
       <label>Overs: <input id="totalOvers" class="input w-20" type="number" min="1" /></label>
       <button onclick="startMatch()" class="btn ml-4">Start Match</button>

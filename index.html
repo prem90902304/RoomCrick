@@ -493,8 +493,8 @@ function clearHistory() {
 renderHistory();
 
   </script>
-  
-  <script>
+  <!-- ✅ Register service worker -->
+<script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js')
       .then(() => console.log("✅ Service Worker Registered"))
@@ -502,11 +502,13 @@ renderHistory();
   }
 </script>
 
-</body>
+<!-- ✅ Footer must be inside <body> -->
 <footer class="text-center text-sm text-gray-500 mt-10">
   Developed by 
   <a href="https://github.com/prem90902304" target="_blank" class="text-blue-600 hover:underline font-semibold">
     Prem
   </a> • © 2025 CrickScore
 </footer>
+
+</body>
 </html>

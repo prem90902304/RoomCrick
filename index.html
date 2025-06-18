@@ -499,19 +499,19 @@ function clearHistory() {
 renderHistory();
 
   </script>
- <script>
+  <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js')
       .then(reg => {
         console.log("✅ Service Worker Registered");
 
-        // Auto-update when a new service worker is waiting
+        // Force update if already waiting
         if (reg.waiting) {
           reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           window.location.reload();
         }
 
-        // Listen for new updates in the future
+        // Detect new installs in future
         reg.addEventListener("updatefound", () => {
           const newSW = reg.installing;
           newSW.addEventListener("statechange", () => {

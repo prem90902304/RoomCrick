@@ -499,15 +499,33 @@ function clearHistory() {
 renderHistory();
 
   </script>
-  <!-- ✅ Register service worker -->
-<script>
+ <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js')
-      .then(() => console.log("✅ Service Worker Registered"))
+      .then(reg => {
+        console.log("✅ Service Worker Registered");
+
+        // Auto-update when a new service worker is waiting
+        if (reg.waiting) {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          window.location.reload();
+        }
+
+        // Listen for new updates in the future
+        reg.addEventListener("updatefound", () => {
+          const newSW = reg.installing;
+          newSW.addEventListener("statechange", () => {
+            if (newSW.state === "installed" && navigator.serviceWorker.controller) {
+              newSW.postMessage({ type: 'SKIP_WAITING' });
+              window.location.reload();
+            }
+          });
+        });
+      })
       .catch(err => console.error("❌ Service Worker registration failed", err));
   }
 </script>
-
+  
 <!-- ✅ Footer must be inside <body> -->
 <footer class="text-center text-sm text-gray-500 mt-10">
   Developed by 

@@ -393,7 +393,7 @@ function addLegBye() {
 
     alert(`${outBatsman.name} is OUT after 3 leg byes!`);
     
-    if (wickets < maxWickets) {
+   if (wickets < totalWickets) {
       let newBatsman = prompt("Enter name of new batsman:");
       if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
       batsmen[currentBatsmanIndex] = { name: newBatsman, runs:0, balls:0, fours:0, sixes:0, dotBalls: 0, out:false };

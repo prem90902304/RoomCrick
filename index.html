@@ -86,6 +86,7 @@
     <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
     <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
     <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
+    <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
   </div>
 </div>
 
@@ -373,6 +374,7 @@ function addWide() {
   // 🟢 Immediate update
   updateDisplay();
   renderScoreboard();
+  checkInningsEnd();
   checkTargetReached();
   saveMatchState();
 }
@@ -498,11 +500,12 @@ function addWicket() {
   } else {
     alert("All out!");
   }
-
   updateDisplay();
   renderScoreboard();
+  checkInningsEnd();
   checkTargetReached();
   saveMatchState();
+
 }
 function checkOverComplete() {
   if (balls > 0 && balls % 6 === 0) {

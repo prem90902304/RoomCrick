@@ -393,7 +393,7 @@ function addLegBye() {
   // Always count as a dot ball
   balls++;
   bowler.balls++;
-  batsman.balls++;
+  // batsman.balls++;  // Removed for accuracy (leg bye doesn't count as faced ball)
   batsman.dotBalls++;
 
   speakCommentary("legbye");
@@ -695,11 +695,11 @@ function disableScoringButtons() {
 }
 
 function updateDisplay() {
-  document.getElementById("score").textContent = `${score}/${wickets}`;
+  document.getElementById("score").textContent = `${score}/${wickets} (Extras: ${extras})`;
   document.getElementById("overs").textContent = `${Math.floor(balls/6)}.${balls%6}`;
   let runRate = balls > 0 ? (score / (balls/6)) : 0;
   document.getElementById("runRate").textContent = runRate.toFixed(2);
-  let oversLeft = totalOvers - Math.floor(balls/6) - ((balls%6)/6);
+  let oversLeft = Math.max(0, totalOvers - (balls / 6));
   document.getElementById("oversLeft").textContent = oversLeft.toFixed(1);
 }
     function promptNewBatsman() {

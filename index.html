@@ -44,33 +44,50 @@
 <body class="bg-white text-gray-800 font-sans p-4 max-w-xl mx-auto">
   <h1 class="text-3xl font-bold mb-4 text-center">🏏 CrickScore</h1>
 
-  <div class="space-y-4">
-    <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
-  <label class="flex items-center gap-2">Team A: <input id="teamA" class="input" /></label>
-  <label class="flex items-center gap-2">Team B: <input id="teamB" class="input" /></label>
-      <div class="flex items-center gap-2">
-  <label for="voiceLang">🎤 Voice Language:</label>
-  <select id="voiceLang" class="input">
-    <option value="en-US">English</option>
-    <option value="hi-IN">Hindi</option>
-    <option value="ta-IN">Tamil</option>
-    <option value="te-IN">Telugu</option>
-  </select>
-</div>
-</div>
-    
-    <div>
-      <label>Overs: <input id="totalOvers" class="input w-20" type="number" min="1" /></label>
-      <label>Wickets: <input id="totalWickets" class="input w-20" type="number" min="1" value="10" /></label>
-      <button onclick="startMatch()" class="btn ml-4">Start Match</button>
-      <button onclick="clearHistory()" class="btn ml-2 bg-red-500 hover:bg-red-600">Clear History</button>
-      <button onclick="enableAudio()" class="btn bg-green-500">🔊 Enable Audio</button>
-      
-      <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-500">🔊 Mute</button>
-      
-      <div id="umpireCall" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl font-bold z-50 hidden"></div>
+  <div class="space-y-6 bg-gray-50 p-4 rounded shadow-md">
+  <!-- Teams Input -->
+  <div class="grid sm:grid-cols-2 gap-4">
+    <label class="block">
+      <span class="text-sm font-medium">Team A</span>
+      <input id="teamA" class="input w-full mt-1" placeholder="Enter Team A Name" />
+    </label>
+    <label class="block">
+      <span class="text-sm font-medium">Team B</span>
+      <input id="teamB" class="input w-full mt-1" placeholder="Enter Team B Name" />
+    </label>
+  </div>
 
-    </div>
+  <!-- Match Setup -->
+  <div class="grid sm:grid-cols-2 gap-4">
+    <label class="block">
+      <span class="text-sm font-medium">Overs</span>
+      <input id="totalOvers" class="input w-full mt-1" type="number" min="1" placeholder="e.g. 5" />
+    </label>
+    <label class="block">
+      <span class="text-sm font-medium">Wickets</span>
+      <input id="totalWickets" class="input w-full mt-1" type="number" min="1" value="10" />
+    </label>
+  </div>
+
+  <!-- Voice Language -->
+  <div class="block">
+    <span class="text-sm font-medium">🎤 Commentary Language</span>
+    <select id="voiceLang" class="input w-full mt-1">
+      <option value="en-US">English</option>
+      <option value="hi-IN">Hindi</option>
+      <option value="ta-IN">Tamil</option>
+      <option value="te-IN">Telugu</option>
+    </select>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex flex-wrap gap-2 justify-center sm:justify-start mt-2">
+    <button onclick="startMatch()" class="btn bg-blue-600 hover:bg-blue-700">Start Match</button>
+    <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
+    <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
+    <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
+  </div>
+</div>
 
     <div id="matchPanel" class="hidden space-y-4">
       <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span> <span id="inningLabel">(1st Innings)</span></div>

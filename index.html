@@ -64,7 +64,11 @@
       <button onclick="startMatch()" class="btn ml-4">Start Match</button>
       <button onclick="clearHistory()" class="btn ml-2 bg-red-500 hover:bg-red-600">Clear History</button>
       <button onclick="enableAudio()" class="btn bg-green-500">🔊 Enable Audio</button>
+      
       <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-500">🔊 Mute</button>
+      
+      <div id="umpireCall" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl font-bold z-50 hidden"></div>
+
     </div>
 
     <div id="matchPanel" class="hidden space-y-4">
@@ -320,8 +324,13 @@ function addWide() {
   extras++;
   const bowler = bowlers[currentBowlerIndex];
   bowler.runs++;
-  document.getElementById("soundWide").play();
-
+  speakCommentary("wide");
+  const wideSound = document.getElementById("soundWide");
+if (!isMuted && wideSound) {
+  wideSound.currentTime = 0;
+  wideSound.play();
+  showUmpireCall("wide");
+}
   ballHistory.push({
     type: 'wide',
     runs: 1,
@@ -345,7 +354,14 @@ function addLegBye() {
   const bowler = bowlers[currentBowlerIndex];
   balls++;
   bowler.balls++;
-  document.getElementById("soundLegBye").play();
+  speakCommentary("legbye");
+  const legByeSound = document.getElementById("soundLegBye");
+if (!isMuted && legByeSound) {
+  legByeSound.currentTime = 0;
+  legByeSound.play();
+  showUmpireCall("wicket");
+
+}
   ballHistory.push({
     type: 'legbye',
     strikerIndex: currentBatsmanIndex,
@@ -388,6 +404,8 @@ function addWicket() {
   batsmen[currentBatsmanIndex].out = true;
   document.getElementById("soundWicket").play();
   speakCommentary("wicket");
+  showUmpireCall("wicket");
+
   ballHistory.push({
     type: 'wicket',
     strikerIndex: currentBatsmanIndex,
@@ -690,7 +708,19 @@ function toggleMute() {
       "hi-IN": "विकेट गिरा!",
       "ta-IN": "விக்கெட் விழுந்தது!",
       "te-IN": "వికెట్ పడిపోయింది!"
-    }
+    },
+    "wide": {
+  "en-US": "That's a wide ball.",
+  "hi-IN": "यह वाइड बॉल है।",
+  "ta-IN": "அது வைடு பந்து.",
+  "te-IN": "అది వైడ్ బాల్."
+},
+"legbye": {
+  "en-US": "Leg bye signaled!",
+  "hi-IN": "लेग बाय!",
+  "ta-IN": "லெக் பை!",
+  "te-IN": "లెగ్ బై!"
+},
   };
 
   const message = commentaryMessages[messageKey]?.[lang];
@@ -702,6 +732,23 @@ function toggleMute() {
   utterance.pitch = 1;
   utterance.rate = 1;
   if (!isMuted) window.speechSynthesis.speak(utterance);
+}
+    function showUmpireCall(type) {
+  const call = document.getElementById("umpireCall");
+  call.classList.remove("hidden");
+
+  if (type === "wide") {
+    call.textContent = "👋 Wide Ball!";
+  } else if (type === "wicket") {
+    call.textContent = "☝️ Out!";
+  }
+
+  call.classList.add("show");
+
+  setTimeout(() => {
+    call.classList.remove("show");
+    call.classList.add("hidden");
+  }, 1200); // visible for 1.2 seconds
 }
   </script>
   

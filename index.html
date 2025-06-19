@@ -365,70 +365,68 @@ if (!isMuted && wideSound) {
   checkTargetReached();
   saveMatchState();
 }
+    
 function addLegBye() {
   if (isInningsOver()) return alert("Innings is over.");
 
   legByeCount++;
   const bowler = bowlers[currentBowlerIndex];
-  balls++;
-  bowler.balls++;
-
   speakCommentary("legbye");
+  
   const legByeSound = document.getElementById("soundLegBye");
   if (!isMuted && legByeSound) {
     legByeSound.currentTime = 0;
     legByeSound.play();
   }
 
-  ballHistory.push({
-    type: 'legbye',
-    strikerIndex: currentBatsmanIndex,
-    bowlerIndex: currentBowlerIndex,
-    wicketsBefore: wickets,
-    ballsBefore: balls - 1,
-    scoreBefore: score,
-    batsmenBefore: JSON.stringify(batsmen),
-    bowlersBefore: JSON.stringify(bowlers),
-    legByeCountBefore: legByeCount - 1
-  });
-
   if (legByeCount >= 3) {
     showUmpireCall("wicket");
-
     const outBatsman = batsmen[currentBatsmanIndex];
     outBatsman.out = true;
     wickets++;
     legByeCount = 0;
 
-    alert(`${outBatsman.name} is OUT after 3 leg byes!`);
+    // Update stats
+    balls++;
+    bowler.balls++;
+    bowler.wickets++;
 
-    if (wickets < totalWickets) {
+    alert(`${outBatsman.name} is OUT after 3 leg byes!`);
+    
+    if (wickets < maxWickets) {
       let newBatsman = prompt("Enter name of new batsman:");
       if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
-
-      batsmen.push({
-        name: newBatsman,
-        runs: 0,
-        balls: 0,
-        fours: 0,
-        sixes: 0,
-        dotBalls: 0,
-        out: false
-      });
-
-      currentBatsmanIndex = batsmen.length - 1;
+      batsmen[currentBatsmanIndex] = { name: newBatsman, runs:0, balls:0, fours:0, sixes:0, dotBalls: 0, out:false };
     } else {
       alert("All out!");
     }
+  } else {
+    // Only count ball if it's not 3rd leg bye (i.e., no wicket triggered)
+    balls++;
+    bowler.balls++;
   }
 
-  checkOverComplete();
+  // History tracking
+  ballHistory.push({
+    type: 'legbye',
+    strikerIndex: currentBatsmanIndex,
+    bowlerIndex: currentBowlerIndex,
+    wicketsBefore: wickets - (legByeCount === 0 ? 1 : 0),
+    ballsBefore: balls - 1,
+    scoreBefore: score,
+    batsmenBefore: JSON.stringify(batsmen),
+    bowlersBefore: JSON.stringify(bowlers),
+    legByeCountBefore: legByeCount === 0 ? 2 : legByeCount - 1
+  });
+
   updateDisplay();
   renderScoreboard();
+  checkOverComplete();
   checkInningsEnd();
   checkTargetReached();
   saveMatchState();
 }
+
 
 function addWicket() {
   if (isInningsOver()) return alert("Innings is over.");

@@ -449,7 +449,7 @@ function addWicket() {
 
   wickets++;
   balls++;
-  legByeCount = 0;  // ✅ Reset leg bye counter on wicket
+  legByeCount = 0; // Reset leg bye count
 
   const bowler = bowlers[currentBowlerIndex];
   bowler.balls++;
@@ -458,8 +458,9 @@ function addWicket() {
   const outBatsman = batsmen[currentBatsmanIndex];
   outBatsman.out = true;
 
+  // Play sound
   const wicketSound = document.getElementById("soundWicket");
-  if (wicketSound && !isMuted) {
+  if (!isMuted && wicketSound) {
     wicketSound.currentTime = 0;
     wicketSound.play();
   }
@@ -467,6 +468,7 @@ function addWicket() {
   speakCommentary("wicket");
   showUmpireCall("wicket");
 
+  // Save history
   ballHistory.push({
     type: 'wicket',
     strikerIndex: currentBatsmanIndex,
@@ -479,20 +481,7 @@ function addWicket() {
   });
 
   if (wickets < totalWickets) {
-    let newBatsman = prompt("Enter name of new batsman:");
-    if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
-
-    batsmen.push({
-      name: newBatsman,
-      runs: 0,
-      balls: 0,
-      fours: 0,
-      sixes: 0,
-      dotBalls: 0,
-      out: false
-    });
-
-    currentBatsmanIndex = batsmen.length - 1;
+    promptNewBatsman(); // ✅ Cleaner
   } else {
     alert("All out!");
   }
@@ -503,6 +492,7 @@ function addWicket() {
   checkTargetReached();
   saveMatchState();
 }
+
 
 function checkOverComplete() {
   if (balls > 0 && balls % 6 === 0) {
@@ -649,6 +639,20 @@ function updateDisplay() {
   document.getElementById("runRate").textContent = runRate.toFixed(2);
   let oversLeft = totalOvers - Math.floor(balls/6) - ((balls%6)/6);
   document.getElementById("oversLeft").textContent = oversLeft.toFixed(1);
+}
+    function promptNewBatsman() {
+  let name = prompt("Enter name of new batsman:");
+  if (!name) name = `Batsman ${wickets + 1}`;
+  batsmen.push({
+    name,
+    runs: 0,
+    balls: 0,
+    fours: 0,
+    sixes: 0,
+    dotBalls: 0,
+    out: false
+  });
+  currentBatsmanIndex = batsmen.length - 1;
 }
 
 function renderScoreboard() {

@@ -61,6 +61,7 @@
     
     <div>
       <label>Overs: <input id="totalOvers" class="input w-20" type="number" min="1" /></label>
+      <label>Wickets: <input id="totalWickets" class="input w-20" type="number" min="1" value="10" /></label>
       <button onclick="startMatch()" class="btn ml-4">Start Match</button>
       <button onclick="clearHistory()" class="btn ml-2 bg-red-500 hover:bg-red-600">Clear History</button>
       <button onclick="enableAudio()" class="btn bg-green-500">🔊 Enable Audio</button>
@@ -145,6 +146,7 @@
   </div>
 
   <script>
+    let totalWickets = 10;
    let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
 let inning = 1;
 let firstInningsScore = 0;
@@ -219,6 +221,7 @@ function startMatch() {
   const teamA = document.getElementById("teamA").value.trim();
   const teamB = document.getElementById("teamB").value.trim();
   totalOvers = parseInt(document.getElementById("totalOvers").value);
+  totalWickets = parseInt(document.getElementById("totalWickets").value) || 10;
 
   if (!teamA || !teamB || isNaN(totalOvers) || totalOvers <= 0) {
     alert("Please enter valid team names and overs.");
@@ -444,7 +447,7 @@ function checkOverComplete() {
 }
 
 function isInningsOver() {
-  return wickets >= 10 || balls >= totalOvers * 6;
+ return wickets >= totalWickets || balls >= totalOvers * 6;
 }
 
 function checkInningsEnd() {

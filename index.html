@@ -48,6 +48,15 @@
     <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
   <label class="flex items-center gap-2">Team A: <input id="teamA" class="input" /></label>
   <label class="flex items-center gap-2">Team B: <input id="teamB" class="input" /></label>
+      <div class="flex items-center gap-2">
+  <label for="voiceLang">🎤 Voice Language:</label>
+  <select id="voiceLang" class="input">
+    <option value="en-US">English</option>
+    <option value="hi-IN">Hindi</option>
+    <option value="ta-IN">Tamil</option>
+    <option value="te-IN">Telugu</option>
+  </select>
+</div>
 </div>
     
     <div>
@@ -55,6 +64,7 @@
       <button onclick="startMatch()" class="btn ml-4">Start Match</button>
       <button onclick="clearHistory()" class="btn ml-2 bg-red-500 hover:bg-red-600">Clear History</button>
       <button onclick="enableAudio()" class="btn bg-green-500">🔊 Enable Audio</button>
+      <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-500">🔊 Mute</button>
     </div>
 
     <div id="matchPanel" class="hidden space-y-4">
@@ -246,6 +256,19 @@ function startMatch() {
   renderHistory();
   saveMatchState();
 }
+    function playRunSound(runs) {
+  const sounds = {
+    0: document.getElementById("soundDot"),
+    1: document.getElementById("sound1"),
+    2: document.getElementById("sound2"),
+    4: document.getElementById("sound4"),
+    6: document.getElementById("sound6")
+  };
+  if (sounds[runs]) {
+    sounds[runs].currentTime = 0;
+    sounds[runs].play();
+  }
+}
 
 function addRun(runs) {
   if (isInningsOver()) return alert("Innings is over.");
@@ -264,6 +287,13 @@ function addRun(runs) {
   bowler.dotBalls++;
   dots++;
 }
+playRunSound(runs); // Always play sound
+if (runs === 0) speakCommentary("dot");
+if (runs === 1) speakCommentary("one");
+if (runs === 2) speakCommentary("two");
+if (runs === 4) speakCommentary("four");
+if (runs === 6) speakCommentary("six");
+  
   ballHistory.push({
     type: 'run',
     runs,
@@ -290,6 +320,8 @@ function addWide() {
   extras++;
   const bowler = bowlers[currentBowlerIndex];
   bowler.runs++;
+  document.getElementById("soundWide").play();
+
   ballHistory.push({
     type: 'wide',
     runs: 1,
@@ -313,6 +345,7 @@ function addLegBye() {
   const bowler = bowlers[currentBowlerIndex];
   balls++;
   bowler.balls++;
+  document.getElementById("soundLegBye").play();
   ballHistory.push({
     type: 'legbye',
     strikerIndex: currentBatsmanIndex,
@@ -353,6 +386,8 @@ function addWicket() {
   bowlers[currentBowlerIndex].balls++;
   bowlers[currentBowlerIndex].wickets++;
   batsmen[currentBatsmanIndex].out = true;
+  document.getElementById("soundWicket").play();
+  speakCommentary("wicket");
   ballHistory.push({
     type: 'wicket',
     strikerIndex: currentBatsmanIndex,
@@ -452,8 +487,20 @@ function endMatch() {
     // 🗣️ Speak congratulations using AI voice
 const winnerName = (score > firstInningsScore) ? teamB : (score < firstInningsScore) ? teamA : null;
 if (winnerName) {
-  const msg = new SpeechSynthesisUtterance(`Congratulations, ${winnerName}! You won the match!`);
-  msg.lang = 'en-US';
+  const selectedLang = document.getElementById("voiceLang").value;
+  let message = `Congratulations, ${winnerName}! You won the match!`;
+
+  // Translate message based on language (basic)
+  if (selectedLang === 'hi-IN') {
+    message = `बधाई हो, ${winnerName}! आपने मैच जीत लिया है!`;
+  } else if (selectedLang === 'ta-IN') {
+    message = `வாழ்த்துகள், ${winnerName}! நீங்கள் போட்டியில் வெற்றி பெற்றீர்கள்!`;
+  } else if (selectedLang === 'te-IN') {
+    message = `అభినందనలు, ${winnerName}! మీరు మ్యాచ్ గెలిచారు!`;
+  }
+
+  const msg = new SpeechSynthesisUtterance(message);
+  msg.lang = selectedLang;
   msg.volume = 1.0;
   msg.rate = 1.0;
   msg.pitch = 1.0;
@@ -592,8 +639,72 @@ renderHistory();
   msg.lang = 'en-US';
   window.speechSynthesis.speak(msg);
 }
+    let isMuted = false;
 
+function toggleMute() {
+  isMuted = !isMuted;
+  const label = isMuted ? "🔇 Unmute" : "🔊 Mute";
+  document.getElementById("muteBtn").textContent = label;
+
+  // Mute/unmute all audio elements
+  document.querySelectorAll("audio").forEach(audio => {
+    audio.muted = isMuted;
+  });
+}
+    function speakCommentary(messageKey) {
+  const lang = document.getElementById("voiceLang").value;
+
+  const commentaryMessages = {
+    "dot": {
+      "en-US": "That's a dot ball.",
+      "hi-IN": "यह एक डॉट बॉल है।",
+      "ta-IN": "இது ஒரு டாட் பால்.",
+      "te-IN": "ఇది ఒక డాట్ బాల్."
+    },
+    "one": {
+      "en-US": "They take a single!",
+      "hi-IN": "एक रन लिया!",
+      "ta-IN": "ஒரு ரன் எடுத்தனர்!",
+      "te-IN": "ఒక పరుగు తీసుకున్నారు!"
+    },
+    "two": {
+      "en-US": "Two runs added!",
+      "hi-IN": "दो रन जोड़े गए!",
+      "ta-IN": "இரண்டு ரன்கள் சேர்க்கப்பட்டது!",
+      "te-IN": "రెండు పరుగులు జోడించబడ్డాయి!"
+    },
+    "four": {
+      "en-US": "That's a four!",
+      "hi-IN": "चार रन!",
+      "ta-IN": "நான்கு ரன்!",
+      "te-IN": "నాలుగు పరుగులు!"
+    },
+    "six": {
+      "en-US": "That's a massive six!",
+      "hi-IN": "छक्का!",
+      "ta-IN": "ஆறு ரன்!",
+      "te-IN": "ఆరు పరుగులు!"
+    },
+    "wicket": {
+      "en-US": "It's a wicket!",
+      "hi-IN": "विकेट गिरा!",
+      "ta-IN": "விக்கெட் விழுந்தது!",
+      "te-IN": "వికెట్ పడిపోయింది!"
+    }
+  };
+
+  const message = commentaryMessages[messageKey]?.[lang];
+  if (!message) return;
+
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.lang = lang;
+  utterance.volume = 1;
+  utterance.pitch = 1;
+  utterance.rate = 1;
+  if (!isMuted) window.speechSynthesis.speak(utterance);
+}
   </script>
+  
   <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js')
@@ -637,6 +748,17 @@ renderHistory();
     if (victorySound) victorySound.volume = 0.4;
   });
 </script>
+  <!-- Sound effects for runs -->
+<audio id="soundDot" src="https://assets.mixkit.co/sfx/preview/mixkit-soft-hit-football-kick-2357.mp3"></audio>
+<audio id="sound1" src="https://assets.mixkit.co/sfx/preview/mixkit-cricket-hit-2058.mp3"></audio>
+<audio id="sound2" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-football-kick-2398.mp3"></audio>
+<audio id="sound4" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
+<audio id="sound6" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3"></audio>
+<!-- Extra event sounds -->
+<audio id="soundWide" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+<audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
+<audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
+
 
 </body>
 </html>

@@ -404,7 +404,7 @@ function addLegBye() {
 
   // Save previous state
   ballHistory.push({
-  type: 'legbye',
+    type: 'legbye',
     strikerIndex: currentBatsmanIndex,
     bowlerIndex: currentBowlerIndex,
     ballsBefore: balls - 1,
@@ -414,48 +414,41 @@ function addLegBye() {
     bowlersBefore: JSON.stringify(bowlers),
   });
 
+  // 🟥 Custom rule: 3 leg byes = Out
   if (legByeCount >= 3) {
-  // ✅ Trigger wicket
-  legByeCount = 0;
-  wickets++;
-  batsman.out = true;
-  bowler.wickets++;
+    legByeCount = 0;
+    wickets++;
+    batsman.out = true;
+    bowler.wickets++;
 
-  // 🔊 Play sound and speak BEFORE alert
-  showUmpireCall("wicket");
-  speakCommentary("wicket");
-  const wicketSound = document.getElementById("soundWicket");
-  if (!isMuted && wicketSound) {
-    wicketSound.currentTime = 0;
-    wicketSound.play();
-  }
-
-  // 🛑 Now show alert (after sound has started)
-  alert(`${batsman.name} is OUT after 3 leg byes!`);
-
-  if (wickets < totalWickets) {
-    let newBatsman = prompt("Enter name of new batsman:");
-    if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
-    batsmen.push({
-      name: newBatsman,
-      runs: 0,
-      balls: 0,
-      fours: 0,
-      sixes: 0,
-      dotBalls: 0,
-      out: false
-    });
-    currentBatsmanIndex = batsmen.length - 1;
-  } else {
-    alert("All out!");
-  }
-}
+    // 🟡 Play sound + speak before alert
     showUmpireCall("wicket");
     speakCommentary("wicket");
     const wicketSound = document.getElementById("soundWicket");
     if (!isMuted && wicketSound) {
       wicketSound.currentTime = 0;
       wicketSound.play();
+    }
+
+    // 🟠 Show prompt after sound is triggered
+    alert(`${batsman.name} is OUT after 3 leg byes!`);
+
+    // ⏭ Add new batsman or end innings
+    if (wickets < totalWickets) {
+      let newBatsman = prompt("Enter name of new batsman:");
+      if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
+      batsmen.push({
+        name: newBatsman,
+        runs: 0,
+        balls: 0,
+        fours: 0,
+        sixes: 0,
+        dotBalls: 0,
+        out: false
+      });
+      currentBatsmanIndex = batsmen.length - 1;
+    } else {
+      alert("All out!");
     }
   }
 
@@ -466,7 +459,6 @@ function addLegBye() {
   checkTargetReached();
   saveMatchState();
 }
-
 function addWicket() {
   if (isInningsOver()) return alert("Innings is over.");
 

@@ -469,7 +469,25 @@ function addWicket() {
     bowlersBefore: JSON.stringify(bowlers),
   });
 
-  // 🔊 Play sound and commentary FIRST
+  // ✅ Prompt FIRST (must happen immediately after button click)
+  if (wickets < totalWickets) {
+    let name = prompt("Enter name of new batsman:");
+    if (!name) name = `Batsman ${wickets + 1}`;
+    batsmen.push({
+      name,
+      runs: 0,
+      balls: 0,
+      fours: 0,
+      sixes: 0,
+      dotBalls: 0,
+      out: false
+    });
+    currentBatsmanIndex = batsmen.length - 1;
+  } else {
+    alert("All out!");
+  }
+
+  // 🔊 Play sound & commentary immediately AFTER prompt
   if (!isMuted) {
     const wicketSound = document.getElementById("soundWicket");
     if (wicketSound) {
@@ -480,20 +498,11 @@ function addWicket() {
   speakCommentary("wicket");
   showUmpireCall("wicket");
 
-  // ⏱️ Then prompt for new batsman after 1 second
-  setTimeout(() => {
-    if (wickets < totalWickets) {
-      promptNewBatsman();
-    } else {
-      alert("All out!");
-    }
-
-    updateDisplay();
-    renderScoreboard();
-    checkInningsEnd();
-    checkTargetReached();
-    saveMatchState();
-  }, 1000); // wait 1 second
+  updateDisplay();
+  renderScoreboard();
+  checkInningsEnd();
+  checkTargetReached();
+  saveMatchState();
 }
 
 function checkOverComplete() {

@@ -371,53 +371,70 @@ function addLegBye() {
 
   legByeCount++;
   const bowler = bowlers[currentBowlerIndex];
+  const batsman = batsmen[currentBatsmanIndex];
+
+  // Always count as a dot ball
+  balls++;
+  bowler.balls++;
+  batsman.balls++;
+  batsman.dotBalls++;
+
   speakCommentary("legbye");
-  
-  const legByeSound = document.getElementById("soundLegBye");
-  if (!isMuted && legByeSound) {
-    legByeSound.currentTime = 0;
-    legByeSound.play();
+
+  if (!isMuted) {
+    const legByeSound = document.getElementById("soundLegBye");
+    if (legByeSound) {
+      legByeSound.currentTime = 0;
+      legByeSound.play();
+    }
   }
 
-  if (legByeCount >= 3) {
-    showUmpireCall("wicket");
-    const outBatsman = batsmen[currentBatsmanIndex];
-    outBatsman.out = true;
-    wickets++;
-    legByeCount = 0;
+  // Save previous state
+  ballHistory.push({
+    type: 'leg',
+    strikerIndex: currentBatsmanIndex,
+    bowlerIndex: currentBowlerIndex,
+    ballsBefore: balls - 1,
+    scoreBefore: score,
+    legByeCountBefore: legByeCount - 1,
+    batsmenBefore: JSON.stringify(batsmen),
+    bowlersBefore: JSON.stringify(bowlers),
+  });
 
-    // Update stats
-    balls++;
-    bowler.balls++;
+  if (legByeCount >= 3) {
+    // ✅ Trigger wicket
+    legByeCount = 0;
+    wickets++;
+    batsman.out = true;
     bowler.wickets++;
 
-    alert(`${outBatsman.name} is OUT after 3 leg byes!`);
-    
-   if (wickets < totalWickets) {
+    alert(`${batsman.name} is OUT after 3 leg byes!`);
+
+    if (wickets < totalWickets) {
       let newBatsman = prompt("Enter name of new batsman:");
       if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
-      batsmen[currentBatsmanIndex] = { name: newBatsman, runs:0, balls:0, fours:0, sixes:0, dotBalls: 0, out:false };
+      batsmen.push({
+        name: newBatsman,
+        runs: 0,
+        balls: 0,
+        fours: 0,
+        sixes: 0,
+        dotBalls: 0,
+        out: false
+      });
+      currentBatsmanIndex = batsmen.length - 1;
     } else {
       alert("All out!");
     }
-  } else {
-    // Only count ball if it's not 3rd leg bye (i.e., no wicket triggered)
-    balls++;
-    bowler.balls++;
-  }
 
-  // History tracking
-  ballHistory.push({
-    type: 'legbye',
-    strikerIndex: currentBatsmanIndex,
-    bowlerIndex: currentBowlerIndex,
-    wicketsBefore: wickets - (legByeCount === 0 ? 1 : 0),
-    ballsBefore: balls - 1,
-    scoreBefore: score,
-    batsmenBefore: JSON.stringify(batsmen),
-    bowlersBefore: JSON.stringify(bowlers),
-    legByeCountBefore: legByeCount === 0 ? 2 : legByeCount - 1
-  });
+    showUmpireCall("wicket");
+    speakCommentary("wicket");
+    const wicketSound = document.getElementById("soundWicket");
+    if (!isMuted && wicketSound) {
+      wicketSound.currentTime = 0;
+      wicketSound.play();
+    }
+  }
 
   updateDisplay();
   renderScoreboard();
@@ -427,12 +444,13 @@ function addLegBye() {
   saveMatchState();
 }
 
-
 function addWicket() {
   if (isInningsOver()) return alert("Innings is over.");
 
   wickets++;
   balls++;
+  legByeCount = 0;  // ✅ Reset leg bye counter on wicket
+
   const bowler = bowlers[currentBowlerIndex];
   bowler.balls++;
   bowler.wickets++;
@@ -593,7 +611,7 @@ if (winnerName) {
       congrats.textContent = "🎉 Congratulations to " + winningTeam + "!";
       document.getElementById("summary").appendChild(congrats);
       confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
-      document.getElementById("victorySound").play();
+      if (!isMuted) document.getElementById("victorySound").play();
     }
 
     const playAgainContainer = document.getElementById("playAgainContainer");
@@ -682,6 +700,7 @@ function undoLastBall() {
   bowlers = JSON.parse(lastBall.bowlersBefore);
   if (lastBall.type === 'legbye') legByeCount = lastBall.legByeCountBefore;
   currentBatsmanIndex = batsmen.findIndex(b => !b.out);
+if (currentBatsmanIndex === -1) currentBatsmanIndex = batsmen.length - 1;
   currentBowlerIndex = lastBall.bowlerIndex;
   updateDisplay();
   renderScoreboard();

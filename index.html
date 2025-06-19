@@ -93,6 +93,7 @@
             <th class="border px-2">Name</th>
             <th class="border px-2">Runs</th>
             <th class="border px-2">Balls</th>
+            <th class="border px-2">Dots</th>
             <th class="border px-2">4s</th>
             <th class="border px-2">6s</th>
             <th class="border px-2">Status</th>
@@ -108,6 +109,7 @@
             <th class="border px-2">Name</th>
             <th class="border px-2">Overs</th>
             <th class="border px-2">Runs</th>
+            <th class="border px-2">Dots</th>
             <th class="border px-2">Wickets</th>
           </tr>
         </thead>
@@ -140,6 +142,7 @@ let wickets = 0;
 let balls = 0;
 let extras = 0;
 let legByeCount = 0;
+let dots = 0;
 
 let batsmen = [];
 let bowlers = [];
@@ -187,7 +190,7 @@ function saveMatchState() {
   const matchState = {
     score, wickets, balls, totalOvers, legByeCount,
     batsmen, bowlers, currentBatsmanIndex, currentBowlerIndex,
-    inning, firstInningsScore, extras, ballHistory,
+    inning, firstInningsScore, extras, ballHistory,dots
     teamA: document.getElementById("teamA").value.trim(),
     teamB: document.getElementById("teamB").value.trim()
   };
@@ -230,8 +233,8 @@ function startMatch() {
   let bowlerName = prompt("Enter name of opening bowler:");
   if (!bowlerName) bowlerName = "Bowler 1";
 
-  batsmen.push({name: striker, runs:0, balls:0, fours:0, sixes:0, out:false});
-  bowlers.push({name: bowlerName, balls:0, runs:0, wickets:0});
+  batsmen.push({name: striker, runs:0, balls:0, fours:0, sixes:0,dotBalls:0, out:false});
+  bowlers.push({name: bowlerName, balls:0, runs:0,dotBalls:0, wickets:0});
 
   document.getElementById("matchPanel").classList.remove("hidden");
   document.getElementById("scoreboard").classList.remove("hidden");
@@ -267,6 +270,10 @@ function addRun(runs) {
     scoreBefore: score - runs,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
+    if (runs === 0) {
+  striker.dotBalls++;
+  bowler.dotBalls++;
+}
   });
   checkOverComplete();
   updateDisplay();

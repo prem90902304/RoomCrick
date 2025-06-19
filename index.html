@@ -338,17 +338,26 @@ if (runs === 6) speakCommentary("six");
 
 function addWide() {
   if (isInningsOver()) return alert("Innings is over.");
+
+  // 🟡 Update score and extras immediately
   score++;
   extras++;
+
   const bowler = bowlers[currentBowlerIndex];
   bowler.runs++;
+
+  // 🟡 Sound + Commentary
   speakCommentary("wide");
-  const wideSound = document.getElementById("soundWide");
-if (!isMuted && wideSound) {
-  wideSound.currentTime = 0;
-  wideSound.play();
-  showUmpireCall("wide");
-}
+  if (!isMuted) {
+    const wideSound = document.getElementById("soundWide");
+    if (wideSound) {
+      wideSound.currentTime = 0;
+      wideSound.play();
+    }
+    showUmpireCall("wide");
+  }
+
+  // 🟡 Save for undo
   ballHistory.push({
     type: 'wide',
     runs: 1,
@@ -360,6 +369,8 @@ if (!isMuted && wideSound) {
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
   });
+
+  // 🟢 Immediate update
   updateDisplay();
   renderScoreboard();
   checkTargetReached();

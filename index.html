@@ -190,7 +190,7 @@ function saveMatchState() {
   const matchState = {
     score, wickets, balls, totalOvers, legByeCount,
     batsmen, bowlers, currentBatsmanIndex, currentBowlerIndex,
-    inning, firstInningsScore, extras, ballHistory,dots
+    inning, firstInningsScore, extras, ballHistory,dots,
     teamA: document.getElementById("teamA").value.trim(),
     teamB: document.getElementById("teamB").value.trim()
   };
@@ -260,6 +260,11 @@ function addRun(runs) {
   if (runs === 6) striker.sixes++;
   balls++;
   bowler.balls++;
+  if (runs === 0) {
+  striker.dotBalls++;
+  bowler.dotBalls++;
+  dots++;
+}
   ballHistory.push({
     type: 'run',
     runs,
@@ -270,10 +275,6 @@ function addRun(runs) {
     scoreBefore: score - runs,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
-    if (runs === 0) {
-  striker.dotBalls++;
-  bowler.dotBalls++;
-}
   });
   checkOverComplete();
   updateDisplay();
@@ -333,7 +334,7 @@ function addLegBye() {
     if (wickets < 10) {
       let newBatsman = prompt("Enter name of new batsman:");
       if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
-      batsmen[currentBatsmanIndex] = { name: newBatsman, runs:0, balls:0, fours:0, sixes:0, out:false };
+      batsmen[currentBatsmanIndex] = { name: newBatsman, runs:0, balls:0, fours:0, sixes:0,dotBalls: 0, out:false };
     } else {
       alert("All out!");
     }
@@ -366,7 +367,7 @@ function addWicket() {
   if (wickets < 10) {
     let newBatsman = prompt("Enter name of new batsman:");
     if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
-    batsmen[currentBatsmanIndex] = {name: newBatsman, runs:0, balls:0, fours:0, sixes:0, out:false};
+    batsmen[currentBatsmanIndex] = {name: newBatsman, runs:0, balls:0, fours:0, sixes:0,dotBalls: 0, out:false};
   } else {
     alert("All out!");
   }
@@ -385,7 +386,7 @@ function checkOverComplete() {
     }
     let newBowler = prompt("Over completed. Enter new bowler name:");
     if (!newBowler) newBowler = `Bowler ${bowlers.length + 1}`;
-    bowlers.push({name: newBowler, balls:0, runs:0, wickets:0});
+    bowlers.push({name: newBowler, balls:0, runs:0,dotBalls: 0, wickets:0});
     currentBowlerIndex = bowlers.length - 1;
   }
 }
@@ -421,8 +422,8 @@ function endMatch() {
     if (!striker) striker = "Batsman 1";
     let bowlerName = prompt("Enter name of opening bowler for 2nd Innings:");
     if (!bowlerName) bowlerName = "Bowler 1";
-    batsmen.push({name: striker, runs:0, balls:0, fours:0, sixes:0, out:false});
-    bowlers.push({name: bowlerName, balls:0, runs:0, wickets:0});
+    batsmen.push({name: striker, runs:0, balls:0, fours:0, sixes:0,dotBalls: 0, out:false});
+    bowlers.push({name: bowlerName, balls:0, runs:0,dotBalls: 0, wickets:0});
     document.getElementById("inningLabel").textContent = `(2nd Innings)`;
     document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
     updateDisplay();
@@ -449,6 +450,10 @@ function endMatch() {
     localStorage.setItem('crickHistory', JSON.stringify(history));
     document.getElementById("summary").classList.remove("hidden");
     document.getElementById("winner").textContent = winnerText;
+    const dotInfo = document.createElement("p");
+    dotInfo.textContent = `Total dot balls in match: ${dots}`;
+    document.getElementById("summary").appendChild(dotInfo);
+
 
     if (!winnerText.includes("tied")) {
       const winningTeam = score > firstInningsScore ? teamB : teamA;
@@ -503,6 +508,7 @@ function renderScoreboard() {
       <td class="border px-2">${b.name}</td>
       <td class="border px-2">${b.runs}</td>
       <td class="border px-2">${b.balls}</td>
+      <td class="border px-2">${b.dotBalls}</td>
       <td class="border px-2">${b.fours}</td>
       <td class="border px-2">${b.sixes}</td>
       <td class="border px-2">${b.out ? "Out" : "Not Out"}</td>
@@ -512,6 +518,12 @@ function renderScoreboard() {
 
   const bowlerTable = document.getElementById("bowlerTable");
   bowlerTable.innerHTML = "";
+  bowlers.sort((a, b) => {
+  const ecoA = a.balls ? a.runs / (a.balls / 6) : Infinity;
+  const ecoB = b.balls ? b.runs / (b.balls / 6) : Infinity;
+  return ecoA - ecoB;
+});
+
   bowlers.forEach(b => {
     const overs = Math.floor(b.balls / 6) + "." + (b.balls % 6);
     const tr = document.createElement("tr");
@@ -519,6 +531,7 @@ function renderScoreboard() {
       <td class="border px-2">${b.name}${b === bowlers[currentBowlerIndex] ? " (current)" : ""}</td>
       <td class="border px-2">${overs}</td>
       <td class="border px-2">${b.runs}</td>
+      <td class="border px-2">${b.dotBalls}</td>
       <td class="border px-2">${b.wickets}</td>
     `;
     bowlerTable.appendChild(tr);
@@ -599,6 +612,15 @@ renderHistory();
     ROOM 115
   </a> • © 2025 CrickScore
 </footer>
+  
+  <audio id="victorySound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const victorySound = document.getElementById("victorySound");
+    if (victorySound) victorySound.volume = 0.4;
+  });
+</script>
 
 </body>
 </html>

@@ -197,161 +197,9 @@ function saveMatchState() {
 function clearMatchState() {
   localStorage.removeItem("crickscoreState");
 }
-
-// In your scoring functions, add saveMatchState() like below:
-
-function addRun(runs) {
-  if (isInningsOver()) return alert("Innings is over.");
-  const striker = batsmen[currentBatsmanIndex];
-  const bowler = bowlers[currentBowlerIndex];
-  score += runs;
-  striker.runs += runs;
-  striker.balls++;
-  bowler.runs += runs;
-  if (runs === 4) striker.fours++;
-  if (runs === 6) striker.sixes++;
-  balls++;
-  bowler.balls++;
-  ballHistory.push({
-    type: 'run',
-    runs,
-    strikerIndex: currentBatsmanIndex,
-    bowlerIndex: currentBowlerIndex,
-    wicketsBefore: wickets,
-    ballsBefore: balls - 1,
-    scoreBefore: score - runs,
-    batsmenBefore: JSON.stringify(batsmen),
-    bowlersBefore: JSON.stringify(bowlers),
-  });
-  checkOverComplete();
-  updateDisplay();
-  renderScoreboard();
-  checkInningsEnd();
-  checkTargetReached();
-  saveMatchState();
-}
-
-function addWicket() {
-  if (isInningsOver()) return alert("Innings is over.");
-  wickets++;
-  balls++;
-  bowlers[currentBowlerIndex].balls++;
-  bowlers[currentBowlerIndex].wickets++;
-  batsmen[currentBatsmanIndex].out = true;
-  ballHistory.push({
-    type: 'wicket',
-    strikerIndex: currentBatsmanIndex,
-    bowlerIndex: currentBowlerIndex,
-    wicketsBefore: wickets - 1,
-    ballsBefore: balls - 1,
-    scoreBefore: score,
-    batsmenBefore: JSON.stringify(batsmen),
-    bowlersBefore: JSON.stringify(bowlers),
-  });
-  if (wickets < 10) {
-    let newBatsman = prompt("Enter name of new batsman:");
-    if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
-    batsmen[currentBatsmanIndex] = {name: newBatsman, runs:0, balls:0, fours:0, sixes:0, out:false};
-  } else {
-    alert("All out!");
-  }
-  updateDisplay();
-  renderScoreboard();
-  checkInningsEnd();
-  checkTargetReached();
-  saveMatchState();
-}
-
-function addLegBye() {
-  if (isInningsOver()) return alert("Innings is over.");
-  legByeCount++;
-  const bowler = bowlers[currentBowlerIndex];
-  balls++;
-  bowler.balls++;
-  ballHistory.push({
-    type: 'legbye',
-    strikerIndex: currentBatsmanIndex,
-    bowlerIndex: currentBowlerIndex,
-    wicketsBefore: wickets,
-    ballsBefore: balls - 1,
-    scoreBefore: score,
-    batsmenBefore: JSON.stringify(batsmen),
-    bowlersBefore: JSON.stringify(bowlers),
-    legByeCountBefore: legByeCount - 1
-  });
-  if (legByeCount >= 3) {
-    const outBatsman = batsmen[currentBatsmanIndex];
-    outBatsman.out = true;
-    wickets++;
-    legByeCount = 0;
-    alert(`${outBatsman.name} is OUT after 3 leg byes!`);
-    if (wickets < 10) {
-      let newBatsman = prompt("Enter name of new batsman:");
-      if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
-      batsmen[currentBatsmanIndex] = { name: newBatsman, runs:0, balls:0, fours:0, sixes:0, out:false };
-    } else {
-      alert("All out!");
-    }
-  }
-  checkOverComplete();
-  updateDisplay();
-  renderScoreboard();
-  checkInningsEnd();
-  checkTargetReached();
-  saveMatchState();
-}
-
-function addWide() {
-  if (isInningsOver()) return alert("Innings is over.");
-  score++;
-  extras++;
-  const bowler = bowlers[currentBowlerIndex];
-  bowler.runs++;
-  ballHistory.push({
-    type: 'wide',
-    runs: 1,
-    strikerIndex: currentBatsmanIndex,
-    bowlerIndex: currentBowlerIndex,
-    wicketsBefore: wickets,
-    ballsBefore: balls,
-    scoreBefore: score - 1,
-    batsmenBefore: JSON.stringify(batsmen),
-    bowlersBefore: JSON.stringify(bowlers),
-  });
-  updateDisplay();
-  renderScoreboard();
-  checkTargetReached();
-  saveMatchState();
-}
-
-function undoLastBall() {
-  if (ballHistory.length === 0) return alert("No balls to undo!");
-  const lastBall = ballHistory.pop();
-  score = lastBall.scoreBefore;
-  wickets = lastBall.wicketsBefore;
-  balls = lastBall.ballsBefore;
-  batsmen = JSON.parse(lastBall.batsmenBefore);
-  bowlers = JSON.parse(lastBall.bowlersBefore);
-  if (lastBall.type === 'legbye') legByeCount = lastBall.legByeCountBefore;
-  currentBatsmanIndex = batsmen.findIndex(b => !b.out);
-  currentBowlerIndex = lastBall.bowlerIndex;
-  updateDisplay();
-  renderScoreboard();
-  saveMatchState();
-}
-
-function startMatch() {
-  clearMatchState();
-  // ... rest of your startMatch logic ...
-  saveMatchState();
-}
-
-function endMatch() {
-  // ... rest of your endMatch logic ...
-  clearMatchState();
-}
     
 function startMatch() {
+  clearMatchState();
   const teamA = document.getElementById("teamA").value.trim();
   const teamB = document.getElementById("teamB").value.trim();
   totalOvers = parseInt(document.getElementById("totalOvers").value);
@@ -394,6 +242,7 @@ function startMatch() {
   updateDisplay();
   renderScoreboard();
   renderHistory();
+  saveMatchState();
 }
 
 function addRun(runs) {
@@ -424,6 +273,8 @@ function addRun(runs) {
   renderScoreboard();
   checkInningsEnd();
   checkTargetReached();
+  saveMatchState();
+  
 }
 
 function addWide() {
@@ -446,6 +297,7 @@ function addWide() {
   updateDisplay();
   renderScoreboard();
   checkTargetReached();
+  saveMatchState();
 }
 
 function addLegBye() {
@@ -484,6 +336,7 @@ function addLegBye() {
   renderScoreboard();
   checkInningsEnd();
   checkTargetReached();
+  saveMatchState();
 }
 
 function addWicket() {
@@ -514,6 +367,7 @@ function addWicket() {
   renderScoreboard();
   checkInningsEnd();
   checkTargetReached();
+  saveMatchState();
 }
 
 function checkOverComplete() {
@@ -566,6 +420,7 @@ function endMatch() {
     document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
     updateDisplay();
     renderScoreboard();
+    clearMatchState();
     document.getElementById("summary").classList.add("hidden");
   } else {
     let winnerText = "";

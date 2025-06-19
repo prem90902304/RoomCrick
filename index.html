@@ -449,26 +449,15 @@ function addWicket() {
 
   wickets++;
   balls++;
-  legByeCount = 0; // Reset leg bye count
+  legByeCount = 0;
 
   const bowler = bowlers[currentBowlerIndex];
+  const outBatsman = batsmen[currentBatsmanIndex];
+
+  outBatsman.out = true;
   bowler.balls++;
   bowler.wickets++;
 
-  const outBatsman = batsmen[currentBatsmanIndex];
-  outBatsman.out = true;
-
-  // Play sound
-  const wicketSound = document.getElementById("soundWicket");
-  if (!isMuted && wicketSound) {
-    wicketSound.currentTime = 0;
-    wicketSound.play();
-  }
-
-  speakCommentary("wicket");
-  showUmpireCall("wicket");
-
-  // Save history
   ballHistory.push({
     type: 'wicket',
     strikerIndex: currentBatsmanIndex,
@@ -480,11 +469,25 @@ function addWicket() {
     bowlersBefore: JSON.stringify(bowlers),
   });
 
+  // Prompt FIRST to avoid UI/sound blocking
   if (wickets < totalWickets) {
-    promptNewBatsman(); // ✅ Cleaner
+    promptNewBatsman();
   } else {
     alert("All out!");
   }
+
+  // Delayed sound + commentary (prevents prompt issues)
+  setTimeout(() => {
+    if (!isMuted) {
+      const wicketSound = document.getElementById("soundWicket");
+      if (wicketSound) {
+        wicketSound.currentTime = 0;
+        wicketSound.play();
+      }
+    }
+    speakCommentary("wicket");
+    showUmpireCall("wicket");
+  }, 100);
 
   updateDisplay();
   renderScoreboard();

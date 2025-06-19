@@ -448,6 +448,17 @@ function endMatch() {
     localStorage.setItem('crickHistory', JSON.stringify(history));
     document.getElementById("summary").classList.remove("hidden");
     document.getElementById("winner").textContent = winnerText;
+    // 🗣️ Speak congratulations using AI voice
+const winnerName = (score > firstInningsScore) ? teamB : (score < firstInningsScore) ? teamA : null;
+if (winnerName) {
+  const msg = new SpeechSynthesisUtterance(`Congratulations, ${winnerName}! You won the match!`);
+  msg.lang = 'en-US';
+  msg.volume = 1.0;
+  msg.rate = 1.0;
+  msg.pitch = 1.0;
+  window.speechSynthesis.speak(msg);
+}
+
     const dotInfo = document.createElement("p");
     dotInfo.textContent = `Total dot balls in match: ${dots}`;
     document.getElementById("summary").appendChild(dotInfo);

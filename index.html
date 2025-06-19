@@ -54,6 +54,7 @@
       <label>Overs: <input id="totalOvers" class="input w-20" type="number" min="1" /></label>
       <button onclick="startMatch()" class="btn ml-4">Start Match</button>
       <button onclick="clearHistory()" class="btn ml-2 bg-red-500 hover:bg-red-600">Clear History</button>
+      <button onclick="enableAudio()" class="btn bg-green-500">🔊 Enable Audio</button>
     </div>
 
     <div id="matchPanel" class="hidden space-y-4">
@@ -489,6 +490,7 @@ if (winnerName) {
     renderHistory();
   }
 }
+    
 
 function disableScoringButtons() {
   const buttons = document.querySelectorAll(
@@ -585,6 +587,11 @@ function clearHistory() {
 }
 
 renderHistory();
+    function enableAudio() {
+  const msg = new SpeechSynthesisUtterance("Audio enabled");
+  msg.lang = 'en-US';
+  window.speechSynthesis.speak(msg);
+}
 
   </script>
   <script>

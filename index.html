@@ -87,6 +87,7 @@
     <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
     <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
     <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
+    <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
   </div>
 </div>
 
@@ -150,11 +151,14 @@
     </div>
 
     <div id="summary" class="mt-6 hidden">
-      <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
-      <p id="winner"></p>
-      <div id="playAgainContainer" class="mt-4"></div>
-    </div>
+  <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
+  <p id="winner"></p>
 
+  <!-- ADD THIS BELOW -->
+  <div id="highlights" class="mt-4 text-sm text-left text-gray-800"></div>
+
+  <div id="playAgainContainer" class="mt-4"></div>
+</div>
     <div id="history" class="mt-6">
       <h3 class="font-bold text-lg mb-2">📜 Past Matches</h3>
       <ul id="matchHistory" class="list-disc pl-5 space-y-1"></ul>
@@ -511,10 +515,27 @@ function addWicket() {
 }
 function checkOverComplete() {
   if (balls > 0 && balls % 6 === 0) {
+    const lastBowler = bowlers[currentBowlerIndex];
+    const last6Balls = ballHistory.slice(-6);
+    const isMaiden = last6Balls.length === 6 && last6Balls.every(b => b.type === 'run' && b.runs === 0 || b.type === 'legbye');
+    
+    if (isMaiden) {
+  speakCommentary("maiden");
+  showMaidenMessage(); // 👈 Show on screen
+  if (!isMuted) {
+    const maidenSound = document.getElementById("soundMaiden");
+    if (maidenSound) {
+      maidenSound.currentTime = 0;
+      maidenSound.play();
+    }
+  }
+}
+
     if (isInningsOver()) {
       alert("Overs completed!");
       return;
     }
+
     let newBowler = prompt("Over completed. Enter new bowler name:");
     if (!newBowler) newBowler = `Bowler ${bowlers.length + 1}`;
     bowlers.push({name: newBowler, balls:0, runs:0,dotBalls: 0, wickets:0});
@@ -634,6 +655,32 @@ if (winnerName) {
     disableScoringButtons();
     document.getElementById("matchPanel").classList.add("hidden");
     document.getElementById("scoreboard").classList.add("hidden");
+    // 🎯 Generate Match Highlights
+let topBatsman = batsmen.reduce((max, b) => b.runs > max.runs ? b : max, batsmen[0]);
+let topBowler = bowlers.reduce((max, b) => b.wickets > max.wickets ? b : max, bowlers[0]);
+let mostDotBowler = bowlers.reduce((max, b) => b.dotBalls > max.dotBalls ? b : max, bowlers[0]);
+
+// Count maidens from history
+let maidenOvers = 0;
+for (let i = 0; i < ballHistory.length; i += 6) {
+  const over = ballHistory.slice(i, i + 6);
+  if (over.length === 6 && over.every(b => b.type === 'run' && b.runs === 0 || b.type === 'legbye')) {
+    maidenOvers++;
+  }
+}
+
+const highlights = document.getElementById("highlights");
+highlights.innerHTML = `
+  <h4 class="text-lg font-semibold mb-1">🏆 Match Highlights</h4>
+  <ul class="list-disc ml-5 space-y-1">
+    <li><strong>Top Batsman:</strong> ${topBatsman.name} - ${topBatsman.runs} runs (${topBatsman.balls} balls)</li>
+    <li><strong>Top Bowler:</strong> ${topBowler.name} - ${topBowler.wickets} wickets</li>
+    <li><strong>Most Dot Balls (Bowler):</strong> ${mostDotBowler.name} - ${mostDotBowler.dotBalls} dots</li>
+    <li><strong>Total Dot Balls in Match:</strong> ${dots}</li>
+    <li><strong>Maiden Overs:</strong> ${maidenOvers}</li>
+  </ul>
+`;
+
     renderHistory();
   }
 }
@@ -748,7 +795,7 @@ function clearHistory() {
 }
 
 renderHistory();
-    function enableAudio() {
+function enableAudio() {
   const msg = new SpeechSynthesisUtterance("Audio enabled");
   msg.lang = 'en-US';
   window.speechSynthesis.speak(msg);
@@ -817,6 +864,12 @@ function toggleMute() {
   "ta-IN": "லெக் விக்கெட் !",
   "te-IN": "లెగ్!"
 },
+    "maiden": {
+  "en-US": "That's a maiden over!",
+  "hi-IN": "यह मेडन ओवर है!",
+  "ta-IN": "இது ஒரு மேடன் ஓவர்!",
+  "te-IN": "ఇది ఒక మెయిడెన్ ఓవర్!"
+},
   };
 
   const message = commentaryMessages[messageKey]?.[lang];
@@ -845,6 +898,15 @@ function toggleMute() {
     call.classList.remove("show");
     call.classList.add("hidden");
   }, 1200); // visible for 1.2 seconds
+}
+    function showMaidenMessage() {
+  const msg = document.getElementById("maidenMessage");
+  msg.textContent = "👏 Maiden Over!";
+  msg.classList.remove("hidden");
+
+  setTimeout(() => {
+    msg.classList.add("hidden");
+  }, 2000);
 }
   </script>
   
@@ -901,6 +963,8 @@ function toggleMute() {
 <audio id="soundWide" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
 <audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
 <audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
+<audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
+
 
 
 </body>

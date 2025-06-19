@@ -362,7 +362,10 @@ function addLegBye() {
 if (!isMuted && legByeSound) {
   legByeSound.currentTime = 0;
   legByeSound.play();
+}
 
+if (legByeCount >= 3) {
+  showUmpireCall("wicket");
 }
   ballHistory.push({
     type: 'legbye',
@@ -548,7 +551,10 @@ if (winnerName) {
     playAgainBtn.id = "playAgainBtn";
     playAgainBtn.textContent = "🔄 Play Again";
     playAgainBtn.className = "btn bg-blue-600 hover:bg-blue-700 mt-2";
-    playAgainBtn.onclick = () => location.reload();
+    playAgainBtn.onclick = () => {
+  clearMatchState(); // <-- This clears saved match state
+  location.reload(); // then reloads fresh
+};
     playAgainContainer.appendChild(playAgainBtn);
 
     disableScoringButtons();
@@ -558,7 +564,6 @@ if (winnerName) {
   }
 }
     
-
 function disableScoringButtons() {
   const buttons = document.querySelectorAll(
     'button:not(#playAgainBtn):not([onclick="clearHistory()"])'

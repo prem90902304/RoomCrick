@@ -404,7 +404,7 @@ function addLegBye() {
 
   // Save previous state
   ballHistory.push({
-    type: 'leg',
+  type: 'legbye',
     strikerIndex: currentBatsmanIndex,
     bowlerIndex: currentBowlerIndex,
     ballsBefore: balls - 1,
@@ -485,7 +485,7 @@ function addWicket() {
   showUmpireCall("wicket");
 
   // Next batsman if not all out
-  if (wickets < maxWickets) {
+  if (wickets < totalWickets){
     let newBatsmanName = prompt("Enter name of new batsman:");
     if (!newBatsmanName) newBatsmanName = `Batsman ${wickets + 1}`;
     currentBatsmanIndex = batsmen.length;

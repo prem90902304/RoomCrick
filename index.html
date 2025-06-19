@@ -468,14 +468,6 @@ function addWicket() {
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
   });
-
-  // Prompt FIRST to avoid UI/sound blocking
-  if (wickets < totalWickets) {
-    promptNewBatsman();
-  } else {
-    alert("All out!");
-  }
-
   // Delayed sound + commentary (prevents prompt issues)
   setTimeout(() => {
     if (!isMuted) {
@@ -488,7 +480,12 @@ function addWicket() {
     speakCommentary("wicket");
     showUmpireCall("wicket");
   }, 100);
-
+    // Prompt FIRST to avoid UI/sound blocking
+  if (wickets < totalWickets) {
+    promptNewBatsman();
+  } else {
+    alert("All out!");
+  }
   updateDisplay();
   renderScoreboard();
   checkInningsEnd();

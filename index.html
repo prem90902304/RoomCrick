@@ -460,15 +460,12 @@ function addWicket() {
 
   wickets++;
   balls++;
-  legByeCount = 0;
-
   const bowler = bowlers[currentBowlerIndex];
-  const outBatsman = batsmen[currentBatsmanIndex];
-
-  outBatsman.out = true;
   bowler.balls++;
   bowler.wickets++;
+  batsmen[currentBatsmanIndex].out = true;
 
+  // Save history for undo
   ballHistory.push({
     type: 'wicket',
     strikerIndex: currentBatsmanIndex,
@@ -480,42 +477,33 @@ function addWicket() {
     bowlersBefore: JSON.stringify(bowlers),
   });
 
-  // ✅ Prompt FIRST (must happen immediately after button click)
-  if (wickets < totalWickets) {
-    let name = prompt("Enter name of new batsman:");
-    if (!name) name = `Batsman ${wickets + 1}`;
+  // Play sound + commentary
+  document.getElementById("soundWicket").play();
+  speakCommentary("wicket");
+  showUmpireCall("wicket");
+
+  // Next batsman if not all out
+  if (wickets < maxWickets) {
+    let newBatsmanName = prompt("Enter name of new batsman:");
+    if (!newBatsmanName) newBatsmanName = `Batsman ${wickets + 1}`;
+    currentBatsmanIndex = batsmen.length;
     batsmen.push({
-      name,
+      name: newBatsmanName,
       runs: 0,
       balls: 0,
       fours: 0,
       sixes: 0,
-      dotBalls: 0,
       out: false
     });
-    currentBatsmanIndex = batsmen.length - 1;
   } else {
     alert("All out!");
   }
 
-  // 🔊 Play sound & commentary immediately AFTER prompt
-  if (!isMuted) {
-    const wicketSound = document.getElementById("soundWicket");
-    if (wicketSound) {
-      wicketSound.currentTime = 0;
-      wicketSound.play();
-    }
-  }
-  speakCommentary("wicket");
-  showUmpireCall("wicket");
-
   updateDisplay();
   renderScoreboard();
-  checkInningsEnd();
   checkTargetReached();
   saveMatchState();
 }
-
 function checkOverComplete() {
   if (balls > 0 && balls % 6 === 0) {
     if (isInningsOver()) {

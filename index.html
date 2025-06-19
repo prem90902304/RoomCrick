@@ -468,31 +468,33 @@ function addWicket() {
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
   });
-  // Delayed sound + commentary (prevents prompt issues)
-  setTimeout(() => {
-    if (!isMuted) {
-      const wicketSound = document.getElementById("soundWicket");
-      if (wicketSound) {
-        wicketSound.currentTime = 0;
-        wicketSound.play();
-      }
-    }
-    speakCommentary("wicket");
-    showUmpireCall("wicket");
-  }, 100);
-    // Prompt FIRST to avoid UI/sound blocking
-  if (wickets < totalWickets) {
-    promptNewBatsman();
-  } else {
-    alert("All out!");
-  }
-  updateDisplay();
-  renderScoreboard();
-  checkInningsEnd();
-  checkTargetReached();
-  saveMatchState();
-}
 
+  // 🔊 Play sound and commentary FIRST
+  if (!isMuted) {
+    const wicketSound = document.getElementById("soundWicket");
+    if (wicketSound) {
+      wicketSound.currentTime = 0;
+      wicketSound.play();
+    }
+  }
+  speakCommentary("wicket");
+  showUmpireCall("wicket");
+
+  // ⏱️ Then prompt for new batsman after 1 second
+  setTimeout(() => {
+    if (wickets < totalWickets) {
+      promptNewBatsman();
+    } else {
+      alert("All out!");
+    }
+
+    updateDisplay();
+    renderScoreboard();
+    checkInningsEnd();
+    checkTargetReached();
+    saveMatchState();
+  }, 1000); // wait 1 second
+}
 
 function checkOverComplete() {
   if (balls > 0 && balls % 6 === 0) {

@@ -147,6 +147,210 @@ let currentBatsmanIndex = 0;
 let currentBowlerIndex = 0;
 let ballHistory = [];
 
+// Restore match state on load
+window.onload = function () {
+  const savedState = localStorage.getItem("crickscoreState");
+  if (savedState) {
+    const state = JSON.parse(savedState);
+    score = state.score;
+    wickets = state.wickets;
+    balls = state.balls;
+    totalOvers = state.totalOvers;
+    legByeCount = state.legByeCount;
+    batsmen = state.batsmen;
+    bowlers = state.bowlers;
+    currentBatsmanIndex = state.currentBatsmanIndex;
+    currentBowlerIndex = state.currentBowlerIndex;
+    inning = state.inning;
+    firstInningsScore = state.firstInningsScore;
+    extras = state.extras || 0;
+    ballHistory = state.ballHistory || [];
+
+    document.getElementById("teamA").value = state.teamA;
+    document.getElementById("teamB").value = state.teamB;
+    document.getElementById("totalOvers").value = state.totalOvers;
+
+    document.getElementById("matchPanel").classList.remove("hidden");
+    document.getElementById("scoreboard").classList.remove("hidden");
+    document.getElementById("matchTeams").textContent = `${state.teamA} vs ${state.teamB}`;
+    document.getElementById("inningLabel").textContent = `(Innings ${inning})`;
+    if (inning === 2) {
+      document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
+    }
+
+    updateDisplay();
+    renderScoreboard();
+  }
+};
+
+function saveMatchState() {
+  const matchState = {
+    score, wickets, balls, totalOvers, legByeCount,
+    batsmen, bowlers, currentBatsmanIndex, currentBowlerIndex,
+    inning, firstInningsScore, extras, ballHistory,
+    teamA: document.getElementById("teamA").value.trim(),
+    teamB: document.getElementById("teamB").value.trim()
+  };
+  localStorage.setItem("crickscoreState", JSON.stringify(matchState));
+}
+
+function clearMatchState() {
+  localStorage.removeItem("crickscoreState");
+}
+
+// In your scoring functions, add saveMatchState() like below:
+
+function addRun(runs) {
+  if (isInningsOver()) return alert("Innings is over.");
+  const striker = batsmen[currentBatsmanIndex];
+  const bowler = bowlers[currentBowlerIndex];
+  score += runs;
+  striker.runs += runs;
+  striker.balls++;
+  bowler.runs += runs;
+  if (runs === 4) striker.fours++;
+  if (runs === 6) striker.sixes++;
+  balls++;
+  bowler.balls++;
+  ballHistory.push({
+    type: 'run',
+    runs,
+    strikerIndex: currentBatsmanIndex,
+    bowlerIndex: currentBowlerIndex,
+    wicketsBefore: wickets,
+    ballsBefore: balls - 1,
+    scoreBefore: score - runs,
+    batsmenBefore: JSON.stringify(batsmen),
+    bowlersBefore: JSON.stringify(bowlers),
+  });
+  checkOverComplete();
+  updateDisplay();
+  renderScoreboard();
+  checkInningsEnd();
+  checkTargetReached();
+  saveMatchState();
+}
+
+function addWicket() {
+  if (isInningsOver()) return alert("Innings is over.");
+  wickets++;
+  balls++;
+  bowlers[currentBowlerIndex].balls++;
+  bowlers[currentBowlerIndex].wickets++;
+  batsmen[currentBatsmanIndex].out = true;
+  ballHistory.push({
+    type: 'wicket',
+    strikerIndex: currentBatsmanIndex,
+    bowlerIndex: currentBowlerIndex,
+    wicketsBefore: wickets - 1,
+    ballsBefore: balls - 1,
+    scoreBefore: score,
+    batsmenBefore: JSON.stringify(batsmen),
+    bowlersBefore: JSON.stringify(bowlers),
+  });
+  if (wickets < 10) {
+    let newBatsman = prompt("Enter name of new batsman:");
+    if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
+    batsmen[currentBatsmanIndex] = {name: newBatsman, runs:0, balls:0, fours:0, sixes:0, out:false};
+  } else {
+    alert("All out!");
+  }
+  updateDisplay();
+  renderScoreboard();
+  checkInningsEnd();
+  checkTargetReached();
+  saveMatchState();
+}
+
+function addLegBye() {
+  if (isInningsOver()) return alert("Innings is over.");
+  legByeCount++;
+  const bowler = bowlers[currentBowlerIndex];
+  balls++;
+  bowler.balls++;
+  ballHistory.push({
+    type: 'legbye',
+    strikerIndex: currentBatsmanIndex,
+    bowlerIndex: currentBowlerIndex,
+    wicketsBefore: wickets,
+    ballsBefore: balls - 1,
+    scoreBefore: score,
+    batsmenBefore: JSON.stringify(batsmen),
+    bowlersBefore: JSON.stringify(bowlers),
+    legByeCountBefore: legByeCount - 1
+  });
+  if (legByeCount >= 3) {
+    const outBatsman = batsmen[currentBatsmanIndex];
+    outBatsman.out = true;
+    wickets++;
+    legByeCount = 0;
+    alert(`${outBatsman.name} is OUT after 3 leg byes!`);
+    if (wickets < 10) {
+      let newBatsman = prompt("Enter name of new batsman:");
+      if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
+      batsmen[currentBatsmanIndex] = { name: newBatsman, runs:0, balls:0, fours:0, sixes:0, out:false };
+    } else {
+      alert("All out!");
+    }
+  }
+  checkOverComplete();
+  updateDisplay();
+  renderScoreboard();
+  checkInningsEnd();
+  checkTargetReached();
+  saveMatchState();
+}
+
+function addWide() {
+  if (isInningsOver()) return alert("Innings is over.");
+  score++;
+  extras++;
+  const bowler = bowlers[currentBowlerIndex];
+  bowler.runs++;
+  ballHistory.push({
+    type: 'wide',
+    runs: 1,
+    strikerIndex: currentBatsmanIndex,
+    bowlerIndex: currentBowlerIndex,
+    wicketsBefore: wickets,
+    ballsBefore: balls,
+    scoreBefore: score - 1,
+    batsmenBefore: JSON.stringify(batsmen),
+    bowlersBefore: JSON.stringify(bowlers),
+  });
+  updateDisplay();
+  renderScoreboard();
+  checkTargetReached();
+  saveMatchState();
+}
+
+function undoLastBall() {
+  if (ballHistory.length === 0) return alert("No balls to undo!");
+  const lastBall = ballHistory.pop();
+  score = lastBall.scoreBefore;
+  wickets = lastBall.wicketsBefore;
+  balls = lastBall.ballsBefore;
+  batsmen = JSON.parse(lastBall.batsmenBefore);
+  bowlers = JSON.parse(lastBall.bowlersBefore);
+  if (lastBall.type === 'legbye') legByeCount = lastBall.legByeCountBefore;
+  currentBatsmanIndex = batsmen.findIndex(b => !b.out);
+  currentBowlerIndex = lastBall.bowlerIndex;
+  updateDisplay();
+  renderScoreboard();
+  saveMatchState();
+}
+
+function startMatch() {
+  clearMatchState();
+  // ... rest of your startMatch logic ...
+  saveMatchState();
+}
+
+function endMatch() {
+  // ... rest of your endMatch logic ...
+  clearMatchState();
+}
+    
 function startMatch() {
   const teamA = document.getElementById("teamA").value.trim();
   const teamB = document.getElementById("teamB").value.trim();

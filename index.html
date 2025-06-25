@@ -834,6 +834,8 @@ function endMatch() {
     // ✅ Initialize second innings history array
     inningsHistory[currentInnings] = [];
 
+    localStorage.removeItem('crickMatchState');
+
     // Reset stats for 2nd innings
     score = 0;
     wickets = 0;

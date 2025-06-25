@@ -1230,7 +1230,7 @@ function toggleMute() {
   const button = document.getElementById("toggleHighlightsBtn");
 
   if (highlightsDiv.style.display === "none" || highlightsDiv.innerHTML === "") {
-    showMatchInnings(); // Render innings content
+    showmatchInnings();  // This function builds the highlights table
     highlightsDiv.style.display = "block";
     button.textContent = "Hide Match Innings";
   } else {

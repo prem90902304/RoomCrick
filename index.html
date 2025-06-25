@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CrickScore</title>
+  <title>RoomCrick</title>
   <link rel="icon" href="https://img.icons8.com/color/96/cricket.png" type="image/png" />
   <meta name="theme-color" content="#4f46e5" />
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
@@ -43,7 +43,7 @@
   </style>
 </head>
 <body class="bg-white text-gray-800 font-sans p-4 max-w-xl mx-auto">
-  <h1 class="text-3xl font-bold mb-4 text-center">🏏 CrickScore</h1>
+  <h1 class="text-3xl font-bold mb-4 text-center">🏏 RoomCrick</h1>
 
   <div class="space-y-6 bg-gray-50 p-4 rounded shadow-md">
     <div class="grid sm:grid-cols-2 gap-4">
@@ -165,7 +165,7 @@
   <link rel="manifest" href="manifest.json?v=7" />
 <script src="main.js?v=7"></script>
 <div class="text-center text-xs text-gray-500 mt-6">
-  CrickScore v7 – Always updated 🚀
+  RoomCrick v7 – Always updated 🚀
 </div>
 
 </body>
@@ -195,7 +195,7 @@ let currentInnings = 0;        // 0 = first innings, 1 = second innings
 
 // Restore match state on load
 window.onload = function () {
-  const savedState = localStorage.getItem("crickscoreState");
+  const savedState = localStorage.getItem("RoomCrickState");
   if (savedState) {
     const state = JSON.parse(savedState);
     score = state.score;
@@ -237,11 +237,11 @@ function saveMatchState() {
     teamA: document.getElementById("teamA").value.trim(),
     teamB: document.getElementById("teamB").value.trim()
   };
-  localStorage.setItem("crickscoreState", JSON.stringify(matchState));
+  localStorage.setItem("RoomCrickState", JSON.stringify(matchState));
 }
 
 function clearMatchState() {
-  localStorage.removeItem("crickscoreState");
+  localStorage.removeItem("RoomCrickState");
 }
     
 function startMatch() {
@@ -1205,7 +1205,7 @@ function toggleMute() {
   >
     prem
   </a> 
-  • © 2025 <span class="font-medium text-gray-700">CrickScore</span>
+  • © 2025 <span class="font-medium text-gray-700">RoomCrick</span>
 </footer>
   
   <audio id="victorySound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>

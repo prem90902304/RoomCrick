@@ -472,6 +472,7 @@ function addWicket() {
   bowler.balls++;
   bowler.wickets++;
   batsmen[currentBatsmanIndex].out = true;
+  legByeCount = 0; // 🔁 Reset leg bye counter on normal wicket
 
   // Save history for undo
   ballHistory.push({
@@ -736,14 +737,23 @@ function renderScoreboard() {
 
   const bowlerTable = document.getElementById("bowlerTable");
   bowlerTable.innerHTML = "";
+
+  // Optional: Sort by economy rate (can adjust or remove this line)
   bowlers.sort((a, b) => {
-  const ecoA = a.balls ? a.runs / (a.balls / 6) : Infinity;
-  const ecoB = b.balls ? b.runs / (b.balls / 6) : Infinity;
-  return ecoA - ecoB;
-});
+    const ecoA = a.balls ? a.runs / (a.balls / 6) : Infinity;
+    const ecoB = b.balls ? b.runs / (b.balls / 6) : Infinity;
+    return ecoA - ecoB;
+  });
+
+  // Format overs helper
+  function formatOvers(balls) {
+    const completed = Math.floor(balls / 6);
+    const extra = balls % 6;
+    return `${completed}.${extra}`;
+  }
 
   bowlers.forEach(b => {
-    const overs = Math.floor(b.balls / 6) + "." + (b.balls % 6);
+    const overs = formatOvers(b.balls);
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="border px-2">${b.name}${b === bowlers[currentBowlerIndex] ? " (current)" : ""}</td>
@@ -755,7 +765,6 @@ function renderScoreboard() {
     bowlerTable.appendChild(tr);
   });
 }
-
 function undoLastBall() {
   if (ballHistory.length === 0) return alert("No balls to undo!");
   const lastBall = ballHistory.pop();

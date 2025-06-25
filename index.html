@@ -742,26 +742,20 @@ function renderScoreboard() {
   const bowlerTable = document.getElementById("bowlerTable");
   bowlerTable.innerHTML = "";
 
-  // Sort Bowlers by Economy Rate
-  bowlers.sort((a, b) => {
-    const ecoA = a.balls ? a.runs / (a.balls / 6) : Infinity;
-    const ecoB = b.balls ? b.runs / (b.balls / 6) : Infinity;
-    return ecoA - ecoB;
-  });
-
-  // Helper to Format Overs Properly
+  // Format overs helper
   function formatOvers(balls) {
     const completed = Math.floor(balls / 6);
     const extra = balls % 6;
     return `${completed}.${extra}`;
   }
 
-  // Render Bowler Table
+  // Render Bowler Table in actual bowling order (no sort)
   bowlers.forEach((b, index) => {
     const overs = formatOvers(b.balls);
+    const isCurrent = index === currentBowlerIndex;
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="border px-2">${b.name}${index === currentBowlerIndex ? " (current)" : ""}</td>
+      <td class="border px-2">${b.name}${isCurrent ? " (current)" : ""}</td>
       <td class="border px-2">${overs}</td>
       <td class="border px-2">${b.runs}</td>
       <td class="border px-2">${b.dotBalls}</td>
@@ -770,7 +764,6 @@ function renderScoreboard() {
     bowlerTable.appendChild(tr);
   });
 }
-
 function undoLastBall() {
   if (ballHistory.length === 0) return alert("No balls to undo!");
   const lastBall = ballHistory.pop();

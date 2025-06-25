@@ -1179,31 +1179,6 @@ function toggleMute() {
       })
       .catch(err => console.error("❌ Service Worker registration failed", err));
   }
-    function showMatchHighlights() {
-  let allHighlights = [];
-
-  inningsHistory.forEach((innings, index) => {
-    allHighlights.push(`🏏 Inning ${index + 1} Highlights:\n`);
-    innings.forEach(event => {
-      let highlight = `Over ${event.over}.${event.ball} - `;
-      if (event.type === 'run') {
-        highlight += `${event.batsman} scored ${event.runs} run(s) off ${event.bowler}`;
-      } else if (event.type === 'wide') {
-        highlight += `Wide ball by ${event.bowler}`;
-      } else if (event.type === 'legbye') {
-        highlight += `${event.batsman} took a leg bye`;
-      } else if (event.type === 'wicket') {
-        highlight += `WICKET! ${event.batsman} OUT bowled by ${event.bowler}`;
-      }
-      highlight += ` | Score: ${event.score}/${event.wickets}`;
-      allHighlights.push(highlight);
-    });
-    allHighlights.push("\n");
-  });
-
-  alert(allHighlights.join('\n'));
-}
-</script>
   
 <!-- ✅ Footer must be inside <body> -->
 <footer class="text-center text-sm text-gray-500 mt-10">

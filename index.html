@@ -1194,12 +1194,18 @@ function toggleMute() {
       .catch(err => console.error("❌ Service Worker registration failed", err));
   }
   
-<!-- ✅ Footer must be inside <body> -->
+<!-- ✅ Footer inside <body> -->
 <footer class="text-center text-sm text-gray-500 mt-10">
   Developed by 
-  <a href="https://github.com/prem90902304" target="_blank" class="text-blue-600 hover:underline font-semibold">
-    ROOM 115
-  </a> • © 2025 CrickScore
+  <a 
+    href="https://github.com/prem90902304" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    class="text-blue-600 hover:underline font-semibold"
+  >
+    prem
+  </a> 
+  • © 2025 <span class="font-medium text-gray-700">CrickScore</span>
 </footer>
   
   <audio id="victorySound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>

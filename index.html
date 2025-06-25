@@ -856,6 +856,13 @@ function updateDisplay() {
   document.getElementById("runRate").textContent = runRate.toFixed(2);
   let oversLeft = Math.max(0, totalOvers - (balls / 6));
   document.getElementById("oversLeft").textContent = oversLeft.toFixed(1);
+
+  // 👉 Show target if second innings
+  const targetElement = document.getElementById("target");
+  if (inning === 2 && targetElement) {
+    targetElement.textContent = `Target: ${firstInningsScore + 1}`;
+    targetElement.classList.remove("hidden"); // Unhide if previously hidden
+  }
 }
     function promptNewBatsman() {
   let name = prompt("Enter name of new batsman:");

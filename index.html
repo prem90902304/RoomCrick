@@ -829,10 +829,21 @@ function endMatch() {
     // 🏁 Switch to second innings
     firstInningsScore = score;
     inning = 2;
-    currentInnings = 1;
-    score = 0; wickets = 0; balls = 0; extras = 0; dots = 0; legByeCount = 0;
+    currentInnings = 1;  // ✅ Ensure all 2nd innings events go to inningsHistory[1]
+
+    // ✅ Initialize second innings history array
+    inningsHistory[currentInnings] = [];
+
+    // Reset stats for 2nd innings
+    score = 0;
+    wickets = 0;
+    balls = 0;
+    extras = 0;
+    dots = 0;
+    legByeCount = 0;
     ballHistory = [];
-    batsmen = []; bowlers = [];
+    batsmen = [];
+    bowlers = [];
     currentBatsmanIndex = 0;
     currentBowlerIndex = 0;
 

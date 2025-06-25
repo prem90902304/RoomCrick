@@ -247,6 +247,7 @@ function clearMatchState() {
     
 function startMatch() {
   clearMatchState();
+
   const teamA = document.getElementById("teamA").value.trim();
   const teamB = document.getElementById("teamB").value.trim();
   totalOvers = parseInt(document.getElementById("totalOvers").value);
@@ -257,13 +258,18 @@ function startMatch() {
     return;
   }
 
+  // ✅ Reset innings history and innings counter
+  inningsHistory = [[]];        // First innings empty array
+  currentInnings = 0;           // Start with first innings
   inning = 1;
   firstInningsScore = 0;
+
   score = 0;
   wickets = 0;
   balls = 0;
   extras = 0;
   legByeCount = 0;
+  dots = 0;
   ballHistory = [];
 
   batsmen = [];
@@ -278,8 +284,8 @@ function startMatch() {
   let bowlerName = prompt("Enter name of opening bowler:");
   if (!bowlerName) bowlerName = "Bowler 1";
 
-  batsmen.push({name: striker, runs:0, balls:0, fours:0, sixes:0,dotBalls:0, out:false});
-  bowlers.push({name: bowlerName, balls:0, runs:0,dotBalls:0, wickets:0});
+  batsmen.push({name: striker, runs: 0, balls: 0, fours: 0, sixes: 0, dotBalls: 0, out: false});
+  bowlers.push({name: bowlerName, balls: 0, runs: 0, dotBalls: 0, wickets: 0});
 
   document.getElementById("matchPanel").classList.remove("hidden");
   document.getElementById("scoreboard").classList.remove("hidden");
@@ -287,6 +293,7 @@ function startMatch() {
 
   document.getElementById("matchTeams").textContent = `${teamA} vs ${teamB}`;
   document.getElementById("inningLabel").textContent = `(1st Innings)`;
+
   updateDisplay();
   renderScoreboard();
   renderHistory();
@@ -337,21 +344,23 @@ function addRun(runs) {
   if (runs === 6) speakCommentary("six");
 
   // 🔙 Undo History
-ballHistory.push({
-  type: 'run',
-  runs,
-  strikerIndex: currentBatsmanIndex,
-  bowlerIndex: currentBowlerIndex,
-  wicketsBefore: wickets,
-  ballsBefore: balls - 1,
-  scoreBefore: score - runs,
-  batsmenBefore: JSON.stringify(batsmen),
-  bowlersBefore: JSON.stringify(bowlers),
-  ballNumber: balls - 1   // 👈 Add this line
-});
+  ballHistory.push({
+    type: 'run',
+    runs,
+    strikerIndex: currentBatsmanIndex,
+    bowlerIndex: currentBowlerIndex,
+    wicketsBefore: wickets,
+    ballsBefore: balls - 1,
+    scoreBefore: score - runs,
+    batsmenBefore: JSON.stringify(batsmen),
+    bowlersBefore: JSON.stringify(bowlers),
+    ballNumber: balls - 1
+  });
 
-  // ✅ Add to match highlights
+  // ✅ ✅ ✅ Ensure innings array exists
   if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
+
+  // ✅ ✅ ✅ Push this run event to correct innings
   inningsHistory[currentInnings].push({
     type: 'run',
     runs,
@@ -379,7 +388,8 @@ function addWide() {
   extras++;
 
   const bowler = bowlers[currentBowlerIndex];
-  const striker = batsmen[currentBatsmanIndex]; // ✅ define striker
+  const striker = batsmen[currentBatsmanIndex];
+
   bowler.runs++;
 
   if (!isMuted) {
@@ -393,23 +403,24 @@ function addWide() {
 
   speakCommentary("wide");
 
+  // 🔙 Save for undo
   ballHistory.push({
     type: 'wide',
     runs: 1,
     strikerIndex: currentBatsmanIndex,
     bowlerIndex: currentBowlerIndex,
     wicketsBefore: wickets,
-    ballsBefore: balls, // no increment
+    ballsBefore: balls, // Wide doesn't increase balls
     scoreBefore: score - 1,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
-    ballNumber: balls - 1   // 👈 Add this line
+    ballNumber: balls - 1
   });
 
-  // ✅ Initialize array if missing
+  // ✅ Ensure innings array exists for current innings (0 for 1st, 1 for 2nd innings)
   if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
 
-  // ✅ Add to match highlights
+  // ✅ Record wide event in correct innings
   inningsHistory[currentInnings].push({
     type: 'wide',
     runs: 1,
@@ -428,7 +439,6 @@ function addWide() {
   saveMatchState();
   renderOverSummary();
 }
-    
 function addLegBye() {
   if (isInningsOver()) return alert("Innings is over.");
 
@@ -460,13 +470,13 @@ function addLegBye() {
     legByeCountBefore: legByeCount - 1,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
-    ballNumber: balls - 1   // 👈 Add this line
+    ballNumber: balls - 1
   });
 
-  // ✅ Ensure history array exists
+  // ✅ Ensure innings array exists
   if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
 
-  // ✅ Push leg bye event to highlights
+  // ✅ Push leg bye event to correct innings highlights
   inningsHistory[currentInnings].push({
     type: 'legbye',
     over: Math.floor(balls / 6),
@@ -495,7 +505,7 @@ function addLegBye() {
 
     alert(`${batsman.name} is OUT after 3 leg byes!`);
 
-    // ✅ Push leg-bye-out event to highlights
+    // ✅ Push this wicket event (due to leg byes) into correct innings
     if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
     inningsHistory[currentInnings].push({
       type: 'wicket (legbye)',
@@ -533,6 +543,7 @@ function addLegBye() {
   saveMatchState();
   renderOverSummary();
 }
+
 function addWicket() {
   if (isInningsOver()) return alert("Innings is over.");
 
@@ -544,9 +555,9 @@ function addWicket() {
   bowler.balls++;
   bowler.wickets++;
   batsman.out = true;
-  legByeCount = 0; // 🔁 Reset leg bye counter
+  legByeCount = 0; // 🔁 Reset leg bye counter after wicket
 
-  // Save for undo
+  // 🔙 Save for Undo
   ballHistory.push({
     type: 'wicket',
     strikerIndex: currentBatsmanIndex,
@@ -556,11 +567,13 @@ function addWicket() {
     scoreBefore: score,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
-    ballNumber: balls - 1   // 👈 Add this line
+    ballNumber: balls - 1
   });
 
-  // ✅ Record in match highlights
+  // ✅ Ensure correct innings array exists
   if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
+
+  // ✅ Add wicket event to correct innings
   inningsHistory[currentInnings].push({
     type: 'wicket',
     over: Math.floor(balls / 6),
@@ -571,7 +584,7 @@ function addWicket() {
     wickets
   });
 
-  // 🔈 Play sound + commentary
+  // 🔊 Sound and Commentary
   const wicketSound = document.getElementById("soundWicket");
   if (wicketSound && !isMuted) {
     wicketSound.currentTime = 0;
@@ -580,7 +593,7 @@ function addWicket() {
   speakCommentary("wicket");
   showUmpireCall("wicket");
 
-  // ➕ Add new batsman or end innings
+  // ➕ New Batsman or End Innings
   if (wickets < totalWickets) {
     let newBatsmanName = prompt("Enter name of new batsman:");
     if (!newBatsmanName) newBatsmanName = `Batsman ${wickets + 1}`;
@@ -634,16 +647,18 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
-    function showmatchInnings() {
+   function showmatchInnings() {
   const container = document.getElementById("matchInnings");
   container.innerHTML = ""; // Clear previous highlights
 
   inningsHistory.forEach((innings, index) => {
+    if (!innings || innings.length === 0) return;  // ✅ Skip empty innings
+
     const section = document.createElement("div");
-    section.className = "bg-white p-4 rounded shadow border";
+    section.className = "bg-white p-4 rounded shadow border mb-4";
 
     const title = document.createElement("h4");
-    title.textContent = `🏏 Innings ${index + 1}`;
+    title.textContent = `🏏 Innings ${index + 1} Highlights`;
     title.className = "text-lg font-bold mb-2 text-blue-700";
     section.appendChild(title);
 
@@ -664,8 +679,6 @@ function checkOverComplete() {
 
     const tbody = table.querySelector("tbody");
     innings.forEach(event => {
-      const row = document.createElement("tr");
-
       const overBall = `${event.over}.${event.ball}`;
       const type = event.type === "run" ? `${event.runs} run(s)` :
                    event.type === "wicket" ? "WICKET" :
@@ -673,6 +686,7 @@ function checkOverComplete() {
                    event.type === "legbye" ? "Leg Bye" :
                    event.type;
 
+      const row = document.createElement("tr");
       row.innerHTML = `
         <td class="border px-2 py-1">${overBall}</td>
         <td class="border px-2 py-1">${type}</td>

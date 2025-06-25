@@ -631,6 +631,64 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
+    function showInningsHighlights() {
+  const container = document.getElementById("inningsHighlights");
+  container.innerHTML = ""; // Clear previous
+
+  inningsHistory.forEach((innings, index) => {
+    const title = document.createElement("h4");
+    title.className = "text-md font-semibold text-blue-600";
+    title.textContent = `🏏 Inning ${index + 1} Highlights`;
+    container.appendChild(title);
+
+    const table = document.createElement("table");
+    table.className = "w-full text-xs border";
+
+    table.innerHTML = `
+      <thead class="bg-gray-100 text-left">
+        <tr>
+          <th class="border px-2">Over</th>
+          <th class="border px-2">Ball</th>
+          <th class="border px-2">Event</th>
+          <th class="border px-2">Batsman</th>
+          <th class="border px-2">Bowler</th>
+          <th class="border px-2">Score</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector("tbody");
+
+    innings.forEach(event => {
+      const row = document.createElement("tr");
+
+      let description = "";
+      if (event.type === "run") {
+        description = `${event.runs} run(s)`;
+      } else if (event.type === "wide") {
+        description = "Wide";
+      } else if (event.type === "legbye") {
+        description = "Leg Bye";
+      } else if (event.type === "wicket") {
+        description = "WICKET";
+      }
+
+      row.innerHTML = `
+        <td class="border px-2">${event.over}</td>
+        <td class="border px-2">${event.ball}</td>
+        <td class="border px-2">${description}</td>
+        <td class="border px-2">${event.batsman}</td>
+        <td class="border px-2">${event.bowler}</td>
+        <td class="border px-2">${event.score}/${event.wickets}</td>
+      `;
+
+      tbody.appendChild(row);
+    });
+
+    container.appendChild(table);
+  });
+}
 function renderOverSummary() {
   const overContainer = document.getElementById("overSummary");
   overContainer.innerHTML = ""; // Clear previous
@@ -899,6 +957,7 @@ function endMatch() {
     `;
 
     renderHistory();
+    showInningsHighlights();
     renderOverSummary();
   }
 }

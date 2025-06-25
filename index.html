@@ -617,30 +617,6 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
-function showMatchHighlights() {
-  let allHighlights = [];
-
-  inningsHistory.forEach((innings, index) => {
-    allHighlights.push(`🏏 Inning ${index + 1} Highlights:\n`);
-    innings.forEach(event => {
-      let highlight = `Over ${event.over}.${event.ball} - `;
-      if (event.type === 'run') {
-        highlight += `${event.batsman} scored ${event.runs} run(s) off ${event.bowler}`;
-      } else if (event.type === 'wide') {
-        highlight += `Wide ball by ${event.bowler}`;
-      } else if (event.type === 'legbye') {
-        highlight += `${event.batsman} took a leg bye`;
-      } else if (event.type === 'wicket') {
-        highlight += `WICKET! ${event.batsman} OUT bowled by ${event.bowler}`;
-      }
-      highlight += ` | Score: ${event.score}/${event.wickets}`;
-      allHighlights.push(highlight);
-    });
-    allHighlights.push("\n");
-  });
-
-  alert(allHighlights.join('\n'));
-}
 function renderOverSummary() {
   const overContainer = document.getElementById("overSummary");
   overContainer.innerHTML = ""; // Clear previous
@@ -660,32 +636,34 @@ function renderOverSummary() {
       let total = 0;
 
       const row = document.createElement("div");
-      row.className = "flex items-center flex-wrap gap-2 bg-white border p-2 rounded shadow text-sm";
+      row.className = "flex items-center justify-start flex-wrap gap-2 bg-black text-white px-4 py-2 rounded-lg shadow-md mb-2";
 
       const label = document.createElement("div");
-      label.textContent = `Over ${over}:`;
-      label.className = "font-semibold w-full text-blue-600";
+      label.textContent = `Ov ${over}`;
+      label.className = "w-14 font-semibold text-gray-400";
       row.appendChild(label);
 
       balls.forEach(ball => {
-        const el = document.createElement("span");
-        el.className = "rounded-full px-2 py-1 font-bold text-white text-xs";
+        const el = document.createElement("div");
+        el.className = "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold";
 
         if (ball.type === "run") {
           el.textContent = ball.runs;
           total += ball.runs;
-          el.classList.add("bg-green-600");
+          el.classList.add("bg-gray-800");
+          if (ball.runs === 4) el.classList.add("bg-blue-500");
+          if (ball.runs === 6) el.classList.add("bg-green-500");
         } else if (ball.type === "wicket") {
           el.textContent = "W";
           el.classList.add("bg-red-600");
         } else if (ball.type === "wide") {
           el.textContent = "Wd";
-          el.classList.add("bg-yellow-500", "text-black");
           total += 1;
+          el.classList.add("bg-yellow-400", "text-black");
         } else if (ball.type === "legbye") {
           el.textContent = "Lb";
-          el.classList.add("bg-purple-600");
           total += 1;
+          el.classList.add("bg-purple-600");
         }
 
         row.appendChild(el);
@@ -693,13 +671,12 @@ function renderOverSummary() {
 
       const totalEl = document.createElement("div");
       totalEl.textContent = `= ${total}`;
-      totalEl.className = "ml-auto text-gray-700 font-semibold";
+      totalEl.className = "ml-auto text-white font-semibold";
       row.appendChild(totalEl);
 
       overContainer.appendChild(row);
     });
-}  
-
+}
 function isInningsOver() {
  return wickets >= totalWickets || balls >= totalOvers * 6;
 }

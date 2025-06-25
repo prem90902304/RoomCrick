@@ -86,6 +86,7 @@
     <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
     <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
     <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
+    <button onclick="showMatchHighlights()" class="bg-yellow-500 px-4 py-2 rounded">View Match Highlights</button>
     <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
     <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
   </div>
@@ -184,6 +185,8 @@ let bowlers = [];
 let currentBatsmanIndex = 0;
 let currentBowlerIndex = 0;
 let ballHistory = [];
+let inningsHistory = [[], []]; // History for each innings
+let currentInnings = 0;        // 0 = first innings, 1 = second innings
 
 // Restore match state on load
 window.onload = function () {
@@ -299,28 +302,34 @@ function startMatch() {
 
 function addRun(runs) {
   if (isInningsOver()) return alert("Innings is over.");
+
   const striker = batsmen[currentBatsmanIndex];
   const bowler = bowlers[currentBowlerIndex];
+
   score += runs;
   striker.runs += runs;
   striker.balls++;
   bowler.runs += runs;
-  if (runs === 4) striker.fours++;
-  if (runs === 6) striker.sixes++;
   balls++;
   bowler.balls++;
+
   if (runs === 0) {
-  striker.dotBalls++;
-  bowler.dotBalls++;
-  dots++;
-}
-playRunSound(runs); // Always play sound
-if (runs === 0) speakCommentary("dot");
-if (runs === 1) speakCommentary("one");
-if (runs === 2) speakCommentary("two");
-if (runs === 4) speakCommentary("four");
-if (runs === 6) speakCommentary("six");
-  
+    striker.dotBalls++;
+    bowler.dotBalls++;
+    dots++;
+  }
+  if (runs === 4) striker.fours++;
+  if (runs === 6) striker.sixes++;
+
+  // 🔊 Sound + Commentary
+  playRunSound(runs);
+  if (runs === 0) speakCommentary("dot");
+  if (runs === 1) speakCommentary("one");
+  if (runs === 2) speakCommentary("two");
+  if (runs === 4) speakCommentary("four");
+  if (runs === 6) speakCommentary("six");
+
+  // 🔙 Undo History
   ballHistory.push({
     type: 'run',
     runs,
@@ -332,27 +341,37 @@ if (runs === 6) speakCommentary("six");
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
   });
+
+  // ✅ Add to match highlights
+  inningsHistory[currentInnings].push({
+    type: 'run',
+    runs,
+    over: Math.floor(balls / 6),
+    ball: balls % 6,
+    batsman: striker.name,
+    bowler: bowler.name,
+    score,
+    wickets
+  });
+
+  // ⏭ Updates
   checkOverComplete();
   updateDisplay();
   renderScoreboard();
   checkInningsEnd();
   checkTargetReached();
   saveMatchState();
-  
 }
-
 function addWide() {
   if (isInningsOver()) return alert("Innings is over.");
 
-  // 🟡 Increase score and extras
   score++;
   extras++;
 
-  // 🟡 Update current bowler's runs (not balls!)
   const bowler = bowlers[currentBowlerIndex];
+  const striker = batsmen[currentBatsmanIndex]; // ✅ define striker
   bowler.runs++;
 
-  // 🟡 Play sound and show umpire call
   if (!isMuted) {
     const wideSound = document.getElementById("soundWide");
     if (wideSound) {
@@ -362,23 +381,35 @@ function addWide() {
     showUmpireCall("wide");
   }
 
-  // 🗣️ Speak commentary
   speakCommentary("wide");
 
-  // 🕘 Save state for undo
   ballHistory.push({
     type: 'wide',
     runs: 1,
     strikerIndex: currentBatsmanIndex,
     bowlerIndex: currentBowlerIndex,
     wicketsBefore: wickets,
-    ballsBefore: balls, // keep as-is
+    ballsBefore: balls, // no increment
     scoreBefore: score - 1,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
   });
 
-  // 🔁 Refresh display
+  // ✅ Initialize array if missing
+  if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
+
+  // ✅ Add to match highlights
+  inningsHistory[currentInnings].push({
+    type: 'wide',
+    runs: 1,
+    over: Math.floor(balls / 6),
+    ball: balls % 6,
+    batsman: striker.name,
+    bowler: bowler.name,
+    score,
+    wickets
+  });
+
   updateDisplay();
   renderScoreboard();
   checkInningsEnd();
@@ -393,10 +424,8 @@ function addLegBye() {
   const bowler = bowlers[currentBowlerIndex];
   const batsman = batsmen[currentBatsmanIndex];
 
-  // Always count as a dot ball
   balls++;
   bowler.balls++;
-  // batsman.balls++;  // Removed for accuracy (leg bye doesn't count as faced ball)
   batsman.dotBalls++;
 
   speakCommentary("legbye");
@@ -409,7 +438,7 @@ function addLegBye() {
     }
   }
 
-  // Save previous state
+  // 🔁 Save for undo
   ballHistory.push({
     type: 'legbye',
     strikerIndex: currentBatsmanIndex,
@@ -421,6 +450,20 @@ function addLegBye() {
     bowlersBefore: JSON.stringify(bowlers),
   });
 
+  // ✅ Ensure history array exists
+  if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
+
+  // ✅ Push leg bye event to highlights
+  inningsHistory[currentInnings].push({
+    type: 'legbye',
+    over: Math.floor(balls / 6),
+    ball: balls % 6,
+    batsman: batsman.name,
+    bowler: bowler.name,
+    score,
+    wickets
+  });
+
   // 🟥 Custom rule: 3 leg byes = Out
   if (legByeCount >= 3) {
     legByeCount = 0;
@@ -428,19 +471,28 @@ function addLegBye() {
     batsman.out = true;
     bowler.wickets++;
 
-    // 🟡 Play sound + speak before alert
     showUmpireCall("wicket");
     speakCommentary("wicket");
+
     const wicketSound = document.getElementById("soundWicket");
     if (!isMuted && wicketSound) {
       wicketSound.currentTime = 0;
       wicketSound.play();
     }
 
-    // 🟠 Show prompt after sound is triggered
     alert(`${batsman.name} is OUT after 3 leg byes!`);
 
-    // ⏭ Add new batsman or end innings
+    // ✅ Push leg-bye-out event to highlights
+    inningsHistory[currentInnings].push({
+      type: 'wicket (legbye)',
+      over: Math.floor(balls / 6),
+      ball: balls % 6,
+      batsman: batsman.name,
+      bowler: bowler.name,
+      score,
+      wickets
+    });
+
     if (wickets < totalWickets) {
       let newBatsman = prompt("Enter name of new batsman:");
       if (!newBatsman) newBatsman = `Batsman ${wickets + 1}`;
@@ -472,12 +524,14 @@ function addWicket() {
   wickets++;
   balls++;
   const bowler = bowlers[currentBowlerIndex];
+  const batsman = batsmen[currentBatsmanIndex];
+
   bowler.balls++;
   bowler.wickets++;
-  batsmen[currentBatsmanIndex].out = true;
-  legByeCount = 0; // 🔁 Reset leg bye counter on normal wicket
+  batsman.out = true;
+  legByeCount = 0; // 🔁 Reset leg bye counter
 
-  // Save history for undo
+  // Save for undo
   ballHistory.push({
     type: 'wicket',
     strikerIndex: currentBatsmanIndex,
@@ -489,13 +543,29 @@ function addWicket() {
     bowlersBefore: JSON.stringify(bowlers),
   });
 
-  // Play sound + commentary
-  document.getElementById("soundWicket").play();
+  // ✅ Record in match highlights
+  if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
+  inningsHistory[currentInnings].push({
+    type: 'wicket',
+    over: Math.floor(balls / 6),
+    ball: balls % 6,
+    batsman: batsman.name,
+    bowler: bowler.name,
+    score,
+    wickets
+  });
+
+  // 🔈 Play sound + commentary
+  const wicketSound = document.getElementById("soundWicket");
+  if (wicketSound && !isMuted) {
+    wicketSound.currentTime = 0;
+    wicketSound.play();
+  }
   speakCommentary("wicket");
   showUmpireCall("wicket");
 
-  // Next batsman if not all out
-  if (wickets < totalWickets){
+  // ➕ Add new batsman or end innings
+  if (wickets < totalWickets) {
     let newBatsmanName = prompt("Enter name of new batsman:");
     if (!newBatsmanName) newBatsmanName = `Batsman ${wickets + 1}`;
     currentBatsmanIndex = batsmen.length;
@@ -505,17 +575,18 @@ function addWicket() {
       balls: 0,
       fours: 0,
       sixes: 0,
+      dotBalls: 0,
       out: false
     });
   } else {
     alert("All out!");
   }
+
   updateDisplay();
   renderScoreboard();
   checkInningsEnd();
   checkTargetReached();
   saveMatchState();
-
 }
 function checkOverComplete() {
   if (balls > 0 && balls % 6 === 0) {
@@ -546,6 +617,30 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
+function showMatchHighlights() {
+  let allHighlights = [];
+
+  inningsHistory.forEach((innings, index) => {
+    allHighlights.push(`🏏 Inning ${index + 1} Highlights:\n`);
+    innings.forEach(event => {
+      let highlight = `Over ${event.over}.${event.ball} - `;
+      if (event.type === 'run') {
+        highlight += `${event.batsman} scored ${event.runs} run(s) off ${event.bowler}`;
+      } else if (event.type === 'wide') {
+        highlight += `Wide ball by ${event.bowler}`;
+      } else if (event.type === 'legbye') {
+        highlight += `${event.batsman} took a leg bye`;
+      } else if (event.type === 'wicket') {
+        highlight += `WICKET! ${event.batsman} OUT bowled by ${event.bowler}`;
+      }
+      highlight += ` | Score: ${event.score}/${event.wickets}`;
+      allHighlights.push(highlight);
+    });
+    allHighlights.push("\n");
+  });
+
+  alert(allHighlights.join('\n'));
+}
 
 function isInningsOver() {
  return wickets >= totalWickets || balls >= totalOvers * 6;
@@ -554,12 +649,37 @@ function isInningsOver() {
 function checkInningsEnd() {
   if (isInningsOver()) {
     alert(`Innings over! Total Score: ${score}/${wickets}`);
+
+    if (inning === 1) {
+      firstInningsScore = score; // Save score to compare in 2nd innings
+      inning = 2;
+      score = 0;
+      wickets = 0;
+      balls = 0;
+      extras = 0;
+      batsmen = [];
+      bowlers = [];
+      ballHistory = [];
+      currentBatsmanIndex = 0;
+      currentBowlerIndex = 0;
+      legByeCount = 0;
+      alert("Starting Second Innings!");
+    } else {
+      alert("Second innings over!");
+      showMatchHighlights(); // ✅ Show highlights from both innings
+      endMatch(); // 🎯 Ends match and shows result
+    }
+
+    updateDisplay();
+    renderScoreboard();
+    saveMatchState();
   }
 }
 
 function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
-    alert("Target reached!");
+    alert("🎯 Target Reached!");
+    showMatchHighlights(); // 👈 Show highlights from both innings
     endMatch();
   }
 }
@@ -943,6 +1063,30 @@ function toggleMute() {
       })
       .catch(err => console.error("❌ Service Worker registration failed", err));
   }
+    function showMatchHighlights() {
+  let allHighlights = [];
+
+  inningsHistory.forEach((innings, index) => {
+    allHighlights.push(`🏏 Inning ${index + 1} Highlights:\n`);
+    innings.forEach(event => {
+      let highlight = `Over ${event.over}.${event.ball} - `;
+      if (event.type === 'run') {
+        highlight += `${event.batsman} scored ${event.runs} run(s) off ${event.bowler}`;
+      } else if (event.type === 'wide') {
+        highlight += `Wide ball by ${event.bowler}`;
+      } else if (event.type === 'legbye') {
+        highlight += `${event.batsman} took a leg bye`;
+      } else if (event.type === 'wicket') {
+        highlight += `WICKET! ${event.batsman} OUT bowled by ${event.bowler}`;
+      }
+      highlight += ` | Score: ${event.score}/${event.wickets}`;
+      allHighlights.push(highlight);
+    });
+    allHighlights.push("\n");
+  });
+
+  alert(allHighlights.join('\n'));
+}
 </script>
   
 <!-- ✅ Footer must be inside <body> -->

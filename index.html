@@ -83,7 +83,7 @@
       <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
       <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
       <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
-      <button onclick="toggleMatchinnings()" id="toggleHighlightsBtn" class="bg-yellow-500 px-4 py-2 rounded">Show Match Innings</button>
+      <button onclick="Matchinnings()" id="toggleHighlightsBtn" class="bg-yellow-500 px-4 py-2 rounded">Show Match Innings</button>
       <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
       <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
     </div>
@@ -1115,6 +1115,9 @@ function enableAudio() {
   window.speechSynthesis.speak(msg);
 }
     let isMuted = false;
+    document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById("muteBtn").textContent = isMuted ? "🔇 Unmute" : "🔊 Mute";
+});
 
 function toggleMute() {
   isMuted = !isMuted;
@@ -1222,7 +1225,7 @@ function toggleMute() {
     msg.classList.add("hidden");
   }, 2000);
 }
-    function toggleMatchHighlights() {
+    function Matchinnings() {
   const highlightsDiv = document.getElementById("matchInnings");
   const button = document.getElementById("toggleHighlightsBtn");
 
@@ -1236,7 +1239,8 @@ function toggleMute() {
   }
 }
     document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("inningsHighlights").style.display = "none";
+  const elem = document.getElementById("matchInnings");
+  if (elem) elem.style.display = "none";
 });
 
   </script>

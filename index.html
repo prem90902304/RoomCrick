@@ -146,6 +146,8 @@
     </table>
   </div>
 
+  <div id="overSummary" class="mt-6 space-y-2"></div>
+
   <div id="summary" class="mt-6 hidden">
     <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
     <p id="winner"></p>
@@ -355,6 +357,7 @@ function addRun(runs) {
   checkInningsEnd();
   checkTargetReached();
   saveMatchState();
+  renderOverSummary();
 }
 function addWide() {
   if (isInningsOver()) return alert("Innings is over.");
@@ -409,6 +412,7 @@ function addWide() {
   checkInningsEnd();
   checkTargetReached();
   saveMatchState();
+  renderOverSummary();
 }
     
 function addLegBye() {
@@ -511,6 +515,7 @@ function addLegBye() {
   checkInningsEnd();
   checkTargetReached();
   saveMatchState();
+  renderOverSummary();
 }
 function addWicket() {
   if (isInningsOver()) return alert("Innings is over.");
@@ -581,6 +586,7 @@ function addWicket() {
   checkInningsEnd();
   checkTargetReached();
   saveMatchState();
+  renderOverSummary();
 }
 function checkOverComplete() {
   if (balls > 0 && balls % 6 === 0) {
@@ -635,6 +641,64 @@ function showMatchHighlights() {
 
   alert(allHighlights.join('\n'));
 }
+function renderOverSummary() {
+  const overContainer = document.getElementById("overSummary");
+  overContainer.innerHTML = ""; // Clear previous
+
+  let oversMap = {};
+
+  [...ballHistory].reverse().forEach(ball => {
+    const overNum = Math.floor(ball.ballNumber / 6);
+    if (!oversMap[overNum]) oversMap[overNum] = [];
+    oversMap[overNum].unshift(ball);
+  });
+
+  Object.keys(oversMap)
+    .sort((a, b) => b - a)
+    .forEach(over => {
+      const balls = oversMap[over];
+      let total = 0;
+
+      const row = document.createElement("div");
+      row.className = "flex items-center flex-wrap gap-2 bg-white border p-2 rounded shadow text-sm";
+
+      const label = document.createElement("div");
+      label.textContent = `Over ${over}:`;
+      label.className = "font-semibold w-full text-blue-600";
+      row.appendChild(label);
+
+      balls.forEach(ball => {
+        const el = document.createElement("span");
+        el.className = "rounded-full px-2 py-1 font-bold text-white text-xs";
+
+        if (ball.type === "run") {
+          el.textContent = ball.runs;
+          total += ball.runs;
+          el.classList.add("bg-green-600");
+        } else if (ball.type === "wicket") {
+          el.textContent = "W";
+          el.classList.add("bg-red-600");
+        } else if (ball.type === "wide") {
+          el.textContent = "Wd";
+          el.classList.add("bg-yellow-500", "text-black");
+          total += 1;
+        } else if (ball.type === "legbye") {
+          el.textContent = "Lb";
+          el.classList.add("bg-purple-600");
+          total += 1;
+        }
+
+        row.appendChild(el);
+      });
+
+      const totalEl = document.createElement("div");
+      totalEl.textContent = `= ${total}`;
+      totalEl.className = "ml-auto text-gray-700 font-semibold";
+      row.appendChild(totalEl);
+
+      overContainer.appendChild(row);
+    });
+}  
 
 function isInningsOver() {
  return wickets >= totalWickets || balls >= totalOvers * 6;
@@ -844,6 +908,7 @@ function endMatch() {
     `;
 
     renderHistory();
+    renderOverSummary();
   }
 }
     
@@ -857,6 +922,7 @@ function disableScoringButtons() {
 }
 
 function updateDisplay() {
+  document.getElementById("inningLabel").textContent = inning === 1 ? "(1st Innings)" : "(2nd Innings)";
   document.getElementById("score").textContent = `${score}/${wickets} (Extras: ${extras})`;
   document.getElementById("overs").textContent = `${Math.floor(balls / 6)}.${balls % 6}`;
 
@@ -970,6 +1036,7 @@ if (currentBatsmanIndex === -1) currentBatsmanIndex = batsmen.length - 1;
   currentBowlerIndex = lastBall.bowlerIndex;
   updateDisplay();
   renderScoreboard();
+  renderOverSummary();
 }
 
 function renderHistory() {

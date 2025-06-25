@@ -83,7 +83,7 @@
       <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
       <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
       <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
-      <button onclick="showMatchHighlights()" class="bg-yellow-500 px-4 py-2 rounded">View Match Highlights</button>
+      <button onclick="showInningsHighlights()" class="bg-yellow-500 px-4 py-2 rounded">📋 View Inning Highlights</button>
       <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
       <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
     </div>
@@ -634,60 +634,55 @@ function checkOverComplete() {
 }
     function showInningsHighlights() {
   const container = document.getElementById("inningsHighlights");
-  container.innerHTML = ""; // Clear previous
+  container.innerHTML = ""; // Clear previous highlights
 
   inningsHistory.forEach((innings, index) => {
+    const section = document.createElement("div");
+    section.className = "bg-white p-4 rounded shadow border";
+
     const title = document.createElement("h4");
-    title.className = "text-md font-semibold text-blue-600";
-    title.textContent = `🏏 Inning ${index + 1} Highlights`;
-    container.appendChild(title);
+    title.textContent = `🏏 Innings ${index + 1} Highlights`;
+    title.className = "text-lg font-bold mb-2 text-blue-700";
+    section.appendChild(title);
 
     const table = document.createElement("table");
-    table.className = "w-full text-xs border";
-
+    table.className = "w-full text-sm border-collapse";
     table.innerHTML = `
-      <thead class="bg-gray-100 text-left">
+      <thead class="bg-gray-100">
         <tr>
-          <th class="border px-2">Over</th>
-          <th class="border px-2">Ball</th>
-          <th class="border px-2">Event</th>
-          <th class="border px-2">Batsman</th>
-          <th class="border px-2">Bowler</th>
-          <th class="border px-2">Score</th>
+          <th class="border px-2 py-1">Over.Ball</th>
+          <th class="border px-2 py-1">Event</th>
+          <th class="border px-2 py-1">Batsman</th>
+          <th class="border px-2 py-1">Bowler</th>
+          <th class="border px-2 py-1">Score</th>
         </tr>
       </thead>
       <tbody></tbody>
     `;
 
     const tbody = table.querySelector("tbody");
-
     innings.forEach(event => {
       const row = document.createElement("tr");
 
-      let description = "";
-      if (event.type === "run") {
-        description = `${event.runs} run(s)`;
-      } else if (event.type === "wide") {
-        description = "Wide";
-      } else if (event.type === "legbye") {
-        description = "Leg Bye";
-      } else if (event.type === "wicket") {
-        description = "WICKET";
-      }
+      const overBall = `${event.over}.${event.ball}`;
+      const type = event.type === "run" ? `${event.runs} run(s)` :
+                   event.type === "wicket" ? "WICKET" :
+                   event.type === "wide" ? "Wide" :
+                   event.type === "legbye" ? "Leg Bye" :
+                   event.type;
 
       row.innerHTML = `
-        <td class="border px-2">${event.over}</td>
-        <td class="border px-2">${event.ball}</td>
-        <td class="border px-2">${description}</td>
-        <td class="border px-2">${event.batsman}</td>
-        <td class="border px-2">${event.bowler}</td>
-        <td class="border px-2">${event.score}/${event.wickets}</td>
+        <td class="border px-2 py-1">${overBall}</td>
+        <td class="border px-2 py-1">${type}</td>
+        <td class="border px-2 py-1">${event.batsman}</td>
+        <td class="border px-2 py-1">${event.bowler}</td>
+        <td class="border px-2 py-1">${event.score}/${event.wickets}</td>
       `;
-
       tbody.appendChild(row);
     });
 
-    container.appendChild(table);
+    section.appendChild(table);
+    container.appendChild(section);
   });
 }
 function renderOverSummary() {
@@ -809,7 +804,7 @@ function checkInningsEnd() {
 
     } else {
       alert("Second innings over!");
-      showMatchHighlights();
+      showInningsHighlights();
       endMatch();
     }
   }
@@ -819,7 +814,7 @@ function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
     confetti(); // 🎉 Victory effect
     alert("🎯 Target Reached!");
-    showMatchHighlights(); // Show highlights from both innings
+    showInningsHighlights(); // Show highlights from both innings
     endMatch(); // End the match officially
   }
 }

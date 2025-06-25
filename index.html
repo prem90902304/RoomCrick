@@ -344,15 +344,15 @@ if (runs === 6) speakCommentary("six");
 function addWide() {
   if (isInningsOver()) return alert("Innings is over.");
 
-  // 🟡 Update score and extras immediately
+  // 🟡 Increase score and extras
   score++;
   extras++;
 
+  // 🟡 Update current bowler's runs (not balls!)
   const bowler = bowlers[currentBowlerIndex];
   bowler.runs++;
 
-  // 🟡 Sound + Commentary
-  speakCommentary("wide");
+  // 🟡 Play sound and show umpire call
   if (!isMuted) {
     const wideSound = document.getElementById("soundWide");
     if (wideSound) {
@@ -362,20 +362,23 @@ function addWide() {
     showUmpireCall("wide");
   }
 
-  // 🟡 Save for undo
+  // 🗣️ Speak commentary
+  speakCommentary("wide");
+
+  // 🕘 Save state for undo
   ballHistory.push({
     type: 'wide',
     runs: 1,
     strikerIndex: currentBatsmanIndex,
     bowlerIndex: currentBowlerIndex,
     wicketsBefore: wickets,
-    ballsBefore: balls,
+    ballsBefore: balls, // keep as-is
     scoreBefore: score - 1,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
   });
 
-  // 🟢 Immediate update
+  // 🔁 Refresh display
   updateDisplay();
   renderScoreboard();
   checkInningsEnd();

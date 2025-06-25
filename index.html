@@ -281,6 +281,7 @@ function startMatch() {
   renderScoreboard();
   renderHistory();
   saveMatchState();
+  renderOverSummary();
 }
     function playRunSound(runs) {
   const sounds = {
@@ -326,17 +327,18 @@ function addRun(runs) {
   if (runs === 6) speakCommentary("six");
 
   // 🔙 Undo History
-  ballHistory.push({
-    type: 'run',
-    runs,
-    strikerIndex: currentBatsmanIndex,
-    bowlerIndex: currentBowlerIndex,
-    wicketsBefore: wickets,
-    ballsBefore: balls - 1,
-    scoreBefore: score - runs,
-    batsmenBefore: JSON.stringify(batsmen),
-    bowlersBefore: JSON.stringify(bowlers),
-  });
+ballHistory.push({
+  type: 'run',
+  runs,
+  strikerIndex: currentBatsmanIndex,
+  bowlerIndex: currentBowlerIndex,
+  wicketsBefore: wickets,
+  ballsBefore: balls - 1,
+  scoreBefore: score - runs,
+  batsmenBefore: JSON.stringify(batsmen),
+  bowlersBefore: JSON.stringify(bowlers),
+  ballNumber: balls - 1   // 👈 Add this line
+});
 
   // ✅ Add to match highlights
   inningsHistory[currentInnings].push({
@@ -390,6 +392,7 @@ function addWide() {
     scoreBefore: score - 1,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
+    ballNumber: balls - 1   // 👈 Add this line
   });
 
   // ✅ Initialize array if missing
@@ -446,6 +449,7 @@ function addLegBye() {
     legByeCountBefore: legByeCount - 1,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
+    ballNumber: balls - 1   // 👈 Add this line
   });
 
   // ✅ Ensure history array exists
@@ -540,6 +544,7 @@ function addWicket() {
     scoreBefore: score,
     batsmenBefore: JSON.stringify(batsmen),
     bowlersBefore: JSON.stringify(bowlers),
+    ballNumber: balls - 1   // 👈 Add this line
   });
 
   // ✅ Record in match highlights

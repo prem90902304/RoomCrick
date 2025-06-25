@@ -8,7 +8,6 @@
   <link rel="icon" href="https://img.icons8.com/color/96/cricket.png" type="image/png" />
   <meta name="theme-color" content="#4f46e5" />
 
-  
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
@@ -45,126 +44,121 @@
   <h1 class="text-3xl font-bold mb-4 text-center">🏏 CrickScore</h1>
 
   <div class="space-y-6 bg-gray-50 p-4 rounded shadow-md">
-  <!-- Teams Input -->
-  <div class="grid sm:grid-cols-2 gap-4">
-    <label class="block">
-      <span class="text-sm font-medium">Team A</span>
-      <input id="teamA" class="input w-full mt-1" placeholder="Enter Team A Name" />
-    </label>
-    <label class="block">
-      <span class="text-sm font-medium">Team B</span>
-      <input id="teamB" class="input w-full mt-1" placeholder="Enter Team B Name" />
-    </label>
-  </div>
-
-  <!-- Match Setup -->
-  <div class="grid sm:grid-cols-2 gap-4">
-    <label class="block">
-      <span class="text-sm font-medium">Overs</span>
-      <input id="totalOvers" class="input w-full mt-1" type="number" min="1" placeholder="e.g. 5" />
-    </label>
-    <label class="block">
-      <span class="text-sm font-medium">Wickets</span>
-      <input id="totalWickets" class="input w-full mt-1" type="number" min="1" value="10" />
-    </label>
-  </div>
-
-  <!-- Voice Language -->
-  <div class="block">
-    <span class="text-sm font-medium">🎤 Commentary Language</span>
-    <select id="voiceLang" class="input w-full mt-1">
-      <option value="en-US">English</option>
-      <option value="hi-IN">Hindi</option>
-      <option value="ta-IN">Tamil</option>
-      <option value="te-IN">Telugu</option>
-    </select>
-  </div>
-
-  <!-- Action Buttons -->
-  <div class="flex flex-wrap gap-2 justify-center sm:justify-start mt-2">
-    <button onclick="startMatch()" class="btn bg-blue-600 hover:bg-blue-700">Start Match</button>
-    <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
-    <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
-    <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
-    <button onclick="showMatchHighlights()" class="bg-yellow-500 px-4 py-2 rounded">View Match Highlights</button>
-    <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
-    <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
-  </div>
-</div>
-
-    <div id="matchPanel" class="hidden space-y-4">
-      <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span> <span id="inningLabel">(1st Innings)</span></div>
-      <div class="text-md">
-        <div id="targetInfo" class="font-semibold text-green-700 mb-1"></div>
-        Score: <span id="score">0/0</span><br />
-        Overs: <span id="overs">0.0</span><br />
-        Run Rate: <span id="runRate">0.00</span><br />
-        Overs Left: <span id="oversLeft">0.0</span>
-      </div>
-      <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-4">
-  <button onclick="addRun(0)" class="btn">Dot</button>
-  <button onclick="addRun(1)" class="btn">1</button>
-  <button onclick="addRun(2)" class="btn">2</button>
-  <button onclick="addRun(3)" class="btn">3</button>
-  <button onclick="addRun(4)" class="btn">4</button>
-  <button onclick="addRun(6)" class="btn">6</button>
-  <button onclick="addWide()" class="btn bg-yellow-400">Wide</button>
-  <button onclick="addLegBye()" class="btn bg-green-400">Leg Bye</button>
-  <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600 col-span-3 sm:col-span-2">Wicket</button>
-</div>
-      <div class="space-x-2 mt-4">
-        <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
-        <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
-      </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block">
+        <span class="text-sm font-medium">Team A</span>
+        <input id="teamA" class="input w-full mt-1" placeholder="Enter Team A Name" />
+      </label>
+      <label class="block">
+        <span class="text-sm font-medium">Team B</span>
+        <input id="teamB" class="input w-full mt-1" placeholder="Enter Team B Name" />
+      </label>
     </div>
 
-    <div id="scoreboard" class="mt-6 hidden">
-      <h2 class="text-xl font-semibold mb-2">Full Scoreboard</h2>
-      <h3 class="text-lg font-semibold">Batsmen</h3>
-      <table class="w-full text-sm mb-4 border">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="border px-2">Name</th>
-            <th class="border px-2">Runs</th>
-            <th class="border px-2">Balls</th>
-            <th class="border px-2">Dots</th>
-            <th class="border px-2">4s</th>
-            <th class="border px-2">6s</th>
-            <th class="border px-2">Status</th>
-          </tr>
-        </thead>
-        <tbody id="batsmanTable"></tbody>
-      </table>
-
-      <h3 class="text-lg font-semibold">Bowlers</h3>
-      <table class="w-full text-sm border">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="border px-2">Name</th>
-            <th class="border px-2">Overs</th>
-            <th class="border px-2">Runs</th>
-            <th class="border px-2">Dots</th>
-            <th class="border px-2">Wickets</th>
-          </tr>
-        </thead>
-        <tbody id="bowlerTable"></tbody>
-      </table>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block">
+        <span class="text-sm font-medium">Overs</span>
+        <input id="totalOvers" class="input w-full mt-1" type="number" min="1" placeholder="e.g. 5" />
+      </label>
+      <label class="block">
+        <span class="text-sm font-medium">Wickets</span>
+        <input id="totalWickets" class="input w-full mt-1" type="number" min="1" value="10" />
+      </label>
     </div>
 
-    <div id="summary" class="mt-6 hidden">
-  <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
-  <p id="winner"></p>
+    <div class="block">
+      <span class="text-sm font-medium">🎤 Commentary Language</span>
+      <select id="voiceLang" class="input w-full mt-1">
+        <option value="en-US">English</option>
+        <option value="hi-IN">Hindi</option>
+        <option value="ta-IN">Tamil</option>
+        <option value="te-IN">Telugu</option>
+      </select>
+    </div>
 
-  <!-- ADD THIS BELOW -->
-  <div id="highlights" class="mt-4 text-sm text-left text-gray-800"></div>
-
-  <div id="playAgainContainer" class="mt-4"></div>
-</div>
-    <div id="history" class="mt-6">
-      <h3 class="font-bold text-lg mb-2">📜 Past Matches</h3>
-      <ul id="matchHistory" class="list-disc pl-5 space-y-1"></ul>
+    <div class="flex flex-wrap gap-2 justify-center sm:justify-start mt-2">
+      <button onclick="startMatch()" class="btn bg-blue-600 hover:bg-blue-700">Start Match</button>
+      <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
+      <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
+      <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
+      <button onclick="showMatchHighlights()" class="bg-yellow-500 px-4 py-2 rounded">View Match Highlights</button>
+      <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
+      <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
     </div>
   </div>
+
+  <div id="matchPanel" class="hidden space-y-4">
+    <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span> <span id="inningLabel">(1st Innings)</span></div>
+    <div class="text-md">
+      <div id="targetInfo" class="font-semibold text-green-700 mb-1"></div>
+      Score: <span id="score">0/0</span><br />
+      Overs: <span id="overs">0.0</span><br />
+      Run Rate: <span id="runRate">0.00</span><br />
+      Overs Left: <span id="oversLeft">0.0</span>
+    </div>
+    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-4">
+      <button onclick="addRun(0)" class="btn">Dot</button>
+      <button onclick="addRun(1)" class="btn">1</button>
+      <button onclick="addRun(2)" class="btn">2</button>
+      <button onclick="addRun(3)" class="btn">3</button>
+      <button onclick="addRun(4)" class="btn">4</button>
+      <button onclick="addRun(6)" class="btn">6</button>
+      <button onclick="addWide()" class="btn bg-yellow-400">Wide</button>
+      <button onclick="addLegBye()" class="btn bg-green-400">Leg Bye</button>
+      <button onclick="addWicket()" class="btn bg-red-500 hover:bg-red-600 col-span-3 sm:col-span-2">Wicket</button>
+    </div>
+    <div class="space-x-2 mt-4">
+      <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
+      <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
+    </div>
+  </div>
+
+  <div id="scoreboard" class="mt-6 hidden">
+    <h2 class="text-xl font-semibold mb-2">Full Scoreboard</h2>
+    <h3 class="text-lg font-semibold">Batsmen</h3>
+    <table class="w-full text-sm mb-4 border">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border px-2">Name</th>
+          <th class="border px-2">Runs</th>
+          <th class="border px-2">Balls</th>
+          <th class="border px-2">Dots</th>
+          <th class="border px-2">4s</th>
+          <th class="border px-2">6s</th>
+          <th class="border px-2">Status</th>
+        </tr>
+      </thead>
+      <tbody id="batsmanTable"></tbody>
+    </table>
+
+    <h3 class="text-lg font-semibold">Bowlers</h3>
+    <table class="w-full text-sm border">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border px-2">Name</th>
+          <th class="border px-2">Overs</th>
+          <th class="border px-2">Runs</th>
+          <th class="border px-2">Dots</th>
+          <th class="border px-2">Wickets</th>
+        </tr>
+      </thead>
+      <tbody id="bowlerTable"></tbody>
+    </table>
+  </div>
+
+  <div id="summary" class="mt-6 hidden">
+    <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
+    <p id="winner"></p>
+    <div id="highlights" class="mt-4 text-sm text-left text-gray-800"></div>
+    <div id="playAgainContainer" class="mt-4"></div>
+  </div>
+
+  <div id="history" class="mt-6">
+    <h3 class="font-bold text-lg mb-2">📜 Past Matches</h3>
+    <ul id="matchHistory" class="list-disc pl-5 space-y-1"></ul>
+  </div>
+</body>
+</html>
 
   <script>
     let totalWickets = 10;
@@ -709,43 +703,54 @@ function checkInningsEnd() {
 
 function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
+    confetti(); // 🎉 Victory effect
     alert("🎯 Target Reached!");
-    showMatchHighlights(); // 👈 Show highlights from both innings
-    endMatch();
+    showMatchHighlights(); // Show highlights from both innings
+    endMatch(); // End the match officially
   }
 }
 
 function endMatch() {
   const teamA = document.getElementById("teamA").value.trim();
   const teamB = document.getElementById("teamB").value.trim();
+
   if (inning === 1) {
+    // 🏁 Switch to second innings
     firstInningsScore = score;
     inning = 2;
-    score = 0; wickets = 0; balls = 0; extras = 0; legByeCount = 0;
+    score = 0; wickets = 0; balls = 0; extras = 0; dots = 0; legByeCount = 0;
     ballHistory = [];
     batsmen = []; bowlers = [];
-    currentBatsmanIndex = 0; currentBowlerIndex = 0;
+    currentBatsmanIndex = 0;
+    currentBowlerIndex = 0;
+
     let striker = prompt("Enter name of batsman for 2nd Innings:");
     if (!striker) striker = "Batsman 1";
     let bowlerName = prompt("Enter name of opening bowler for 2nd Innings:");
     if (!bowlerName) bowlerName = "Bowler 1";
-    batsmen.push({name: striker, runs:0, balls:0, fours:0, sixes:0,dotBalls: 0, out:false});
-    bowlers.push({name: bowlerName, balls:0, runs:0,dotBalls: 0, wickets:0});
+
+    batsmen.push({ name: striker, runs: 0, balls: 0, fours: 0, sixes: 0, dotBalls: 0, out: false });
+    bowlers.push({ name: bowlerName, balls: 0, runs: 0, dotBalls: 0, wickets: 0 });
+
     document.getElementById("inningLabel").textContent = `(2nd Innings)`;
     document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
+    document.getElementById("targetInfo").classList.remove("hidden");
+
     updateDisplay();
     renderScoreboard();
     clearMatchState();
     document.getElementById("summary").classList.add("hidden");
   } else {
+    // ✅ Match ends after second innings
     let winnerText = "";
     if (score > firstInningsScore) {
-      winnerText = `${teamB} won by ${10 - wickets} wicket(s)!`;
+      winnerText = `${teamB} won by ${totalWickets - wickets} wicket(s)!`;
     } else if (score < firstInningsScore) {
       winnerText = `${teamA} won by ${firstInningsScore - score} run(s)!`;
     } else {
       winnerText = "Match tied!";
     }
+
     const matchSummary = {
       teams: `${teamA} vs ${teamB}`,
       score1: `${firstInningsScore}/10 (max overs)`,
@@ -757,44 +762,39 @@ function endMatch() {
     localStorage.setItem('crickHistory', JSON.stringify(history));
     document.getElementById("summary").classList.remove("hidden");
     document.getElementById("winner").textContent = winnerText;
-    // 🗣️ Speak congratulations using AI voice
-const winnerName = (score > firstInningsScore) ? teamB : (score < firstInningsScore) ? teamA : null;
-if (winnerName) {
-  const selectedLang = document.getElementById("voiceLang").value;
-  let message = `Congratulations, ${winnerName}! You won the match!`;
 
-  // Translate message based on language (basic)
-  if (selectedLang === 'hi-IN') {
-    message = `बधाई हो, ${winnerName}! आपने मैच जीत लिया है!`;
-  } else if (selectedLang === 'ta-IN') {
-    message = `வாழ்த்துகள், ${winnerName}! நீங்கள் போட்டியில் வெற்றி பெற்றீர்கள்!`;
-  } else if (selectedLang === 'te-IN') {
-    message = `అభినందనలు, ${winnerName}! మీరు మ్యాచ్ గెలిచారు!`;
-  }
+    // 🗣️ Voice Commentary
+    const winnerName = (score > firstInningsScore) ? teamB : (score < firstInningsScore) ? teamA : null;
+    if (winnerName) {
+      const selectedLang = document.getElementById("voiceLang").value;
+      let message = `Congratulations, ${winnerName}! You won the match!`;
 
-  const msg = new SpeechSynthesisUtterance(message);
-  msg.lang = selectedLang;
-  msg.volume = 1.0;
-  msg.rate = 1.0;
-  msg.pitch = 1.0;
-  window.speechSynthesis.speak(msg);
-}
+      if (selectedLang === 'hi-IN') message = `बधाई हो, ${winnerName}! आपने मैच जीत लिया है!`;
+      else if (selectedLang === 'ta-IN') message = `வாழ்த்துகள், ${winnerName}! நீங்கள் போட்டியில் வெற்றி பெற்றீர்கள்!`;
+      else if (selectedLang === 'te-IN') message = `అభినందనలు, ${winnerName}! మీరు మ్యాచ్ గెలిచారు!`;
 
-    const dotInfo = document.createElement("p");
-    dotInfo.textContent = `Total dot balls in match: ${dots}`;
-    document.getElementById("summary").appendChild(dotInfo);
+      const msg = new SpeechSynthesisUtterance(message);
+      msg.lang = selectedLang;
+      msg.volume = 1.0;
+      msg.rate = 1.0;
+      msg.pitch = 1.0;
+      window.speechSynthesis.speak(msg);
+    }
 
-
+    // 🎉 Winner UI
+    const summaryDiv = document.getElementById("summary");
+    summaryDiv.querySelectorAll(".text-2xl.text-green-600").forEach(el => el.remove());
     if (!winnerText.includes("tied")) {
       const winningTeam = score > firstInningsScore ? teamB : teamA;
       const congrats = document.createElement("p");
       congrats.className = "text-2xl text-green-600 font-bold mt-4 animate-bounce-in";
       congrats.textContent = "🎉 Congratulations to " + winningTeam + "!";
-      document.getElementById("summary").appendChild(congrats);
+      summaryDiv.appendChild(congrats);
       confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
-      if (!isMuted) document.getElementById("victorySound").play();
+      if (!isMuted) document.getElementById("victorySound")?.play();
     }
 
+    // 🔁 Play Again Button
     const playAgainContainer = document.getElementById("playAgainContainer");
     playAgainContainer.innerHTML = "";
     const playAgainBtn = document.createElement("button");
@@ -802,39 +802,46 @@ if (winnerName) {
     playAgainBtn.textContent = "🔄 Play Again";
     playAgainBtn.className = "btn bg-blue-600 hover:bg-blue-700 mt-2";
     playAgainBtn.onclick = () => {
-  clearMatchState(); // <-- This clears saved match state
-  location.reload(); // then reloads fresh
-};
+      clearMatchState();
+      location.reload();
+    };
     playAgainContainer.appendChild(playAgainBtn);
 
     disableScoringButtons();
     document.getElementById("matchPanel").classList.add("hidden");
     document.getElementById("scoreboard").classList.add("hidden");
-    // 🎯 Generate Match Highlights
-let topBatsman = batsmen.reduce((max, b) => b.runs > max.runs ? b : max, batsmen[0]);
-let topBowler = bowlers.reduce((max, b) => b.wickets > max.wickets ? b : max, bowlers[0]);
-let mostDotBowler = bowlers.reduce((max, b) => b.dotBalls > max.dotBalls ? b : max, bowlers[0]);
 
-// Count maidens from history
-let maidenOvers = 0;
-for (let i = 0; i < ballHistory.length; i += 6) {
-  const over = ballHistory.slice(i, i + 6);
-  if (over.length === 6 && over.every(b => b.type === 'run' && b.runs === 0 || b.type === 'legbye')) {
-    maidenOvers++;
-  }
-}
+    // 📌 Dot balls info
+    summaryDiv.querySelectorAll("p.dot-info").forEach(p => p.remove());
+    const dotInfo = document.createElement("p");
+    dotInfo.className = "dot-info";
+    dotInfo.textContent = `Total dot balls in match: ${dots}`;
+    summaryDiv.appendChild(dotInfo);
 
-const highlights = document.getElementById("highlights");
-highlights.innerHTML = `
-  <h4 class="text-lg font-semibold mb-1">🏆 Match Highlights</h4>
-  <ul class="list-disc ml-5 space-y-1">
-    <li><strong>Top Batsman:</strong> ${topBatsman.name} - ${topBatsman.runs} runs (${topBatsman.balls} balls)</li>
-    <li><strong>Top Bowler:</strong> ${topBowler.name} - ${topBowler.wickets} wickets</li>
-    <li><strong>Most Dot Balls (Bowler):</strong> ${mostDotBowler.name} - ${mostDotBowler.dotBalls} dots</li>
-    <li><strong>Total Dot Balls in Match:</strong> ${dots}</li>
-    <li><strong>Maiden Overs:</strong> ${maidenOvers}</li>
-  </ul>
-`;
+    // 🏆 Highlights
+    const topBatsman = batsmen.reduce((max, b) => b.runs > max.runs ? b : max, batsmen[0]);
+    const topBowler = bowlers.reduce((max, b) => b.wickets > max.wickets ? b : max, bowlers[0]);
+    const mostDotBowler = bowlers.reduce((max, b) => b.dotBalls > max.dotBalls ? b : max, bowlers[0]);
+
+    let maidenOvers = 0;
+    for (let i = 0; i < ballHistory.length; i += 6) {
+      const over = ballHistory.slice(i, i + 6);
+      if (over.length === 6 && over.every(b => (b.type === 'run' && b.runs === 0) || b.type === 'legbye')) {
+        maidenOvers++;
+      }
+    }
+
+    const highlights = document.getElementById("highlights");
+    highlights.innerHTML = `
+      <h4 class="text-lg font-semibold mb-1">🏆 Match Highlights</h4>
+      <ul class="list-disc ml-5 space-y-1">
+        <li><strong>Top Batsman:</strong> ${topBatsman.name} - ${topBatsman.runs} runs (${topBatsman.balls} balls)</li>
+        <li><strong>Top Bowler:</strong> ${topBowler.name} - ${topBowler.wickets} wickets</li>
+        <li><strong>Most Dot Balls (Bowler):</strong> ${mostDotBowler.name} - ${mostDotBowler.dotBalls} dots</li>
+        <li><strong>Total Dot Balls in Match:</strong> ${dots}</li>
+        <li><strong>Maiden Overs:</strong> ${maidenOvers}</li>
+      </ul>
+    `;
 
     renderHistory();
   }
@@ -851,17 +858,44 @@ function disableScoringButtons() {
 
 function updateDisplay() {
   document.getElementById("score").textContent = `${score}/${wickets} (Extras: ${extras})`;
-  document.getElementById("overs").textContent = `${Math.floor(balls/6)}.${balls%6}`;
-  let runRate = balls > 0 ? (score / (balls/6)) : 0;
+  document.getElementById("overs").textContent = `${Math.floor(balls / 6)}.${balls % 6}`;
+
+  let runRate = balls > 0 ? (score / (balls / 6)) : 0;
   document.getElementById("runRate").textContent = runRate.toFixed(2);
+
   let oversLeft = Math.max(0, totalOvers - (balls / 6));
   document.getElementById("oversLeft").textContent = oversLeft.toFixed(1);
 
-  // 👉 Show target if second innings
-  const targetElement = document.getElementById("target");
+  const targetElement = document.getElementById("targetInfo");
   if (inning === 2 && targetElement) {
-    targetElement.textContent = `Target: ${firstInningsScore + 1}`;
-    targetElement.classList.remove("hidden"); // Unhide if previously hidden
+    const target = firstInningsScore + 1;
+    const runsNeeded = Math.max(0, target - score);
+    const ballsLeft = Math.max(0, totalOvers * 6 - balls);
+    const reqRate = ballsLeft > 0 ? (runsNeeded / (ballsLeft / 6)) : 0;
+
+    // Victory check handled elsewhere (but add UI hint here)
+    let status = '';
+    let color = 'text-yellow-700';
+    if (runsNeeded === 0) {
+      status = '✅ Target Achieved!';
+      color = 'text-green-700 font-bold';
+    } else if (ballsLeft === 0 || wickets >= totalWickets) {
+      status = '❌ All Out or Overs Finished';
+      color = 'text-red-600 font-bold';
+    } else {
+      status = `${runsNeeded} needed from ${ballsLeft} balls`;
+    }
+
+    targetElement.innerHTML = `
+      🎯 Target: ${target}<br>
+      🏃 Runs Needed: <span class="${color}">${runsNeeded}</span><br>
+      ⏳ Balls Left: ${ballsLeft}<br>
+      📊 Req. Run Rate: ${reqRate.toFixed(2)}<br>
+      <span class="${color}">${status}</span>
+    `;
+    targetElement.classList.remove("hidden");
+  } else if (targetElement) {
+    targetElement.classList.add("hidden");
   }
 }
     function promptNewBatsman() {

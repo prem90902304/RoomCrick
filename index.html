@@ -84,6 +84,9 @@
       <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
       <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
       <button onclick="Matchinnings()" id="toggleHighlightsBtn" class="bg-yellow-500 px-4 py-2 rounded">Show Match Innings</button>
+      <button id="startSecondInningsBtn" onclick="startSecondInnings()" class="btn bg-green-500 hover:bg-green-600 hidden">
+  ➡️ Start Second Innings
+</button>
       <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
       <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
     </div>
@@ -764,6 +767,56 @@ function renderOverSummary() {
 function isInningsOver() {
  return wickets >= totalWickets || balls >= totalOvers * 6;
 }
+    function startSecondInnings() {
+  inning = 2;
+  currentInnings = 1;
+  inningsHistory[currentInnings] = [];
+
+  score = 0;
+  wickets = 0;
+  balls = 0;
+  extras = 0;
+  dots = 0;
+  legByeCount = 0;
+  ballHistory = [];
+  batsmen = [];
+  bowlers = [];
+  currentBatsmanIndex = 0;
+  currentBowlerIndex = 0;
+
+  let batsmanName = prompt("Enter name of first batsman for 2nd Innings:");
+  if (!batsmanName) batsmanName = "Batsman 1";
+  batsmen.push({
+    name: batsmanName,
+    runs: 0,
+    balls: 0,
+    fours: 0,
+    sixes: 0,
+    dotBalls: 0,
+    out: false
+  });
+
+  let bowlerName = prompt("Enter name of first bowler for 2nd Innings:");
+  if (!bowlerName) bowlerName = "Bowler 1";
+  bowlers.push({
+    name: bowlerName,
+    balls: 0,
+    runs: 0,
+    wickets: 0,
+    dotBalls: 0
+  });
+
+  document.getElementById("inningLabel").textContent = `(2nd Innings)`;
+  document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
+  document.getElementById("targetInfo").classList.remove("hidden");
+  document.getElementById("startSecondInningsBtn").classList.add("hidden");
+
+  enableScoringButtons();
+  updateDisplay();
+  renderScoreboard();
+  saveMatchState();
+  alert("Second Innings Started!");
+}
 
 function checkInningsEnd() {
   if (isInningsOver()) {
@@ -835,12 +888,14 @@ function checkInningsEnd() {
 }
 function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
-    confetti(); // 🎉 Victory effect
+    confetti(); // 🎉
     alert("🎯 Target Reached!");
 
-    disableScoringButtons();        // ✅ Prevent further scoring
-    showMatchInnings();             // ✅ Show both innings highlights
-    endMatch();                     // ✅ End match officially
+    disableScoringButtons();  // ✅ Block scoring buttons
+    document.getElementById("endMatchBtn")?.setAttribute("disabled", true);  // ✅ Disable End Match button too
+
+    showMatchInnings();  // ✅ Show both innings highlights
+    endMatch();          // ✅ Call match ending process
   }
 }
 

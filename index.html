@@ -767,6 +767,25 @@ function renderOverSummary() {
 function isInningsOver() {
  return wickets >= totalWickets || balls >= totalOvers * 6;
 }
+function checkInningsEnd() {
+  if (isInningsOver()) {
+    alert(`Innings over! Total Score: ${score}/${wickets}`);
+
+    if (inning === 1) {
+      firstInningsScore = score;
+      showMatchInnings();
+
+      // ✅ Show the manual "Start Second Innings" button
+      document.getElementById("startSecondInningsBtn").classList.remove("hidden");
+
+      disableScoringButtons();  // ✅ Optional: Disable scoring until 2nd innings starts
+    } else {
+      alert("Second innings over!");
+      showMatchInnings();
+      endMatch();
+    }
+  }
+}
     function startSecondInnings() {
   inning = 2;
   currentInnings = 1;
@@ -809,90 +828,28 @@ function isInningsOver() {
   document.getElementById("inningLabel").textContent = `(2nd Innings)`;
   document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
   document.getElementById("targetInfo").classList.remove("hidden");
-  document.getElementById("startSecondInningsBtn").classList.add("hidden");
+
+  document.getElementById("startSecondInningsBtn").classList.add("hidden");  // ✅ Hide the button after starting
 
   enableScoringButtons();
   updateDisplay();
   renderScoreboard();
   saveMatchState();
-  alert("Second Innings Started!");
+  alert("✅ Second Innings Started!");
 }
 
-function checkInningsEnd() {
-  if (isInningsOver()) {
-    alert(`Innings over! Total Score: ${score}/${wickets}`);
-
-    if (inning === 1) {
-      // ✅ Save first innings score
-      firstInningsScore = score;
-
-      // ✅ Show 1st innings highlights before 2nd innings
-      showMatchInnings();
-
-      // ✅ Switch to second innings
-      inning = 2;
-      currentInnings = 1;  // ✅ For 2nd innings tracking
-      inningsHistory[currentInnings] = [];  // ✅ Start 2nd innings history
-
-      // ✅ Reset stats for 2nd innings
-      score = 0;
-      wickets = 0;
-      balls = 0;
-      extras = 0;
-      dots = 0;
-      legByeCount = 0;
-      ballHistory = [];
-      batsmen = [];
-      bowlers = [];
-      currentBatsmanIndex = 0;
-      currentBowlerIndex = 0;
-
-      // ✅ Prompt for new batsman and bowler
-      let batsmanName = prompt("Enter name of first batsman for 2nd Innings:");
-      if (!batsmanName) batsmanName = "Batsman 1";
-      batsmen.push({
-        name: batsmanName,
-        runs: 0,
-        balls: 0,
-        fours: 0,
-        sixes: 0,
-        dotBalls: 0,
-        out: false
-      });
-
-      let bowlerName = prompt("Enter name of first bowler for 2nd Innings:");
-      if (!bowlerName) bowlerName = "Bowler 1";
-      bowlers.push({
-        name: bowlerName,
-        balls: 0,
-        runs: 0,
-        wickets: 0,
-        dotBalls: 0
-      });
-
-      document.getElementById("inningLabel").textContent = `(2nd Innings)`;
-      document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
-      document.getElementById("targetInfo").classList.remove("hidden");
-
-      updateDisplay();
-      renderScoreboard();
-      saveMatchState();
-      alert("Second Innings Started!");
-
-    } else {
-      alert("Second innings over!");
-      showMatchInnings();
-      endMatch();
-    }
-  }
-}
 function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
     confetti(); // 🎉
     alert("🎯 Target Reached!");
 
-    disableScoringButtons();  // ✅ Block scoring buttons
-    document.getElementById("endMatchBtn")?.setAttribute("disabled", true);  // ✅ Disable End Match button too
+    disableScoringButtons();  // ✅ Disable scoring buttons (runs, wicket, extras etc.)
+
+    // ✅ Keep End Match button ENABLED
+    document.getElementById("endMatchBtn")?.removeAttribute("disabled");
+
+    // ✅ Keep Show Match Innings button ENABLED (if you have one)
+    document.getElementById("showMatchInningsBtn")?.removeAttribute("disabled");
 
     showMatchInnings();  // ✅ Show both innings highlights
     endMatch();          // ✅ Call match ending process

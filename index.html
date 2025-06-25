@@ -717,7 +717,6 @@ function updateDisplay() {
   });
   currentBatsmanIndex = batsmen.length - 1;
 }
-
 function renderScoreboard() {
   const batsmanTable = document.getElementById("batsmanTable");
   batsmanTable.innerHTML = "";
@@ -747,7 +746,7 @@ function renderScoreboard() {
     return ecoA - ecoB;
   });
 
-  // Helper to Format Overs
+  // Helper to Format Overs Properly
   function formatOvers(balls) {
     const completed = Math.floor(balls / 6);
     const extra = balls % 6;
@@ -755,11 +754,11 @@ function renderScoreboard() {
   }
 
   // Render Bowler Table
-  bowlers.forEach(b => {
+  bowlers.forEach((b, index) => {
     const overs = formatOvers(b.balls);
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="border px-2">${b.name}${b === bowlers[currentBowlerIndex] ? " (current)" : ""}</td>
+      <td class="border px-2">${b.name}${index === currentBowlerIndex ? " (current)" : ""}</td>
       <td class="border px-2">${overs}</td>
       <td class="border px-2">${b.runs}</td>
       <td class="border px-2">${b.dotBalls}</td>
@@ -769,68 +768,6 @@ function renderScoreboard() {
   });
 }
 
-  const bowlerTable = document.getElementById("bowlerTable");
-  bowlerTable.innerHTML = "";
-
-  // Optional: Sort bowlers by economy rate (lowest first)
-  bowlers.sort((a, b) => {
-    const ecoA = a.balls ? a.runs / (a.balls / 6) : Infinity;
-    const ecoB = b.balls ? b.runs / (b.balls / 6) : Infinity;
-    return ecoA - ecoB;
-  });
-
-  // Helper to format overs as X.Y
-  function formatOvers(balls) {
-    const completed = Math.floor(balls / 6);
-    const extra = balls % 6;
-    return `${completed}.${extra}`;
-  }
-
-  // Render Bowler Table
-  bowlers.forEach(b => {
-    const overs = formatOvers(b.balls);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="border px-2">${b.name}${b === bowlers[currentBowlerIndex] ? " (current)" : ""}</td>
-      <td class="border px-2">${overs}</td>
-      <td class="border px-2">${b.runs}</td>
-      <td class="border px-2">${b.dotBalls}</td>
-      <td class="border px-2">${b.wickets}</td>
-    `;
-    bowlerTable.appendChild(tr);
-  });
-}
-
-  const bowlerTable = document.getElementById("bowlerTable");
-  bowlerTable.innerHTML = "";
-
-  // Optional: Sort by economy rate (can adjust or remove this line)
-  bowlers.sort((a, b) => {
-    const ecoA = a.balls ? a.runs / (a.balls / 6) : Infinity;
-    const ecoB = b.balls ? b.runs / (b.balls / 6) : Infinity;
-    return ecoA - ecoB;
-  });
-
-  // Format overs helper
-  function formatOvers(balls) {
-    const completed = Math.floor(balls / 6);
-    const extra = balls % 6;
-    return `${completed}.${extra}`;
-  }
-
-  bowlers.forEach(b => {
-    const overs = formatOvers(b.balls);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="border px-2">${b.name}${b === bowlers[currentBowlerIndex] ? " (current)" : ""}</td>
-      <td class="border px-2">${overs}</td>
-      <td class="border px-2">${b.runs}</td>
-      <td class="border px-2">${b.dotBalls}</td>
-      <td class="border px-2">${b.wickets}</td>
-    `;
-    bowlerTable.appendChild(tr);
-  });
-}
 function undoLastBall() {
   if (ballHistory.length === 0) return alert("No balls to undo!");
   const lastBall = ballHistory.pop();

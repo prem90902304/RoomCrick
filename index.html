@@ -1168,67 +1168,64 @@ function toggleMute() {
 }
   </script>
   
-  <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => {
-        console.log("✅ Service Worker Registered");
+   <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => {
+          console.log("✅ Service Worker Registered");
 
-        // Force update if already waiting
-        if (reg.waiting) {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          window.location.reload();
-        }
+          if (reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            window.location.reload();
+          }
 
-        // Detect new installs in future
-        reg.addEventListener("updatefound", () => {
-          const newSW = reg.installing;
-          newSW.addEventListener("statechange", () => {
-            if (newSW.state === "installed" && navigator.serviceWorker.controller) {
-              newSW.postMessage({ type: 'SKIP_WAITING' });
-              window.location.reload();
-            }
+          reg.addEventListener("updatefound", () => {
+            const newSW = reg.installing;
+            newSW.addEventListener("statechange", () => {
+              if (newSW.state === "installed" && navigator.serviceWorker.controller) {
+                newSW.postMessage({ type: 'SKIP_WAITING' });
+                window.location.reload();
+              }
+            });
           });
-        });
-      })
-      .catch(err => console.error("❌ Service Worker registration failed", err));
-  }
-  
-<!-- ✅ Footer inside <body> -->
-<footer class="text-center text-sm text-gray-500 mt-10">
-  Developed by 
-  <a 
-    href="https://github.com/prem90902304" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    class="text-blue-600 hover:underline font-semibold"
-  >
-    prem
-  </a> 
-  • © 2025 <span class="font-medium text-gray-700">RoomCrick</span>
-</footer>
-  
+        })
+        .catch(err => console.error("❌ Service Worker registration failed", err));
+    }
+  </script>
+
+  <!-- ✅ Footer -->
+  <footer class="text-center text-sm text-gray-500 mt-10">
+    Developed by 
+    <a 
+      href="https://github.com/prem90902304" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      class="text-blue-600 hover:underline font-semibold"
+    >
+      prem
+    </a> 
+    • © 2025 <span class="font-medium text-gray-700">RoomCrick</span>
+  </footer>
+
+  <!-- ✅ Sound Effects -->
   <audio id="victorySound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const victorySound = document.getElementById("victorySound");
-    if (victorySound) victorySound.volume = 0.4;
-  });
-</script>
-  <!-- Sound effects for runs -->
-<audio id="soundDot" src="https://assets.mixkit.co/sfx/preview/mixkit-soft-hit-football-kick-2357.mp3"></audio>
-<audio id="sound1" src="https://assets.mixkit.co/sfx/preview/mixkit-cricket-hit-2058.mp3"></audio>
-<audio id="sound2" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-football-kick-2398.mp3"></audio>
-<audio id="sound4" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
-<audio id="sound6" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3"></audio>
-<!-- Extra event sounds -->
-<audio id="soundWide" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
-<audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
-<audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
-<audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const victorySound = document.getElementById("victorySound");
+      if (victorySound) victorySound.volume = 0.4;
+    });
+  </script>
 
-
+  <audio id="soundDot" src="https://assets.mixkit.co/sfx/preview/mixkit-soft-hit-football-kick-2357.mp3"></audio>
+  <audio id="sound1" src="https://assets.mixkit.co/sfx/preview/mixkit-cricket-hit-2058.mp3"></audio>
+  <audio id="sound2" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-football-kick-2398.mp3"></audio>
+  <audio id="sound4" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
+  <audio id="sound6" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3"></audio>
+  <audio id="soundWide" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+  <audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
+  <audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
+  <audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
 
 </body>
 </html>

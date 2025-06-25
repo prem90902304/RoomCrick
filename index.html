@@ -740,6 +740,38 @@ function renderScoreboard() {
   const bowlerTable = document.getElementById("bowlerTable");
   bowlerTable.innerHTML = "";
 
+  // Sort Bowlers by Economy Rate
+  bowlers.sort((a, b) => {
+    const ecoA = a.balls ? a.runs / (a.balls / 6) : Infinity;
+    const ecoB = b.balls ? b.runs / (b.balls / 6) : Infinity;
+    return ecoA - ecoB;
+  });
+
+  // Helper to Format Overs
+  function formatOvers(balls) {
+    const completed = Math.floor(balls / 6);
+    const extra = balls % 6;
+    return `${completed}.${extra}`;
+  }
+
+  // Render Bowler Table
+  bowlers.forEach(b => {
+    const overs = formatOvers(b.balls);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="border px-2">${b.name}${b === bowlers[currentBowlerIndex] ? " (current)" : ""}</td>
+      <td class="border px-2">${overs}</td>
+      <td class="border px-2">${b.runs}</td>
+      <td class="border px-2">${b.dotBalls}</td>
+      <td class="border px-2">${b.wickets}</td>
+    `;
+    bowlerTable.appendChild(tr);
+  });
+}
+
+  const bowlerTable = document.getElementById("bowlerTable");
+  bowlerTable.innerHTML = "";
+
   // Optional: Sort bowlers by economy rate (lowest first)
   bowlers.sort((a, b) => {
     const ecoA = a.balls ? a.runs / (a.balls / 6) : Infinity;

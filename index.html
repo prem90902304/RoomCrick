@@ -770,26 +770,32 @@ function checkInningsEnd() {
     alert(`Innings over! Total Score: ${score}/${wickets}`);
 
     if (inning === 1) {
-      // Save first innings score
+      // ✅ Save first innings score
       firstInningsScore = score;
 
-      // Switch to second innings
+      // ✅ Show 1st innings highlights before 2nd innings
+      showMatchInnings();
+
+      // ✅ Switch to second innings
       inning = 2;
+      currentInnings = 1;  // ✅ For 2nd innings tracking
+      inningsHistory[currentInnings] = [];  // ✅ Start 2nd innings history
+
+      // ✅ Reset stats for 2nd innings
       score = 0;
       wickets = 0;
       balls = 0;
       extras = 0;
-      ballHistory = [];
+      dots = 0;
       legByeCount = 0;
-
-      // ⏱ Reset arrays
+      ballHistory = [];
       batsmen = [];
       bowlers = [];
       currentBatsmanIndex = 0;
       currentBowlerIndex = 0;
 
-      // ➕ Prompt for new batsman and bowler
-      let batsmanName = prompt("Enter name of first batsman:");
+      // ✅ Prompt for new batsman and bowler
+      let batsmanName = prompt("Enter name of first batsman for 2nd Innings:");
       if (!batsmanName) batsmanName = "Batsman 1";
       batsmen.push({
         name: batsmanName,
@@ -801,7 +807,7 @@ function checkInningsEnd() {
         out: false
       });
 
-      let bowlerName = prompt("Enter name of first bowler:");
+      let bowlerName = prompt("Enter name of first bowler for 2nd Innings:");
       if (!bowlerName) bowlerName = "Bowler 1";
       bowlers.push({
         name: bowlerName,
@@ -811,11 +817,13 @@ function checkInningsEnd() {
         dotBalls: 0
       });
 
-      // ✅ Reset display
+      document.getElementById("inningLabel").textContent = `(2nd Innings)`;
+      document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
+      document.getElementById("targetInfo").classList.remove("hidden");
+
       updateDisplay();
       renderScoreboard();
       saveMatchState();
-
       alert("Second Innings Started!");
 
     } else {
@@ -825,13 +833,14 @@ function checkInningsEnd() {
     }
   }
 }
-
 function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
     confetti(); // 🎉 Victory effect
     alert("🎯 Target Reached!");
-    showMatchInnings(); // Show highlights from both innings
-    endMatch(); // End the match officially
+
+    disableScoringButtons();        // ✅ Prevent further scoring
+    showMatchInnings();             // ✅ Show both innings highlights
+    endMatch();                     // ✅ End match officially
   }
 }
 

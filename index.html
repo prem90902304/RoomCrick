@@ -351,6 +351,7 @@ ballHistory.push({
 });
 
   // ✅ Add to match highlights
+  if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
   inningsHistory[currentInnings].push({
     type: 'run',
     runs,
@@ -495,6 +496,7 @@ function addLegBye() {
     alert(`${batsman.name} is OUT after 3 leg byes!`);
 
     // ✅ Push leg-bye-out event to highlights
+    if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
     inningsHistory[currentInnings].push({
       type: 'wicket (legbye)',
       over: Math.floor(balls / 6),

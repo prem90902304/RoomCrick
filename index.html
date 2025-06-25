@@ -83,7 +83,7 @@
       <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
       <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
       <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
-      <button onclick="showInningsHighlights()" class="bg-yellow-500 px-4 py-2 rounded">📋 View Inning Highlights</button>
+      <button onclick="toggleMatchinnings()" id="toggleHighlightsBtn" class="bg-yellow-500 px-4 py-2 rounded">Show Match Innings</button>
       <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
       <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
     </div>
@@ -150,7 +150,7 @@
 
   <div id="overSummary" class="mt-6 space-y-2"></div>
   <!-- ✅ Inning-wise Highlights -->
-<div id="inningsHighlights" class="mt-6 space-y-4"></div>
+<div id="matchInnings" class="mt-6 space-y-4"></div>
   <div id="summary" class="mt-6 hidden">
     <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
     <p id="winner"></p>
@@ -632,8 +632,8 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
-    function showInningsHighlights() {
-  const container = document.getElementById("inningsHighlights");
+    function showmatchInnings() {
+  const container = document.getElementById("matchInnings");
   container.innerHTML = ""; // Clear previous highlights
 
   inningsHistory.forEach((innings, index) => {
@@ -804,7 +804,7 @@ function checkInningsEnd() {
 
     } else {
       alert("Second innings over!");
-      showInningsHighlights();
+      showMatchInnings();
       endMatch();
     }
   }
@@ -814,7 +814,7 @@ function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
     confetti(); // 🎉 Victory effect
     alert("🎯 Target Reached!");
-    showInningsHighlights(); // Show highlights from both innings
+    showMatchInnings(); // Show highlights from both innings
     endMatch(); // End the match officially
   }
 }
@@ -827,6 +827,7 @@ function endMatch() {
     // 🏁 Switch to second innings
     firstInningsScore = score;
     inning = 2;
+    currentInnings = 1;
     score = 0; wickets = 0; balls = 0; extras = 0; dots = 0; legByeCount = 0;
     ballHistory = [];
     batsmen = []; bowlers = [];
@@ -953,7 +954,7 @@ function endMatch() {
     `;
 
     renderHistory();
-    showInningsHighlights();
+    showMatchInnings();
     renderOverSummary();
   }
 }
@@ -1221,6 +1222,23 @@ function toggleMute() {
     msg.classList.add("hidden");
   }, 2000);
 }
+    function toggleMatchHighlights() {
+  const highlightsDiv = document.getElementById("matchInnings");
+  const button = document.getElementById("toggleHighlightsBtn");
+
+  if (highlightsDiv.style.display === "none" || highlightsDiv.innerHTML === "") {
+    showMatchInnings(); // Render innings content
+    highlightsDiv.style.display = "block";
+    button.textContent = "Hide Match Innings";
+  } else {
+    highlightsDiv.style.display = "none";
+    button.textContent = "Show Match Innings";
+  }
+}
+    document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("inningsHighlights").style.display = "none";
+});
+
   </script>
   
    <script>

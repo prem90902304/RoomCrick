@@ -93,6 +93,30 @@ input, select {
       animation: flipCoin 1s ease-out forwards;
     }
 </style>
+  <style>
+/* Force all text to white unless input/select */
+body, h1, h2, h3, h4, h5, p, span, div, table, th, td, label, select, option {
+  color: white !important;
+}
+
+/* Except inputs/selects - keep light greenish for visibility */
+input, select, option {
+  color: #1b5e20 !important;
+  background-color: #e8f5e9 !important;
+}
+
+/* Toss Result text (bright yellow) */
+#tossResultText {
+  color: #ffeb3b !important;
+  font-weight: bold;
+}
+
+/* Run Rate, Overs Left, Target Info - highlight yellow */
+#runRate, #oversLeft, #targetInfo {
+  color: #ffeb3b !important;
+  font-weight: bold;
+}
+</style>
 </head>
 <body class="bg-white text-gray-800 font-sans p-4 max-w-xl mx-auto">
   <h1 class="text-3xl font-bold mb-4 text-center">🏏 RoomCrick</h1>
@@ -293,7 +317,7 @@ input, select {
       window.speechSynthesis.speak(msg);
     }
 
-    function simulateToss() {
+  function simulateToss() {
   const coin = document.getElementById("coin");
   const resultText = document.getElementById("tossResultText");
 
@@ -304,10 +328,12 @@ input, select {
     tossSound.play();
   }
 
+  // ✅ Trigger Coin Flip Animation
   coin.classList.remove("flip-animation");
-  void coin.offsetWidth;
+  void coin.offsetWidth;  // Force reflow for re-triggering animation
   coin.classList.add("flip-animation");
 
+  // ✅ Get team names
   teamA = document.getElementById("teamA").value.trim() || "Team A";
   teamB = document.getElementById("teamB").value.trim() || "Team B";
 
@@ -315,6 +341,7 @@ input, select {
   const userChoice = document.getElementById("userChoice").value;
   const tossResult = Math.random() < 0.5 ? "Heads" : "Tails";
 
+  // ✅ Show Toss Result after delay (after animation)
   setTimeout(() => {
     resultText.innerText = `🪙 It's ${tossResult}!`;
 
@@ -327,10 +354,15 @@ input, select {
     }
 
     resultText.innerText += `\n🏆 ${tossWinner} won the toss and chose to ${tossDecision} first.`;
+
+    // ✅ Save toss result
     localStorage.setItem("tossWinner", tossWinner);
     localStorage.setItem("tossDecision", tossDecision);
 
+    // ✅ Speak Toss Result using commentary
     speakCommentary(`${tossWinner} won the toss and chose to ${tossDecision.toLowerCase()} first.`);
+
+    // ✅ Confetti celebration
     confetti();
   }, 1000);
 }

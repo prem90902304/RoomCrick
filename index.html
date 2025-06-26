@@ -313,13 +313,6 @@ function startMatch() {
   document.getElementById("matchTeams").textContent = `${teamA} vs ${teamB}`;
   document.getElementById("inningLabel").textContent = `(1st Innings)`;
 
-  // ✅ Always keep End Match and Show Match Innings buttons enabled
-  document.getElementById("endMatchBtn").disabled = false;
-  document.getElementById("showMatchInningsBtn").disabled = false;
-
-  // ✅ Enable scoring buttons at start of match
-  enableScoringButtons();
-
   updateDisplay();
   renderScoreboard();
   renderHistory();
@@ -683,15 +676,6 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
-  function enableScoringButtons() {
-  document.querySelectorAll("button.scoring-btn").forEach(btn => btn.disabled = false);
-}
-
-function disableScoringButtons() {
-  document.querySelectorAll("button.scoring-btn").forEach(btn => btn.disabled = true);
-}
-
-
  function showMatchInnings() {
   const container = document.getElementById("matchInnings");
   container.innerHTML = "";  // Clear previous highlights
@@ -823,8 +807,7 @@ function checkInningsEnd() {
 
       // ✅ Show the manual "Start Second Innings" button
       document.getElementById("startSecondInningsBtn").classList.remove("hidden");
-
-      disableScoringButtons();  // ✅ Optional: Disable scoring until 2nd innings starts
+      
     } else {
       alert("Second innings over!");
       showMatchInnings();
@@ -880,14 +863,7 @@ function startSecondInnings() {
   document.getElementById("targetInfo").classList.remove("hidden");
 
   // Hide 2nd innings start button
-  document.getElementById("startSecondInningsBtn")?.classList.add("hidden");
-
-  // ✅✅✅ Enable all scoring buttons ✅✅✅
-  enableScoringButtons();
-
-  // ✅✅✅ Also make sure End Match & Show Innings buttons are enabled ✅✅✅
-  document.getElementById("endMatchBtn").disabled = false;
-  document.getElementById("showMatchInningsBtn").disabled = false;
+  document.getElementById("startSecondInningsBtn")?.classList.add("hidden")
 
   // Refresh UI
   updateDisplay();
@@ -900,14 +876,6 @@ function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
     confetti(); // 🎉
     alert("🎯 Target Reached!");
-
-    disableScoringButtons();  // ✅ Disable scoring buttons (runs, wicket, extras etc.)
-
-    // ✅ Enable End Match button
-    document.getElementById("endMatchBtn")?.removeAttribute("disabled");
-
-    // ✅ Enable Show Match Innings button (optional)
-    document.getElementById("showMatchInningsBtn")?.removeAttribute("disabled");
 
     showMatchInnings();  // ✅ Show both innings highlights
 
@@ -1026,10 +994,6 @@ function endMatch() {
     };
     playAgainContainer.appendChild(playAgainBtn);
 
-    disableScoringButtons();
-    document.getElementById("matchPanel").classList.add("hidden");
-    document.getElementById("scoreboard").classList.add("hidden");
-
     // 📌 Dot balls info
     summaryDiv.querySelectorAll("p.dot-info").forEach(p => p.remove());
     const dotInfo = document.createElement("p");
@@ -1066,15 +1030,6 @@ function endMatch() {
     showMatchInnings();
     renderOverSummary();
   }
-}
-    
-function disableScoringButtons() {
-  const buttons = document.querySelectorAll(
-    'button:not(#playAgainBtn):not(#endMatchBtn):not(#showMatchInningsBtn):not([onclick="clearHistory()"])'
-  );
-  buttons.forEach(btn => {
-    if (!btn.closest("#history")) btn.disabled = true;
-  });
 }
 
 function updateDisplay() {

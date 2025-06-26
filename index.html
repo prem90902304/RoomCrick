@@ -101,15 +101,17 @@
       Run Rate: <span id="runRate">0.00</span><br />
       Overs Left: <span id="oversLeft">0.0</span>
     </div>
-    <button onclick="addRun(0)" class="scoring-btn btn">Dot</button>
-<button onclick="addRun(1)" class="scoring-btn btn">1</button>
-<button onclick="addRun(2)" class="scoring-btn btn">2</button>
-<button onclick="addRun(3)" class="scoring-btn btn">3</button>
-<button onclick="addRun(4)" class="scoring-btn btn">4</button>
-<button onclick="addRun(6)" class="scoring-btn btn">6</button>
-<button onclick="addWide()" class="scoring-btn btn bg-yellow-400">Wide</button>
-<button onclick="addLegBye()" class="scoring-btn btn bg-green-400">Leg Bye</button>
-<button onclick="addWicket()" class="scoring-btn btn bg-red-500 hover:bg-red-600 col-span-3 sm:col-span-2">Wicket</button>
+    <div class="grid grid-cols-3 gap-2 mt-4">
+  <button onclick="addRun(0)" class="scoring-btn btn">Dot</button>
+  <button onclick="addRun(1)" class="scoring-btn btn">1</button>
+  <button onclick="addRun(2)" class="scoring-btn btn">2</button>
+  <button onclick="addRun(3)" class="scoring-btn btn">3</button>
+  <button onclick="addRun(4)" class="scoring-btn btn">4</button>
+  <button onclick="addRun(6)" class="scoring-btn btn">6</button>
+  <button onclick="addWide()" class="scoring-btn btn bg-yellow-400">Wide</button>
+  <button onclick="addLegBye()" class="scoring-btn btn bg-green-400">Leg Bye</button>
+  <button onclick="addWicket()" class="scoring-btn btn bg-red-500 hover:bg-red-600 col-span-3 sm:col-span-2">Wicket</button>
+</div>
     
     <div class="space-x-2 mt-4">
       <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
@@ -811,6 +813,7 @@ function startSecondInnings() {
   currentInnings = 1;
   inningsHistory[currentInnings] = [];
 
+  // Reset match stats for 2nd innings
   score = 0;
   wickets = 0;
   balls = 0;
@@ -823,6 +826,7 @@ function startSecondInnings() {
   currentBatsmanIndex = 0;
   currentBowlerIndex = 0;
 
+  // Prompt for new batsman and bowler
   let batsmanName = prompt("Enter name of first batsman for 2nd Innings:");
   if (!batsmanName) batsmanName = "Batsman 1";
   batsmen.push({
@@ -845,19 +849,28 @@ function startSecondInnings() {
     dotBalls: 0
   });
 
+  // Update UI
   document.getElementById("inningLabel").textContent = `(2nd Innings)`;
   document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
   document.getElementById("targetInfo").classList.remove("hidden");
 
-  document.getElementById("startSecondInningsBtn").classList.add("hidden");  // ✅ Hide the button after starting
+  // Hide 2nd innings start button
+  document.getElementById("startSecondInningsBtn")?.classList.add("hidden");
 
+  // ✅✅✅ Enable all scoring buttons ✅✅✅
   enableScoringButtons();
+
+  // ✅✅✅ Also make sure End Match & Show Innings buttons are enabled ✅✅✅
+  document.getElementById("endMatchBtn").disabled = false;
+  document.getElementById("showMatchInningsBtn").disabled = false;
+
+  // Refresh UI
   updateDisplay();
   renderScoreboard();
   saveMatchState();
+
   alert("✅ Second Innings Started!");
 }
-
 function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
     confetti(); // 🎉

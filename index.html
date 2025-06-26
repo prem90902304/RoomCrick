@@ -1013,7 +1013,7 @@ function endMatch() {
     
 function disableScoringButtons() {
   const buttons = document.querySelectorAll(
-    'button:not(#playAgainBtn):not([onclick="clearHistory()"])'
+    'button:not(#playAgainBtn):not(#endMatchBtn):not(#showMatchInningsBtn):not([onclick="clearHistory()"])'
   );
   buttons.forEach(btn => {
     if (!btn.closest("#history")) btn.disabled = true;

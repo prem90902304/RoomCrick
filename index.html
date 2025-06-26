@@ -88,7 +88,6 @@
       <p class="text-center mt-2">It's Heads!</p>
     </div>
   </div>
-
   <!-- Match Settings & Controls -->
   <div class="space-y-6 bg-gray-50 p-4 rounded shadow-md mt-6">
     <!-- Overs and Wickets -->
@@ -124,25 +123,109 @@
       <button id="startSecondInningsBtn" onclick="startSecondInnings()" class="btn bg-green-500 hover:bg-green-600 hidden">➡️ Start Second Innings</button>
     </div>
 
+    <!-- Umpire and Maiden messages -->
     <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
     <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
   </div>
-
   <!-- Match Panel -->
-  <!-- (UNCHANGED CODE continues here, same as your original post) -->
+  <div id="matchPanel" class="hidden space-y-4 mt-6">
+    <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span> <span id="inningLabel">(1st Innings)</span></div>
+    <div class="text-md">
+      <div id="targetInfo" class="font-semibold text-green-700 mb-1"></div>
+      Score: <span id="score">0/0</span><br />
+      Overs: <span id="overs">0.0</span><br />
+      Run Rate: <span id="runRate">0.00</span><br />
+      Overs Left: <span id="oversLeft">0.0</span>
+    </div>
 
+    <!-- Scoring Buttons -->
+    <div class="grid grid-cols-3 gap-2 mt-4">
+      <button onclick="addRun(0)" class="scoring-btn btn">Dot</button>
+      <button onclick="addRun(1)" class="scoring-btn btn">1</button>
+      <button onclick="addRun(2)" class="scoring-btn btn">2</button>
+      <button onclick="addRun(3)" class="scoring-btn btn">3</button>
+      <button onclick="addRun(4)" class="scoring-btn btn">4</button>
+      <button onclick="addRun(6)" class="scoring-btn btn">6</button>
+      <button onclick="addWide()" class="scoring-btn btn bg-yellow-400">Wide</button>
+      <button onclick="addLegBye()" class="scoring-btn btn bg-green-400">Leg Bye</button>
+      <button onclick="addWicket()" class="scoring-btn btn bg-red-500 hover:bg-red-600 col-span-3 sm:col-span-2">Wicket</button>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="space-x-2 mt-4">
+      <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
+      <button id="endMatchBtn" onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
+    </div>
+  </div>
+
+  <!-- Scoreboard Section -->
+  <div id="scoreboard" class="mt-6 hidden">
+    <h2 class="text-xl font-semibold mb-2">Full Scoreboard</h2>
+
+    <h3 class="text-lg font-semibold">Batsmen</h3>
+    <table class="w-full text-sm mb-4 border">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border px-2">Name</th>
+          <th class="border px-2">Runs</th>
+          <th class="border px-2">Balls</th>
+          <th class="border px-2">Dots</th>
+          <th class="border px-2">4s</th>
+          <th class="border px-2">6s</th>
+          <th class="border px-2">Status</th>
+        </tr>
+      </thead>
+      <tbody id="batsmanTable"></tbody>
+    </table>
+
+    <h3 class="text-lg font-semibold">Bowlers</h3>
+    <table class="w-full text-sm border">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border px-2">Name</th>
+          <th class="border px-2">Overs</th>
+          <th class="border px-2">Runs</th>
+          <th class="border px-2">Dots</th>
+          <th class="border px-2">Wickets</th>
+        </tr>
+      </thead>
+      <tbody id="bowlerTable"></tbody>
+    </table>
+  </div>
+
+  <!-- Over Summary -->
+  <div id="overSummary" class="mt-6 space-y-2"></div>
+
+  <!-- Inning-wise Highlights -->
+  <div id="matchInnings" class="mt-6 space-y-4"></div>
+
+  <!-- Match Summary -->
+  <div id="summary" class="mt-6 hidden">
+    <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
+    <p id="winner"></p>
+    <div id="highlights" class="mt-4 text-sm text-left text-gray-800"></div>
+    <div id="playAgainContainer" class="mt-4"></div>
+  </div>
+
+  <!-- Match History -->
+  <div id="history" class="mt-6">
+    <h3 class="font-bold text-lg mb-2">📜 Past Matches</h3>
+    <ul id="matchHistory" class="list-disc pl-5 space-y-1"></ul>
+  </div>
+
+  <!-- Manifest and Main JS -->
   <link rel="manifest" href="manifest.json?v=7" />
   <script src="main.js?v=7"></script>
 
+  <!-- Footer -->
   <div class="text-center text-xs text-gray-500 mt-6">
     RoomCrick v7 – Always updated 🚀
   </div>
 </body>
 </html>
-
-  <script>
-    let totalWickets = 10;
-   let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
+<script>
+let totalWickets = 10;
+let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
 let inning = 1;
 let firstInningsScore = 0;
 let totalOvers = 0;
@@ -159,10 +242,10 @@ let bowlers = [];
 let currentBatsmanIndex = 0;
 let currentBowlerIndex = 0;
 let ballHistory = [];
-let inningsHistory = [[], []]; // History for each innings
-let currentInnings = 0;        // 0 = first innings, 1 = second innings
+let inningsHistory = [[], []];
+let currentInnings = 0;
 
-// Restore match state on load
+// Load match state
 window.onload = function () {
   const savedState = localStorage.getItem("RoomCrickState");
   if (savedState) {
@@ -202,7 +285,7 @@ function saveMatchState() {
   const matchState = {
     score, wickets, balls, totalOvers, legByeCount,
     batsmen, bowlers, currentBatsmanIndex, currentBowlerIndex,
-    inning, firstInningsScore, extras, ballHistory,dots,
+    inning, firstInningsScore, extras, ballHistory, dots,
     teamA: document.getElementById("teamA").value.trim(),
     teamB: document.getElementById("teamB").value.trim()
   };
@@ -212,93 +295,48 @@ function saveMatchState() {
 function clearMatchState() {
   localStorage.removeItem("RoomCrickState");
 }
-    let teamA = "", teamB = "", tossWinner = "", tossDecision = "";
-
-function setupTeams() {
-  teamA = document.getElementById("teamAInput").value || "Team A";
-  teamB = document.getElementById("teamBInput").value || "Team B";
-  const userTeam = document.getElementById("userTeam");
-  userTeam.innerHTML = `
-    <option value="${teamA}">${teamA}</option>
-    <option value="${teamB}">${teamB}</option>
-  `;
-
-  // Animate Coin
-  const coin = document.getElementById("coin");
-  const coinAnim = document.getElementById("coinAnimation");
-  coinAnim.classList.remove("hidden");
-  coin.classList.remove("animate-flip");
-  void coin.offsetWidth; // Restart animation
-  coin.classList.add("animate-flip");
-
-  // Run toss after delay
-  setTimeout(simulateToss, 1500);
-}
-
-function simulateToss() {
-  const userTeam = document.getElementById("userTeam").value;
-  const userCall = document.getElementById("userCall").value;
-  const opponentTeam = userTeam === teamA ? teamB : teamA;
-  const tossResult = Math.random() < 0.5 ? "Heads" : "Tails";
-
-  document.getElementById("coinSide").innerText = `It's ${tossResult}!`;
-
-  if (tossResult === userCall) {
-    tossWinner = userTeam;
-    document.getElementById("decisionSection").classList.remove("hidden");
-    speakCommentary(`${tossWinner} won the toss! Choose to bat or bowl.`);
-  } else {
-    tossWinner = opponentTeam;
-    tossDecision = Math.random() < 0.5 ? "Bat" : "Bowl";
-    showFinalToss();
-  }
-}
-
-function finalizeToss() {
-  tossDecision = document.getElementById("userDecision").value;
-  showFinalToss();
-}
-
-function showFinalToss() {
-  const tossText = `${tossWinner} won the toss and chose to ${tossDecision.toLowerCase()} first.`;
-  document.getElementById("tossResultText").innerText = tossText;
-
-  // Save to localStorage or match history
-  localStorage.setItem("tossWinner", tossWinner);
-  localStorage.setItem("tossDecision", tossDecision);
-
-  // Optional: add to match history array
-  let history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
-  history.push({ event: "toss", info: tossText, time: new Date().toLocaleTimeString() });
-  localStorage.setItem("matchHistory", JSON.stringify(history));
-
-  // Hide toss UI
-  document.getElementById("tossSection").style.display = "none";
-  document.getElementById("matchUI").style.display = "block";
-
-  // Announce
-  speakCommentary(tossText);
-}
-
-function resetToss() {
-  document.getElementById("tossSection").style.display = "block";
-  document.getElementById("coinAnimation").classList.add("hidden");
-  document.getElementById("decisionSection").classList.add("hidden");
-  document.getElementById("coinSide").innerText = "";
-  tossWinner = tossDecision = "";
-}
+let teamA = "", teamB = "", tossWinner = "", tossDecision = "";
 
 function speakCommentary(text) {
   const msg = new SpeechSynthesisUtterance(text);
-  msg.lang = 'en-IN';
+  msg.lang = document.getElementById("voiceLang")?.value || "en-IN";
   window.speechSynthesis.speak(msg);
 }
-    
+
+function simulateToss() {
+  const userCall = document.getElementById("userCall").value;
+  const userChoice = document.getElementById("userChoice").value;
+  teamA = document.getElementById("teamA").value.trim() || "Team A";
+  teamB = document.getElementById("teamB").value.trim() || "Team B";
+
+  const tossResult = Math.random() < 0.5 ? "Heads" : "Tails";
+  document.querySelector(".text-center.mt-2").innerText = `It's ${tossResult}!`;
+
+  if (userCall === tossResult) {
+    tossWinner = teamA;
+    tossDecision = userChoice;
+    speakCommentary(`${teamA} won the toss and chose to ${userChoice.toLowerCase()} first.`);
+  } else {
+    tossWinner = teamB;
+    tossDecision = Math.random() < 0.5 ? "Bat" : "Bowl";
+    speakCommentary(`${teamB} won the toss and chose to ${tossDecision.toLowerCase()} first.`);
+  }
+
+  // Save toss result to localStorage
+  localStorage.setItem("tossWinner", tossWinner);
+  localStorage.setItem("tossDecision", tossDecision);
+}
+
+function resetToss() {
+  document.querySelector(".text-center.mt-2").innerText = "";
+  speakCommentary("Re-toss the coin.");
+}
+
 function startMatch() {
   clearMatchState();
 
-  const teamA = document.getElementById("teamA").value.trim();
-  const teamB = document.getElementById("teamB").value.trim();
+  teamA = document.getElementById("teamA").value.trim();
+  teamB = document.getElementById("teamB").value.trim();
   totalOvers = parseInt(document.getElementById("totalOvers").value);
   totalWickets = parseInt(document.getElementById("totalWickets").value) || 10;
 
@@ -307,11 +345,11 @@ function startMatch() {
     return;
   }
 
+  // Reset all match variables
   inningsHistory = [[]];
   currentInnings = 0;
   inning = 1;
   firstInningsScore = 0;
-
   score = 0;
   wickets = 0;
   balls = 0;
@@ -319,7 +357,6 @@ function startMatch() {
   legByeCount = 0;
   dots = 0;
   ballHistory = [];
-
   batsmen = [];
   bowlers = [];
   currentBatsmanIndex = 0;
@@ -327,14 +364,14 @@ function startMatch() {
 
   document.getElementById("targetInfo").textContent = "";
 
-  let striker = prompt("Enter name of batsman:");
-  if (!striker) striker = "Batsman 1";
-  let bowlerName = prompt("Enter name of opening bowler:");
-  if (!bowlerName) bowlerName = "Bowler 1";
+  // Prompt for player names
+  let striker = prompt("Enter name of batsman:") || "Batsman 1";
+  let bowlerName = prompt("Enter name of opening bowler:") || "Bowler 1";
 
   batsmen.push({ name: striker, runs: 0, balls: 0, fours: 0, sixes: 0, dotBalls: 0, out: false });
   bowlers.push({ name: bowlerName, balls: 0, runs: 0, dotBalls: 0, wickets: 0 });
 
+  // Show match panel
   document.getElementById("matchPanel").classList.remove("hidden");
   document.getElementById("scoreboard").classList.remove("hidden");
   document.getElementById("summary").classList.add("hidden");
@@ -342,6 +379,7 @@ function startMatch() {
   document.getElementById("matchTeams").textContent = `${teamA} vs ${teamB}`;
   document.getElementById("inningLabel").textContent = `(1st Innings)`;
 
+  // Update everything
   updateDisplay();
   renderScoreboard();
   renderHistory();

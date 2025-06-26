@@ -46,6 +46,7 @@
   <h1 class="text-3xl font-bold mb-4 text-center">🏏 RoomCrick</h1>
 
   <div class="space-y-6 bg-gray-50 p-4 rounded shadow-md">
+    <!-- Team Inputs -->
     <div class="grid sm:grid-cols-2 gap-4">
       <label class="block">
         <span class="text-sm font-medium">Team A</span>
@@ -57,6 +58,7 @@
       </label>
     </div>
 
+    <!-- Overs and Wickets -->
     <div class="grid sm:grid-cols-2 gap-4">
       <label class="block">
         <span class="text-sm font-medium">Overs</span>
@@ -68,6 +70,7 @@
       </label>
     </div>
 
+    <!-- Commentary Language -->
     <div class="block">
       <span class="text-sm font-medium">🎤 Commentary Language</span>
       <select id="voiceLang" class="input w-full mt-1">
@@ -78,20 +81,22 @@
       </select>
     </div>
 
+    <!-- Control Buttons -->
     <div class="flex flex-wrap gap-2 justify-center sm:justify-start mt-2">
       <button onclick="startMatch()" class="btn bg-blue-600 hover:bg-blue-700">Start Match</button>
       <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
       <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
       <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
       <button id="showMatchInningsBtn" onclick="showMatchInnings()" class="btn bg-yellow-500 hover:bg-yellow-600">Show Match Innings</button>
-      <button id="startSecondInningsBtn" onclick="startSecondInnings()" class="btn bg-green-500 hover:bg-green-600 hidden">
-  ➡️ Start Second Innings
-</button>
-      <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
-      <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
+      <button id="startSecondInningsBtn" onclick="startSecondInnings()" class="btn bg-green-500 hover:bg-green-600 hidden">➡️ Start Second Innings</button>
     </div>
+
+    <!-- Umpire Call / Maiden Message -->
+    <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
+    <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
   </div>
 
+  <!-- Match Panel -->
   <div id="matchPanel" class="hidden space-y-4">
     <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span> <span id="inningLabel">(1st Innings)</span></div>
     <div class="text-md">
@@ -101,26 +106,31 @@
       Run Rate: <span id="runRate">0.00</span><br />
       Overs Left: <span id="oversLeft">0.0</span>
     </div>
+
+    <!-- Scoring Buttons -->
     <div class="grid grid-cols-3 gap-2 mt-4">
-  <button onclick="addRun(0)" class="scoring-btn btn">Dot</button>
-  <button onclick="addRun(1)" class="scoring-btn btn">1</button>
-  <button onclick="addRun(2)" class="scoring-btn btn">2</button>
-  <button onclick="addRun(3)" class="scoring-btn btn">3</button>
-  <button onclick="addRun(4)" class="scoring-btn btn">4</button>
-  <button onclick="addRun(6)" class="scoring-btn btn">6</button>
-  <button onclick="addWide()" class="scoring-btn btn bg-yellow-400">Wide</button>
-  <button onclick="addLegBye()" class="scoring-btn btn bg-green-400">Leg Bye</button>
-  <button onclick="addWicket()" class="scoring-btn btn bg-red-500 hover:bg-red-600 col-span-3 sm:col-span-2">Wicket</button>
-</div>
-    
+      <button onclick="addRun(0)" class="scoring-btn btn">Dot</button>
+      <button onclick="addRun(1)" class="scoring-btn btn">1</button>
+      <button onclick="addRun(2)" class="scoring-btn btn">2</button>
+      <button onclick="addRun(3)" class="scoring-btn btn">3</button>
+      <button onclick="addRun(4)" class="scoring-btn btn">4</button>
+      <button onclick="addRun(6)" class="scoring-btn btn">6</button>
+      <button onclick="addWide()" class="scoring-btn btn bg-yellow-400">Wide</button>
+      <button onclick="addLegBye()" class="scoring-btn btn bg-green-400">Leg Bye</button>
+      <button onclick="addWicket()" class="scoring-btn btn bg-red-500 hover:bg-red-600 col-span-3 sm:col-span-2">Wicket</button>
+    </div>
+
+    <!-- Action Buttons -->
     <div class="space-x-2 mt-4">
       <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
       <button id="endMatchBtn" onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
     </div>
   </div>
 
+  <!-- Full Scoreboard -->
   <div id="scoreboard" class="mt-6 hidden">
     <h2 class="text-xl font-semibold mb-2">Full Scoreboard</h2>
+
     <h3 class="text-lg font-semibold">Batsmen</h3>
     <table class="w-full text-sm mb-4 border">
       <thead>
@@ -152,9 +162,13 @@
     </table>
   </div>
 
+  <!-- Over Summary -->
   <div id="overSummary" class="mt-6 space-y-2"></div>
-  <!-- ✅ Inning-wise Highlights -->
-<div id="matchInnings" class="mt-6 space-y-4"></div>
+
+  <!-- Inning-wise Highlights -->
+  <div id="matchInnings" class="mt-6 space-y-4"></div>
+
+  <!-- Match Summary -->
   <div id="summary" class="mt-6 hidden">
     <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
     <p id="winner"></p>
@@ -162,23 +176,25 @@
     <div id="playAgainContainer" class="mt-4"></div>
   </div>
 
+  <!-- Match History -->
   <div id="history" class="mt-6">
     <h3 class="font-bold text-lg mb-2">📜 Past Matches</h3>
     <ul id="matchHistory" class="list-disc pl-5 space-y-1"></ul>
   </div>
 
+  <!-- Manifest and Main JS -->
   <link rel="manifest" href="manifest.json?v=7" />
-<script src="main.js?v=7"></script>
-<div class="text-center text-xs text-gray-500 mt-6">
-  RoomCrick v7 – Always updated 🚀
-</div>
+  <script src="main.js?v=7"></script>
 
+  <div class="text-center text-xs text-gray-500 mt-6">
+    RoomCrick v7 – Always updated 🚀
+  </div>
 </body>
 </html>
 
   <script>
-    let totalWickets = 10;
-   let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
+let totalWickets = 10;
+let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
 let inning = 1;
 let firstInningsScore = 0;
 let totalOvers = 0;
@@ -195,18 +211,48 @@ let bowlers = [];
 let currentBatsmanIndex = 0;
 let currentBowlerIndex = 0;
 let ballHistory = [];
-let inningsHistory = [[], []]; // History for each innings
+let inningsHistory = [[], []]; // Separate history for each innings
 let currentInnings = 0;        // 0 = first innings, 1 = second innings
 
-// Restore match state on load
+// ✅ Function: Enable Scoring Buttons
+function enableScoringButtons() {
+  document.querySelectorAll(".scoring-btn").forEach(btn => btn.removeAttribute("disabled"));
+  document.getElementById("endMatchBtn")?.removeAttribute("disabled");
+}
+
+// ✅ Function: Disable Scoring Buttons
+function disableScoringButtons() {
+  document.querySelectorAll(".scoring-btn").forEach(btn => btn.setAttribute("disabled", true));
+  document.getElementById("endMatchBtn")?.setAttribute("disabled", true);
+}
+
+// ✅ Function: Update Display (Score, Overs, etc.)
+function updateDisplay() {
+  document.getElementById("score").textContent = `${score}/${wickets}`;
+  document.getElementById("overs").textContent = (Math.floor(balls / 6)) + "." + (balls % 6);
+  const runRate = balls > 0 ? (score / (balls / 6)).toFixed(2) : "0.00";
+  document.getElementById("runRate").textContent = runRate;
+  const oversLeft = totalOvers - Math.floor(balls / 6) - ((balls % 6) / 6);
+  document.getElementById("oversLeft").textContent = oversLeft.toFixed(1);
+}
+
+// ✅ Function: Render Scoreboard (Batsmen & Bowlers)
+function renderScoreboard() {
+  // You can later fill this in with batsmen and bowlers display logic
+}
+
+// ✅ Restore match state on page load
 window.onload = function () {
   const savedState = localStorage.getItem("RoomCrickState");
   if (savedState) {
     const state = JSON.parse(savedState);
+
+    // Restore all key state variables
     score = state.score;
     wickets = state.wickets;
     balls = state.balls;
     totalOvers = state.totalOvers;
+    totalWickets = state.totalWickets || 10;
     legByeCount = state.legByeCount;
     batsmen = state.batsmen;
     bowlers = state.bowlers;
@@ -217,30 +263,38 @@ window.onload = function () {
     extras = state.extras || 0;
     ballHistory = state.ballHistory || [];
 
+    // Restore team names and overs input
     document.getElementById("teamA").value = state.teamA;
     document.getElementById("teamB").value = state.teamB;
     document.getElementById("totalOvers").value = state.totalOvers;
 
+    // Show match panel and scoreboard
     document.getElementById("matchPanel").classList.remove("hidden");
     document.getElementById("scoreboard").classList.remove("hidden");
     document.getElementById("matchTeams").textContent = `${state.teamA} vs ${state.teamB}`;
     document.getElementById("inningLabel").textContent = `(Innings ${inning})`;
+
+    // If second innings, show target info and hide "Start Second Innings" button
     if (inning === 2) {
       document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
+      document.getElementById("startSecondInningsBtn").classList.add("hidden");
     }
+
+    // Enable scoring buttons if match was ongoing
+    enableScoringButtons();
 
     updateDisplay();
     renderScoreboard();
   }
 };
-
 function saveMatchState() {
   const matchState = {
     score, wickets, balls, totalOvers, legByeCount,
     batsmen, bowlers, currentBatsmanIndex, currentBowlerIndex,
-    inning, firstInningsScore, extras, ballHistory,dots,
+    inning, firstInningsScore, extras, ballHistory, dots,
     teamA: document.getElementById("teamA").value.trim(),
-    teamB: document.getElementById("teamB").value.trim()
+    teamB: document.getElementById("teamB").value.trim(),
+    totalWickets
   };
   localStorage.setItem("RoomCrickState", JSON.stringify(matchState));
 }
@@ -248,7 +302,7 @@ function saveMatchState() {
 function clearMatchState() {
   localStorage.removeItem("RoomCrickState");
 }
-    
+
 function startMatch() {
   clearMatchState();
 
@@ -262,11 +316,12 @@ function startMatch() {
     return;
   }
 
-  inningsHistory = [[]];
+  inningsHistory = [[], []];  // ✅ Reset both innings
   currentInnings = 0;
   inning = 1;
   firstInningsScore = 0;
 
+  // Reset live match state
   score = 0;
   wickets = 0;
   balls = 0;
@@ -274,7 +329,6 @@ function startMatch() {
   legByeCount = 0;
   dots = 0;
   ballHistory = [];
-
   batsmen = [];
   bowlers = [];
   currentBatsmanIndex = 0;
@@ -282,6 +336,7 @@ function startMatch() {
 
   document.getElementById("targetInfo").textContent = "";
 
+  // Get initial batsman and bowler
   let striker = prompt("Enter name of batsman:");
   if (!striker) striker = "Batsman 1";
   let bowlerName = prompt("Enter name of opening bowler:");
@@ -290,6 +345,7 @@ function startMatch() {
   batsmen.push({ name: striker, runs: 0, balls: 0, fours: 0, sixes: 0, dotBalls: 0, out: false });
   bowlers.push({ name: bowlerName, balls: 0, runs: 0, dotBalls: 0, wickets: 0 });
 
+  // Show match UI
   document.getElementById("matchPanel").classList.remove("hidden");
   document.getElementById("scoreboard").classList.remove("hidden");
   document.getElementById("summary").classList.add("hidden");
@@ -297,20 +353,19 @@ function startMatch() {
   document.getElementById("matchTeams").textContent = `${teamA} vs ${teamB}`;
   document.getElementById("inningLabel").textContent = `(1st Innings)`;
 
-  // ✅ Always keep End Match and Show Match Innings buttons enabled
+  // ✅ Enable control buttons
   document.getElementById("endMatchBtn").disabled = false;
   document.getElementById("showMatchInningsBtn").disabled = false;
 
-  // ✅ Enable scoring buttons at start of match
   enableScoringButtons();
 
   updateDisplay();
   renderScoreboard();
   renderHistory();
-  saveMatchState();
   renderOverSummary();
+  saveMatchState();
 }
-    function playRunSound(runs) {
+   function playRunSound(runs) {
   const sounds = {
     0: document.getElementById("soundDot"),
     1: document.getElementById("sound1"),
@@ -353,7 +408,7 @@ function addRun(runs) {
   if (runs === 4) speakCommentary("four");
   if (runs === 6) speakCommentary("six");
 
-  // 🔙 Undo History
+  // 🔙 Save undo history
   ballHistory.push({
     type: 'run',
     runs,
@@ -367,10 +422,8 @@ function addRun(runs) {
     ballNumber: balls - 1
   });
 
-  // ✅ ✅ ✅ Ensure innings array exists
+  // ✅ Push this ball event into correct innings history
   if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
-
-  // ✅ ✅ ✅ Push this run event to correct innings
   inningsHistory[currentInnings].push({
     type: 'run',
     runs,
@@ -382,7 +435,7 @@ function addRun(runs) {
     wickets
   });
 
-  // ⏭ Updates
+  // Post ball updates
   checkOverComplete();
   updateDisplay();
   renderScoreboard();
@@ -427,10 +480,8 @@ function addWide() {
     ballNumber: balls - 1
   });
 
-  // ✅ Ensure innings array exists for current innings (0 for 1st, 1 for 2nd innings)
+  // ✅ Record in innings history
   if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
-
-  // ✅ Record wide event in correct innings
   inningsHistory[currentInnings].push({
     type: 'wide',
     runs: 1,
@@ -449,6 +500,7 @@ function addWide() {
   saveMatchState();
   renderOverSummary();
 }
+
 function addLegBye() {
   if (isInningsOver()) return alert("Innings is over.");
 
@@ -483,10 +535,8 @@ function addLegBye() {
     ballNumber: balls - 1
   });
 
-  // ✅ Ensure innings array exists
+  // ✅ Record in innings history
   if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
-
-  // ✅ Push leg bye event to correct innings highlights
   inningsHistory[currentInnings].push({
     type: 'legbye',
     over: Math.floor(balls / 6),
@@ -497,7 +547,7 @@ function addLegBye() {
     wickets
   });
 
-  // 🟥 Custom rule: 3 leg byes = Out
+  // 🟥 Custom Rule: 3 leg byes = Out
   if (legByeCount >= 3) {
     legByeCount = 0;
     wickets++;
@@ -515,8 +565,6 @@ function addLegBye() {
 
     alert(`${batsman.name} is OUT after 3 leg byes!`);
 
-    // ✅ Push this wicket event (due to leg byes) into correct innings
-    if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
     inningsHistory[currentInnings].push({
       type: 'wicket (legbye)',
       over: Math.floor(balls / 6),
@@ -559,13 +607,15 @@ function addWicket() {
 
   wickets++;
   balls++;
+
   const bowler = bowlers[currentBowlerIndex];
   const batsman = batsmen[currentBatsmanIndex];
 
   bowler.balls++;
   bowler.wickets++;
   batsman.out = true;
-  legByeCount = 0; // 🔁 Reset leg bye counter after wicket
+
+  legByeCount = 0; // 🔁 Reset leg bye count after wicket
 
   // 🔙 Save for Undo
   ballHistory.push({
@@ -580,10 +630,10 @@ function addWicket() {
     ballNumber: balls - 1
   });
 
-  // ✅ Ensure correct innings array exists
+  // ✅ Ensure innings history exists
   if (!inningsHistory[currentInnings]) inningsHistory[currentInnings] = [];
 
-  // ✅ Add wicket event to correct innings
+  // ✅ Log this wicket event
   inningsHistory[currentInnings].push({
     type: 'wicket',
     over: Math.floor(balls / 6),
@@ -603,7 +653,7 @@ function addWicket() {
   speakCommentary("wicket");
   showUmpireCall("wicket");
 
-  // ➕ New Batsman or End Innings
+  // ➕ Add new batsman or End Innings
   if (wickets < totalWickets) {
     let newBatsmanName = prompt("Enter name of new batsman:");
     if (!newBatsmanName) newBatsmanName = `Batsman ${wickets + 1}`;
@@ -628,13 +678,14 @@ function addWicket() {
   saveMatchState();
   renderOverSummary();
 }
+
 function checkOverComplete() {
   if (balls > 0 && balls % 6 === 0) {
     const lastBowler = bowlers[currentBowlerIndex];
     const last6Balls = ballHistory.slice(-6);
 
-    // ✅ FIX: Proper parentheses for maiden over check
-    const isMaiden = last6Balls.length === 6 && last6Balls.every(b => 
+    // ✅ Check for maiden over
+    const isMaiden = last6Balls.length === 6 && last6Balls.every(b =>
       (b.type === 'run' && b.runs === 0) || b.type === 'legbye'
     );
 
@@ -650,6 +701,7 @@ function checkOverComplete() {
       }
     }
 
+    // ✅ Don't ask for new bowler if innings over
     if (isInningsOver()) {
       alert("Overs completed!");
       return;
@@ -667,7 +719,7 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
- function showMatchInnings() {
+    function showMatchInnings() {
   const container = document.getElementById("matchInnings");
   container.innerHTML = "";  // Clear previous highlights
 
@@ -722,12 +774,13 @@ function checkOverComplete() {
     container.appendChild(section);
   });
 
-  // ✅ Optional: Scroll to the highlights section when showing
+  // ✅ Auto-scroll to highlights
   container.scrollIntoView({ behavior: "smooth" });
 }
+
 function renderOverSummary() {
   const overContainer = document.getElementById("overSummary");
-  overContainer.innerHTML = ""; // Clear previous
+  overContainer.innerHTML = ""; // Clear previous summary
 
   let oversMap = {};
 
@@ -786,7 +839,7 @@ function renderOverSummary() {
     });
 }
 function isInningsOver() {
- return wickets >= totalWickets || balls >= totalOvers * 6;
+  return wickets >= totalWickets || balls >= totalOvers * 6;
 }
 function checkInningsEnd() {
   if (isInningsOver()) {
@@ -796,10 +849,10 @@ function checkInningsEnd() {
       firstInningsScore = score;
       showMatchInnings();
 
-      // ✅ Show the manual "Start Second Innings" button
+      // ✅ Show manual button for starting second innings
       document.getElementById("startSecondInningsBtn").classList.remove("hidden");
 
-      disableScoringButtons();  // ✅ Optional: Disable scoring until 2nd innings starts
+      disableScoringButtons();
     } else {
       alert("Second innings over!");
       showMatchInnings();
@@ -807,13 +860,12 @@ function checkInningsEnd() {
     }
   }
 }
-    
 function startSecondInnings() {
   inning = 2;
   currentInnings = 1;
   inningsHistory[currentInnings] = [];
 
-  // Reset match stats for 2nd innings
+  // ✅ Reset all match state for 2nd innings
   score = 0;
   wickets = 0;
   balls = 0;
@@ -826,7 +878,7 @@ function startSecondInnings() {
   currentBatsmanIndex = 0;
   currentBowlerIndex = 0;
 
-  // Prompt for new batsman and bowler
+  // ✅ Prompt for new batsman and bowler
   let batsmanName = prompt("Enter name of first batsman for 2nd Innings:");
   if (!batsmanName) batsmanName = "Batsman 1";
   batsmen.push({
@@ -849,63 +901,79 @@ function startSecondInnings() {
     dotBalls: 0
   });
 
-  // Update UI
+  // ✅ Update UI
   document.getElementById("inningLabel").textContent = `(2nd Innings)`;
   document.getElementById("targetInfo").textContent = `Target: ${firstInningsScore + 1} to win`;
   document.getElementById("targetInfo").classList.remove("hidden");
 
-  // Hide 2nd innings start button
   document.getElementById("startSecondInningsBtn")?.classList.add("hidden");
-
-  // ✅✅✅ Enable all scoring buttons ✅✅✅
   enableScoringButtons();
-
-  // ✅✅✅ Also make sure End Match & Show Innings buttons are enabled ✅✅✅
   document.getElementById("endMatchBtn").disabled = false;
   document.getElementById("showMatchInningsBtn").disabled = false;
 
-  // Refresh UI
   updateDisplay();
   renderScoreboard();
   saveMatchState();
 
   alert("✅ Second Innings Started!");
 }
+
 function checkTargetReached() {
   if (inning === 2 && score >= firstInningsScore + 1) {
-    confetti(); // 🎉
+    // 🎯 Target successfully chased
+
+    confetti();  // 🎉 Fire confetti celebration
     alert("🎯 Target Reached!");
 
-    disableScoringButtons();  // ✅ Disable scoring buttons (runs, wicket, extras etc.)
+    // ✅ Disable all scoring buttons (runs, wickets, extras etc)
+    disableScoringButtons();
 
-    // ✅ Enable End Match button
+    // ✅ Keep End Match button active, so user can click manually
     document.getElementById("endMatchBtn")?.removeAttribute("disabled");
 
-    // ✅ Enable Show Match Innings button (optional)
+    // ✅ Keep "Show Innings Highlights" button active
     document.getElementById("showMatchInningsBtn")?.removeAttribute("disabled");
 
-    showMatchInnings();  // ✅ Show both innings highlights
+    // ✅ Show match highlights for both innings
+    showMatchInnings();
 
-    // ✅ Do NOT auto-call endMatch(), user will click manually.
+    // ✅ Optional: Play victory sound
+    if (!isMuted) {
+      document.getElementById("victorySound")?.play();
+    }
+
+    // ✅ Optional: Voice Announcement
+    const teamB = document.getElementById("teamB").value.trim();
+    const selectedLang = document.getElementById("voiceLang").value;
+    let message = `Congratulations, ${teamB}! You have chased the target and won!`;
+
+    if (selectedLang === 'hi-IN') message = `बधाई हो, ${teamB}! आपने लक्ष्य हासिल कर लिया है और मैच जीत लिया है!`;
+    else if (selectedLang === 'ta-IN') message = `வாழ்த்துகள், ${teamB}! நீங்கள் இலக்கை அடைந்தீர்கள் மற்றும் போட்டியில் வெற்றி பெற்றீர்கள்!`;
+    else if (selectedLang === 'te-IN') message = `అభినందనలు, ${teamB}! మీరు లక్ష్యాన్ని చేరుకొని మ్యాచ్ గెలిచారు!`;
+
+    const msg = new SpeechSynthesisUtterance(message);
+    msg.lang = selectedLang;
+    msg.volume = 1.0;
+    msg.rate = 1.0;
+    msg.pitch = 1.0;
+    window.speechSynthesis.speak(msg);
+
+    // ✅ Do NOT auto-call endMatch() here.
+    // Let user manually click "End Match" button after seeing target reached.
   }
 }
-
 function endMatch() {
   const teamA = document.getElementById("teamA").value.trim();
   const teamB = document.getElementById("teamB").value.trim();
 
   if (inning === 1) {
-    // 🏁 Switch to second innings
+    // 🏁 End of First Innings: Prepare for Second Innings
     firstInningsScore = score;
     inning = 2;
-    currentInnings = 1;  // ✅ Ensure all 2nd innings events go to inningsHistory[1]
-
-    // ✅ Initialize second innings history array
+    currentInnings = 1;
     inningsHistory[currentInnings] = [];
 
-    localStorage.removeItem('crickMatchState');
-
-    // Reset stats for 2nd innings
+    // Reset second innings state
     score = 0;
     wickets = 0;
     balls = 0;
@@ -918,6 +986,7 @@ function endMatch() {
     currentBatsmanIndex = 0;
     currentBowlerIndex = 0;
 
+    // Ask for new batsman and bowler
     let striker = prompt("Enter name of batsman for 2nd Innings:");
     if (!striker) striker = "Batsman 1";
     let bowlerName = prompt("Enter name of opening bowler for 2nd Innings:");
@@ -934,8 +1003,9 @@ function endMatch() {
     renderScoreboard();
     clearMatchState();
     document.getElementById("summary").classList.add("hidden");
+
   } else {
-    // ✅ Match ends after second innings
+    // ✅ After Second Innings: Declare Match Result
     let winnerText = "";
     if (score > firstInningsScore) {
       winnerText = `${teamB} won by ${totalWickets - wickets} wicket(s)!`;
@@ -945,6 +1015,7 @@ function endMatch() {
       winnerText = "Match tied!";
     }
 
+    // ✅ Save to Match History
     const matchSummary = {
       teams: `${teamA} vs ${teamB}`,
       score1: `${firstInningsScore}/10 (max overs)`,
@@ -954,10 +1025,11 @@ function endMatch() {
     };
     history.unshift(matchSummary);
     localStorage.setItem('crickHistory', JSON.stringify(history));
+
     document.getElementById("summary").classList.remove("hidden");
     document.getElementById("winner").textContent = winnerText;
 
-    // 🗣️ Voice Commentary
+    // ✅ Voice Winner Announcement
     const winnerName = (score > firstInningsScore) ? teamB : (score < firstInningsScore) ? teamA : null;
     if (winnerName) {
       const selectedLang = document.getElementById("voiceLang").value;
@@ -975,7 +1047,7 @@ function endMatch() {
       window.speechSynthesis.speak(msg);
     }
 
-    // 🎉 Winner UI
+    // ✅ Display Winner UI
     const summaryDiv = document.getElementById("summary");
     summaryDiv.querySelectorAll(".text-2xl.text-green-600").forEach(el => el.remove());
     if (!winnerText.includes("tied")) {
@@ -984,11 +1056,12 @@ function endMatch() {
       congrats.className = "text-2xl text-green-600 font-bold mt-4 animate-bounce-in";
       congrats.textContent = "🎉 Congratulations to " + winningTeam + "!";
       summaryDiv.appendChild(congrats);
+
       confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
       if (!isMuted) document.getElementById("victorySound")?.play();
     }
 
-    // 🔁 Play Again Button
+    // ✅ Show Play Again Button
     const playAgainContainer = document.getElementById("playAgainContainer");
     playAgainContainer.innerHTML = "";
     const playAgainBtn = document.createElement("button");
@@ -1001,18 +1074,18 @@ function endMatch() {
     };
     playAgainContainer.appendChild(playAgainBtn);
 
+    // ✅ Block Scoring After Match
     disableScoringButtons();
     document.getElementById("matchPanel").classList.add("hidden");
     document.getElementById("scoreboard").classList.add("hidden");
 
-    // 📌 Dot balls info
-    summaryDiv.querySelectorAll("p.dot-info").forEach(p => p.remove());
+    // ✅ Show Dot Balls & Highlights
     const dotInfo = document.createElement("p");
     dotInfo.className = "dot-info";
     dotInfo.textContent = `Total dot balls in match: ${dots}`;
     summaryDiv.appendChild(dotInfo);
 
-    // 🏆 Highlights
+    // ✅ Batsman & Bowler Stats
     const topBatsman = batsmen.reduce((max, b) => b.runs > max.runs ? b : max, batsmen[0]);
     const topBowler = bowlers.reduce((max, b) => b.wickets > max.wickets ? b : max, bowlers[0]);
     const mostDotBowler = bowlers.reduce((max, b) => b.dotBalls > max.dotBalls ? b : max, bowlers[0]);
@@ -1070,7 +1143,6 @@ function updateDisplay() {
     const ballsLeft = Math.max(0, totalOvers * 6 - balls);
     const reqRate = ballsLeft > 0 ? (runsNeeded / (ballsLeft / 6)) : 0;
 
-    // Victory check handled elsewhere (but add UI hint here)
     let status = '';
     let color = 'text-yellow-700';
     if (runsNeeded === 0) {
@@ -1095,7 +1167,8 @@ function updateDisplay() {
     targetElement.classList.add("hidden");
   }
 }
-    function promptNewBatsman() {
+
+function promptNewBatsman() {
   let name = prompt("Enter name of new batsman:");
   if (!name) name = `Batsman ${wickets + 1}`;
   batsmen.push({
@@ -1109,11 +1182,11 @@ function updateDisplay() {
   });
   currentBatsmanIndex = batsmen.length - 1;
 }
+
 function renderScoreboard() {
   const batsmanTable = document.getElementById("batsmanTable");
   batsmanTable.innerHTML = "";
 
-  // Render Batsman Table
   batsmen.forEach(b => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -1131,14 +1204,12 @@ function renderScoreboard() {
   const bowlerTable = document.getElementById("bowlerTable");
   bowlerTable.innerHTML = "";
 
-  // Format overs helper
   function formatOvers(balls) {
     const completed = Math.floor(balls / 6);
     const extra = balls % 6;
     return `${completed}.${extra}`;
   }
 
-  // Render Bowler Table in actual bowling order (no sort)
   bowlers.forEach((b, index) => {
     const overs = formatOvers(b.balls);
     const isCurrent = index === currentBowlerIndex;
@@ -1155,16 +1226,26 @@ function renderScoreboard() {
 }
 function undoLastBall() {
   if (ballHistory.length === 0) return alert("No balls to undo!");
+
   const lastBall = ballHistory.pop();
+
+  // Revert main match state
   score = lastBall.scoreBefore;
   wickets = lastBall.wicketsBefore;
   balls = lastBall.ballsBefore;
   batsmen = JSON.parse(lastBall.batsmenBefore);
   bowlers = JSON.parse(lastBall.bowlersBefore);
-  if (lastBall.type === 'legbye') legByeCount = lastBall.legByeCountBefore;
+
+  // Special case: Leg Bye Count rollback
+  if (lastBall.type === 'legbye') {
+    legByeCount = lastBall.legByeCountBefore;
+  }
+
+  // Revert striker and bowler indices
   currentBatsmanIndex = batsmen.findIndex(b => !b.out);
-if (currentBatsmanIndex === -1) currentBatsmanIndex = batsmen.length - 1;
+  if (currentBatsmanIndex === -1) currentBatsmanIndex = batsmen.length - 1;
   currentBowlerIndex = lastBall.bowlerIndex;
+
   updateDisplay();
   renderScoreboard();
   renderOverSummary();
@@ -1173,10 +1254,12 @@ if (currentBatsmanIndex === -1) currentBatsmanIndex = batsmen.length - 1;
 function renderHistory() {
   const historyList = document.getElementById("matchHistory");
   historyList.innerHTML = "";
+
   if (history.length === 0) {
     historyList.innerHTML = "<li>No matches played yet.</li>";
     return;
   }
+
   history.forEach(match => {
     const li = document.createElement("li");
     li.textContent = `[${match.date}] ${match.teams} - 1st Innings: ${match.score1}, 2nd Innings: ${match.score2} => Winner: ${match.winner}`;
@@ -1192,14 +1275,15 @@ function clearHistory() {
   }
 }
 
-renderHistory();
 function enableAudio() {
   const msg = new SpeechSynthesisUtterance("Audio enabled");
   msg.lang = 'en-US';
   window.speechSynthesis.speak(msg);
 }
-    let isMuted = false;
-    document.addEventListener('DOMContentLoaded', () => {
+
+let isMuted = false;
+
+document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("muteBtn").textContent = isMuted ? "🔇 Unmute" : "🔊 Mute";
 });
 
@@ -1208,12 +1292,13 @@ function toggleMute() {
   const label = isMuted ? "🔇 Unmute" : "🔊 Mute";
   document.getElementById("muteBtn").textContent = label;
 
-  // Mute/unmute all audio elements
+  // Mute/unmute all <audio> tags in your page
   document.querySelectorAll("audio").forEach(audio => {
     audio.muted = isMuted;
   });
 }
-    function speakCommentary(messageKey) {
+
+function speakCommentary(messageKey) {
   const lang = document.getElementById("voiceLang").value;
 
   const commentaryMessages = {
@@ -1254,23 +1339,23 @@ function toggleMute() {
       "te-IN": "వికెట్ పడిపోయింది!"
     },
     "wide": {
-  "en-US": "That's a wide ball.",
-  "hi-IN": "यह वाइड बॉल है।",
-  "ta-IN": "அது அகல பந்து.",
-  "te-IN": "అది వైడ్ బాల్."
-},
-"legbye": {
-  "en-US": "Lbw",
-  "hi-IN": "लेग बाय!",
-  "ta-IN": "லெக் விக்கெட் !",
-  "te-IN": "లెగ్!"
-},
+      "en-US": "That's a wide ball.",
+      "hi-IN": "यह वाइड बॉल है।",
+      "ta-IN": "அது அகல பந்து.",
+      "te-IN": "అది వైడ్ బాల్."
+    },
+    "legbye": {
+      "en-US": "Leg bye run!",
+      "hi-IN": "लेग बाय!",
+      "ta-IN": "லெக் பை!",
+      "te-IN": "లెగ్ బై!"
+    },
     "maiden": {
-  "en-US": "That's a maiden over!",
-  "hi-IN": "यह मेडन ओवर है!",
-  "ta-IN": "இது ஒரு மேடன் ஓவர்!",
-  "te-IN": "ఇది ఒక మెయిడెన్ ఓవర్!"
-},
+      "en-US": "That's a maiden over!",
+      "hi-IN": "यह मेडन ओवर है!",
+      "ta-IN": "இது ஒரு மேடன் ஓவர்!",
+      "te-IN": "ఇది ఒక మెయిడెన్ ఓవర్!"
+    }
   };
 
   const message = commentaryMessages[messageKey]?.[lang];
@@ -1283,8 +1368,11 @@ function toggleMute() {
   utterance.rate = 1;
   if (!isMuted) window.speechSynthesis.speak(utterance);
 }
-    function showUmpireCall(type) {
+
+function showUmpireCall(type) {
   const call = document.getElementById("umpireCall");
+  if (!call) return;
+
   call.classList.remove("hidden");
 
   if (type === "wide") {
@@ -1298,23 +1386,27 @@ function toggleMute() {
   setTimeout(() => {
     call.classList.remove("show");
     call.classList.add("hidden");
-  }, 1200); // visible for 1.2 seconds
+  }, 1200);  // Visible for 1.2 seconds
 }
-    function showMaidenMessage() {
+
+function showMaidenMessage() {
   const msg = document.getElementById("maidenMessage");
+  if (!msg) return;
+
   msg.textContent = "👏 Maiden Over!";
   msg.classList.remove("hidden");
 
   setTimeout(() => {
     msg.classList.add("hidden");
-  }, 2000);
+  }, 2000);  // Visible for 2 seconds
 }
-    function Matchinnings() {
+ <script>
+function Matchinnings() {
   const highlightsDiv = document.getElementById("matchInnings");
   const button = document.getElementById("toggleHighlightsBtn");
 
   if (highlightsDiv.style.display === "none" || highlightsDiv.innerHTML === "") {
-    showmatchInnings();  // This function builds the highlights table
+    showMatchInnings();  // ✅ Build highlights section
     highlightsDiv.style.display = "block";
     button.textContent = "Hide Match Innings";
   } else {
@@ -1322,71 +1414,72 @@ function toggleMute() {
     button.textContent = "Show Match Innings";
   }
 }
-    document.addEventListener("DOMContentLoaded", () => {
+
+// ✅ Hide highlights section on page load
+document.addEventListener("DOMContentLoaded", () => {
   const elem = document.getElementById("matchInnings");
   if (elem) elem.style.display = "none";
 });
+</script>
 
-  </script>
-  
-   <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(reg => {
-          console.log("✅ Service Worker Registered");
+<!-- ✅ Service Worker for PWA support -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+    .then(reg => {
+      console.log("✅ Service Worker Registered");
 
-          if (reg.waiting) {
-            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        window.location.reload();
+      }
+
+      reg.addEventListener("updatefound", () => {
+        const newSW = reg.installing;
+        newSW.addEventListener("statechange", () => {
+          if (newSW.state === "installed" && navigator.serviceWorker.controller) {
+            newSW.postMessage({ type: 'SKIP_WAITING' });
             window.location.reload();
           }
+        });
+      });
+    })
+    .catch(err => console.error("❌ Service Worker registration failed", err));
+}
+</script>
 
-          reg.addEventListener("updatefound", () => {
-            const newSW = reg.installing;
-            newSW.addEventListener("statechange", () => {
-              if (newSW.state === "installed" && navigator.serviceWorker.controller) {
-                newSW.postMessage({ type: 'SKIP_WAITING' });
-                window.location.reload();
-              }
-            });
-          });
-        })
-        .catch(err => console.error("❌ Service Worker registration failed", err));
-    }
-  </script>
+<!-- ✅ Footer -->
+<footer class="text-center text-sm text-gray-500 mt-10">
+  Developed by 
+  <a 
+    href="https://github.com/prem90902304" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    class="text-blue-600 hover:underline font-semibold"
+  >
+    prem
+  </a> 
+  • © 2025 <span class="font-medium text-gray-700">RoomCrick</span>
+</footer>
 
-  <!-- ✅ Footer -->
-  <footer class="text-center text-sm text-gray-500 mt-10">
-    Developed by 
-    <a 
-      href="https://github.com/prem90902304" 
-      target="_blank" 
-      rel="noopener noreferrer"
-      class="text-blue-600 hover:underline font-semibold"
-    >
-      prem
-    </a> 
-    • © 2025 <span class="font-medium text-gray-700">RoomCrick</span>
-  </footer>
+<!-- ✅ Sound Effects -->
+<audio id="victorySound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const victorySound = document.getElementById("victorySound");
+  if (victorySound) victorySound.volume = 0.4;
+});
+</script>
 
-  <!-- ✅ Sound Effects -->
-  <audio id="victorySound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const victorySound = document.getElementById("victorySound");
-      if (victorySound) victorySound.volume = 0.4;
-    });
-  </script>
-
-  <audio id="soundDot" src="https://assets.mixkit.co/sfx/preview/mixkit-soft-hit-football-kick-2357.mp3"></audio>
-  <audio id="sound1" src="https://assets.mixkit.co/sfx/preview/mixkit-cricket-hit-2058.mp3"></audio>
-  <audio id="sound2" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-football-kick-2398.mp3"></audio>
-  <audio id="sound4" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
-  <audio id="sound6" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3"></audio>
-  <audio id="soundWide" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
-  <audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
-  <audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
-  <audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
+<audio id="soundDot" src="https://assets.mixkit.co/sfx/preview/mixkit-soft-hit-football-kick-2357.mp3"></audio>
+<audio id="sound1" src="https://assets.mixkit.co/sfx/preview/mixkit-cricket-hit-2058.mp3"></audio>
+<audio id="sound2" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-football-kick-2398.mp3"></audio>
+<audio id="sound4" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-notification-2018.mp3"></audio>
+<audio id="sound6" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3"></audio>
+<audio id="soundWide" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+<audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
+<audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
+<audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
 
 </body>
 </html>

@@ -44,6 +44,46 @@
 </head>
 <body class="bg-white text-gray-800 font-sans p-4 max-w-xl mx-auto">
   <h1 class="text-3xl font-bold mb-4 text-center">🏏 RoomCrick</h1>
+  <!-- Toss Section -->
+<div id="tossSection" class="p-4 bg-gray-800 rounded-xl text-white max-w-md mx-auto mt-4">
+  <h2 class="text-xl font-bold mb-3 text-center">🪙 Toss</h2>
+
+  <label>Team A Name:</label>
+  <input type="text" id="teamAInput" placeholder="Enter Team A" class="text-black p-1 rounded mb-2 w-full" />
+
+  <label>Team B Name:</label>
+  <input type="text" id="teamBInput" placeholder="Enter Team B" class="text-black p-1 rounded mb-2 w-full" />
+
+  <label>Your Team:</label>
+  <select id="userTeam" class="text-black p-1 rounded mb-2 w-full"></select>
+
+  <label>Your Call:</label>
+  <select id="userCall" class="text-black p-1 rounded mb-2 w-full">
+    <option value="Heads">Heads</option>
+    <option value="Tails">Tails</option>
+  </select>
+
+  <div class="text-center mt-4">
+    <button onclick="setupTeams()" class="px-4 py-2 bg-green-600 rounded">Toss Coin</button>
+    <button onclick="resetToss()" class="ml-2 px-4 py-2 bg-red-600 rounded">Re-Toss</button>
+  </div>
+
+  <!-- Coin Toss Animation -->
+  <div id="coinAnimation" class="relative w-20 h-20 mx-auto mt-4 hidden">
+    <div id="coin" class="w-full h-full bg-yellow-400 text-black text-center leading-[80px] text-xl font-bold rounded-full border border-black animate-spin">🪙</div>
+    <div id="coinSide" class="mt-2 text-center text-white"></div>
+  </div>
+
+  <!-- Bat/Bowl Decision -->
+  <div id="decisionSection" class="hidden mt-4">
+    <label>Choose Bat or Bowl:</label>
+    <select id="userDecision" class="text-black p-1 rounded mt-1 w-full">
+      <option value="Bat">Bat</option>
+      <option value="Bowl">Bowl</option>
+    </select>
+    <button onclick="finalizeToss()" class="mt-2 px-4 py-2 bg-blue-600 rounded w-full">Start Match</button>
+  </div>
+</div>
 
   <div class="space-y-6 bg-gray-50 p-4 rounded shadow-md">
     <!-- Team Inputs -->
@@ -263,6 +303,87 @@ function saveMatchState() {
 
 function clearMatchState() {
   localStorage.removeItem("RoomCrickState");
+}
+    let teamA = "", teamB = "", tossWinner = "", tossDecision = "";
+
+function setupTeams() {
+  teamA = document.getElementById("teamAInput").value || "Team A";
+  teamB = document.getElementById("teamBInput").value || "Team B";
+  const userTeam = document.getElementById("userTeam");
+  userTeam.innerHTML = `
+    <option value="${teamA}">${teamA}</option>
+    <option value="${teamB}">${teamB}</option>
+  `;
+
+  // Animate Coin
+  const coin = document.getElementById("coin");
+  const coinAnim = document.getElementById("coinAnimation");
+  coinAnim.classList.remove("hidden");
+  coin.classList.remove("animate-flip");
+  void coin.offsetWidth; // Restart animation
+  coin.classList.add("animate-flip");
+
+  // Run toss after delay
+  setTimeout(simulateToss, 1500);
+}
+
+function simulateToss() {
+  const userTeam = document.getElementById("userTeam").value;
+  const userCall = document.getElementById("userCall").value;
+  const opponentTeam = userTeam === teamA ? teamB : teamA;
+  const tossResult = Math.random() < 0.5 ? "Heads" : "Tails";
+
+  document.getElementById("coinSide").innerText = `It's ${tossResult}!`;
+
+  if (tossResult === userCall) {
+    tossWinner = userTeam;
+    document.getElementById("decisionSection").classList.remove("hidden");
+    speakCommentary(`${tossWinner} won the toss! Choose to bat or bowl.`);
+  } else {
+    tossWinner = opponentTeam;
+    tossDecision = Math.random() < 0.5 ? "Bat" : "Bowl";
+    showFinalToss();
+  }
+}
+
+function finalizeToss() {
+  tossDecision = document.getElementById("userDecision").value;
+  showFinalToss();
+}
+
+function showFinalToss() {
+  const tossText = `${tossWinner} won the toss and chose to ${tossDecision.toLowerCase()} first.`;
+  document.getElementById("tossResultText").innerText = tossText;
+
+  // Save to localStorage or match history
+  localStorage.setItem("tossWinner", tossWinner);
+  localStorage.setItem("tossDecision", tossDecision);
+
+  // Optional: add to match history array
+  let history = JSON.parse(localStorage.getItem("matchHistory") || "[]");
+  history.push({ event: "toss", info: tossText, time: new Date().toLocaleTimeString() });
+  localStorage.setItem("matchHistory", JSON.stringify(history));
+
+  // Hide toss UI
+  document.getElementById("tossSection").style.display = "none";
+  document.getElementById("matchUI").style.display = "block";
+
+  // Announce
+  speakCommentary(tossText);
+}
+
+function resetToss() {
+  document.getElementById("tossSection").style.display = "block";
+  document.getElementById("coinAnimation").classList.add("hidden");
+  document.getElementById("decisionSection").classList.add("hidden");
+  document.getElementById("coinSide").innerText = "";
+  tossWinner = tossDecision = "";
+}
+
+function speakCommentary(text) {
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = 'en-IN';
+  window.speechSynthesis.speak(msg);
 }
     
 function startMatch() {

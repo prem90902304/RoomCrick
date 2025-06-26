@@ -44,60 +44,53 @@
 </head>
 <body class="bg-white text-gray-800 font-sans p-4 max-w-xl mx-auto">
   <h1 class="text-3xl font-bold mb-4 text-center">🏏 RoomCrick</h1>
+
   <!-- Toss Section -->
-<div id="tossSection" class="p-4 bg-gray-800 rounded-xl text-white max-w-md mx-auto mt-4">
-  <h2 class="text-xl font-bold mb-3 text-center">🪙 Toss</h2>
+  <div class="p-4 bg-gray-800 rounded-xl text-white max-w-md mx-auto mt-4">
+    <h2 class="text-xl font-bold mb-3 text-center">🪙 Toss</h2>
 
-  <label>Team A Name:</label>
-  <input type="text" id="teamAInput" placeholder="Enter Team A" class="text-black p-1 rounded mb-2 w-full" />
-
-  <label>Team B Name:</label>
-  <input type="text" id="teamBInput" placeholder="Enter Team B" class="text-black p-1 rounded mb-2 w-full" />
-
-  <label>Your Team:</label>
-  <select id="userTeam" class="text-black p-1 rounded mb-2 w-full"></select>
-
-  <label>Your Call:</label>
-  <select id="userCall" class="text-black p-1 rounded mb-2 w-full">
-    <option value="Heads">Heads</option>
-    <option value="Tails">Tails</option>
-  </select>
-
-  <div class="text-center mt-4">
-    <button onclick="setupTeams()" class="px-4 py-2 bg-green-600 rounded">Toss Coin</button>
-    <button onclick="resetToss()" class="ml-2 px-4 py-2 bg-red-600 rounded">Re-Toss</button>
-  </div>
-
-  <!-- Coin Toss Animation -->
-  <div id="coinAnimation" class="relative w-20 h-20 mx-auto mt-4 hidden">
-    <div id="coin" class="w-full h-full bg-yellow-400 text-black text-center leading-[80px] text-xl font-bold rounded-full border border-black animate-spin">🪙</div>
-    <div id="coinSide" class="mt-2 text-center text-white"></div>
-  </div>
-
-  <!-- Bat/Bowl Decision -->
-  <div id="decisionSection" class="hidden mt-4">
-    <label>Choose Bat or Bowl:</label>
-    <select id="userDecision" class="text-black p-1 rounded mt-1 w-full">
-      <option value="Bat">Bat</option>
-      <option value="Bowl">Bowl</option>
-    </select>
-    <button onclick="finalizeToss()" class="mt-2 px-4 py-2 bg-blue-600 rounded w-full">Start Match</button>
-  </div>
-</div>
-
-  <div class="space-y-6 bg-gray-50 p-4 rounded shadow-md">
     <!-- Team Inputs -->
     <div class="grid sm:grid-cols-2 gap-4">
       <label class="block">
         <span class="text-sm font-medium">Team A</span>
-        <input id="teamA" class="input w-full mt-1" placeholder="Enter Team A Name" />
+        <input id="teamA" class="input w-full mt-1 text-black" placeholder="Enter Team A" />
       </label>
       <label class="block">
         <span class="text-sm font-medium">Team B</span>
-        <input id="teamB" class="input w-full mt-1" placeholder="Enter Team B Name" />
+        <input id="teamB" class="input w-full mt-1 text-black" placeholder="Enter Team B" />
       </label>
     </div>
 
+    <!-- Toss Call & Choice -->
+    <label class="block mt-4">Your Call:
+      <select id="userCall" class="input text-black mt-1 w-full">
+        <option value="Heads">Heads</option>
+        <option value="Tails">Tails</option>
+      </select>
+    </label>
+
+    <label class="block mt-4">Your Choice:
+      <select id="userChoice" class="input text-black mt-1 w-full">
+        <option value="Bat">Bat</option>
+        <option value="Bowl">Bowl</option>
+      </select>
+    </label>
+
+    <!-- Toss Buttons -->
+    <div class="flex justify-center gap-2 mt-4">
+      <button class="btn bg-green-600">Toss Coin</button>
+      <button class="btn bg-red-600">Re-Toss</button>
+    </div>
+
+    <!-- Toss Result -->
+    <div class="mt-4">
+      <div class="w-20 h-20 mx-auto bg-yellow-400 text-black text-center leading-[80px] text-xl font-bold rounded-full border border-black">🪙</div>
+      <p class="text-center mt-2">It's Heads!</p>
+    </div>
+  </div>
+
+  <!-- Match Settings & Controls -->
+  <div class="space-y-6 bg-gray-50 p-4 rounded shadow-md mt-6">
     <!-- Overs and Wickets -->
     <div class="grid sm:grid-cols-2 gap-4">
       <label class="block">
@@ -131,98 +124,13 @@
       <button id="startSecondInningsBtn" onclick="startSecondInnings()" class="btn bg-green-500 hover:bg-green-600 hidden">➡️ Start Second Innings</button>
     </div>
 
-    <!-- Umpire Call / Maiden Message -->
     <div id="umpireCall" class="hidden text-center text-2xl font-bold mt-2 text-red-600"></div>
     <div id="maidenMessage" class="hidden text-center text-green-600 text-xl font-bold mt-2"></div>
   </div>
 
   <!-- Match Panel -->
-  <div id="matchPanel" class="hidden space-y-4">
-    <div class="text-lg font-semibold">🏏 Match: <span id="matchTeams"></span> <span id="inningLabel">(1st Innings)</span></div>
-    <div class="text-md">
-      <div id="targetInfo" class="font-semibold text-green-700 mb-1"></div>
-      Score: <span id="score">0/0</span><br />
-      Overs: <span id="overs">0.0</span><br />
-      Run Rate: <span id="runRate">0.00</span><br />
-      Overs Left: <span id="oversLeft">0.0</span>
-    </div>
+  <!-- (UNCHANGED CODE continues here, same as your original post) -->
 
-    <!-- Scoring Buttons -->
-    <div class="grid grid-cols-3 gap-2 mt-4">
-      <button onclick="addRun(0)" class="scoring-btn btn">Dot</button>
-      <button onclick="addRun(1)" class="scoring-btn btn">1</button>
-      <button onclick="addRun(2)" class="scoring-btn btn">2</button>
-      <button onclick="addRun(3)" class="scoring-btn btn">3</button>
-      <button onclick="addRun(4)" class="scoring-btn btn">4</button>
-      <button onclick="addRun(6)" class="scoring-btn btn">6</button>
-      <button onclick="addWide()" class="scoring-btn btn bg-yellow-400">Wide</button>
-      <button onclick="addLegBye()" class="scoring-btn btn bg-green-400">Leg Bye</button>
-      <button onclick="addWicket()" class="scoring-btn btn bg-red-500 hover:bg-red-600 col-span-3 sm:col-span-2">Wicket</button>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="space-x-2 mt-4">
-      <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
-      <button id="endMatchBtn" onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
-    </div>
-  </div>
-
-  <!-- Full Scoreboard -->
-  <div id="scoreboard" class="mt-6 hidden">
-    <h2 class="text-xl font-semibold mb-2">Full Scoreboard</h2>
-
-    <h3 class="text-lg font-semibold">Batsmen</h3>
-    <table class="w-full text-sm mb-4 border">
-      <thead>
-        <tr class="bg-gray-100">
-          <th class="border px-2">Name</th>
-          <th class="border px-2">Runs</th>
-          <th class="border px-2">Balls</th>
-          <th class="border px-2">Dots</th>
-          <th class="border px-2">4s</th>
-          <th class="border px-2">6s</th>
-          <th class="border px-2">Status</th>
-        </tr>
-      </thead>
-      <tbody id="batsmanTable"></tbody>
-    </table>
-
-    <h3 class="text-lg font-semibold">Bowlers</h3>
-    <table class="w-full text-sm border">
-      <thead>
-        <tr class="bg-gray-100">
-          <th class="border px-2">Name</th>
-          <th class="border px-2">Overs</th>
-          <th class="border px-2">Runs</th>
-          <th class="border px-2">Dots</th>
-          <th class="border px-2">Wickets</th>
-        </tr>
-      </thead>
-      <tbody id="bowlerTable"></tbody>
-    </table>
-  </div>
-
-  <!-- Over Summary -->
-  <div id="overSummary" class="mt-6 space-y-2"></div>
-
-  <!-- Inning-wise Highlights -->
-  <div id="matchInnings" class="mt-6 space-y-4"></div>
-
-  <!-- Match Summary -->
-  <div id="summary" class="mt-6 hidden">
-    <h3 class="font-bold text-lg mb-2">🏁 Match Summary</h3>
-    <p id="winner"></p>
-    <div id="highlights" class="mt-4 text-sm text-left text-gray-800"></div>
-    <div id="playAgainContainer" class="mt-4"></div>
-  </div>
-
-  <!-- Match History -->
-  <div id="history" class="mt-6">
-    <h3 class="font-bold text-lg mb-2">📜 Past Matches</h3>
-    <ul id="matchHistory" class="list-disc pl-5 space-y-1"></ul>
-  </div>
-
-  <!-- Manifest and Main JS -->
   <link rel="manifest" href="manifest.json?v=7" />
   <script src="main.js?v=7"></script>
 

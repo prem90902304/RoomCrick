@@ -683,6 +683,13 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
+    function enableScoringButtons() {
+  document.querySelectorAll('button.scoring-btn').forEach(btn => btn.disabled = false);
+}
+
+function disableScoringButtons() {
+  document.querySelectorAll('button.scoring-btn').forEach(btn => btn.disabled = true);
+}
  function showMatchInnings() {
   const container = document.getElementById("matchInnings");
   container.innerHTML = "";  // Clear previous highlights

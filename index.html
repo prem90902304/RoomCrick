@@ -786,7 +786,8 @@ function checkInningsEnd() {
     }
   }
 }
-    function startSecondInnings() {
+    
+function startSecondInnings() {
   inning = 2;
   currentInnings = 1;
   inningsHistory[currentInnings] = [];
@@ -845,14 +846,15 @@ function checkTargetReached() {
 
     disableScoringButtons();  // ✅ Disable scoring buttons (runs, wicket, extras etc.)
 
-    // ✅ Keep End Match button ENABLED
+    // ✅ Enable End Match button
     document.getElementById("endMatchBtn")?.removeAttribute("disabled");
 
-    // ✅ Keep Show Match Innings button ENABLED (if you have one)
+    // ✅ Enable Show Match Innings button (optional)
     document.getElementById("showMatchInningsBtn")?.removeAttribute("disabled");
 
     showMatchInnings();  // ✅ Show both innings highlights
-    endMatch();          // ✅ Call match ending process
+
+    // ✅ Do NOT auto-call endMatch(), user will click manually.
   }
 }
 

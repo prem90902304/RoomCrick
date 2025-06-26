@@ -3,44 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RoomCrick</title>
+  <title>RoomCrick - Green Theme</title>
   <link rel="icon" href="https://img.icons8.com/color/96/cricket.png" type="image/png" />
-  <meta name="theme-color" content="#4f46e5" />
-  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
+  <meta name="theme-color" content="#1b5e20" />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
   <style>
-  .input {
-    border: 1px solid #ccc;
-    padding: 0.4rem;
-    border-radius: 0.25rem;
-  }
-  .btn {
-    padding: 0.4rem 0.8rem;
-    background: #4f46e5;
-    color: white;
-    border-radius: 0.25rem;
-    cursor: pointer;
-  }
-  .btn:hover {
-    background: #4338ca;
-  }
-  .btn:disabled {
-    background: #999;
-    cursor: not-allowed;
-  }
-  @keyframes bounceIn {
-    0% { transform: scale(0.5); opacity: 0; }
-    60% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(1); }
-  }
-  .animate-bounce-in {
-    animation: bounceIn 1s ease-out forwards;
-  }
+    body {
+      background: linear-gradient(to bottom, #3b8d4c, #1b5e20);
+      color: #f0f0f0;
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4 {
+      color: #ffffff;
+    }
+    input, select {
+      background-color: #e8f5e9;
+      color: #1b5e20;
+      border: 2px solid #66bb6a;
+      padding: 0.5rem;
+      border-radius: 6px;
+    }
+    button, .btn {
+      background-color: #388e3c;
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+    }
+    button:hover, .btn:hover {
+      background-color: #2e7d32;
+    }
+    .bg-white {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      border: 1px solid #ffffff33;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    #matchPanel, #scoreboard, #summary, #history, #overSummary, #matchInnings {
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    #tossResultText {
+      color: #ffeb3b;
+      font-weight: bold;
+    }
+    table th, table td {
+      border: 1px solid #4caf50;
+      padding: 0.4rem;
+    }
+    footer {
+      color: #c8e6c9;
+    }
 
   /* 🎯 Coin Flip Animation */
   @keyframes flipCoin {
@@ -253,53 +270,46 @@
     }
 
     function simulateToss() {
-      const coin = document.getElementById("coin");
-      const resultText = document.getElementById("tossResultText");
+  const coin = document.getElementById("coin");
+  const resultText = document.getElementById("tossResultText");
 
-      coin.classList.remove("flip-animation");
-      void coin.offsetWidth;
-      coin.classList.add("flip-animation");
+  // ✅ Play Toss Sound
+  const tossSound = document.getElementById("soundToss");
+  if (tossSound && !isMuted) {
+    tossSound.currentTime = 0;
+    tossSound.play();
+  }
 
-      teamA = document.getElementById("teamA").value.trim() || "Team A";
-      teamB = document.getElementById("teamB").value.trim() || "Team B";
+  coin.classList.remove("flip-animation");
+  void coin.offsetWidth;
+  coin.classList.add("flip-animation");
 
-      const userCall = document.getElementById("userCall").value;
-      const userChoice = document.getElementById("userChoice").value;
-      const tossResult = Math.random() < 0.5 ? "Heads" : "Tails";
+  teamA = document.getElementById("teamA").value.trim() || "Team A";
+  teamB = document.getElementById("teamB").value.trim() || "Team B";
 
-      setTimeout(() => {
-        resultText.innerText = `🪙 It's ${tossResult}!`;
+  const userCall = document.getElementById("userCall").value;
+  const userChoice = document.getElementById("userChoice").value;
+  const tossResult = Math.random() < 0.5 ? "Heads" : "Tails";
 
-        if (userCall === tossResult) {
-          tossWinner = teamA;
-          tossDecision = userChoice;
-        } else {
-          tossWinner = teamB;
-          tossDecision = Math.random() < 0.5 ? "Bat" : "Bowl";
-        }
+  setTimeout(() => {
+    resultText.innerText = `🪙 It's ${tossResult}!`;
 
-        resultText.innerText += `\n🏆 ${tossWinner} won the toss and chose to ${tossDecision} first.`;
-        localStorage.setItem("tossWinner", tossWinner);
-        localStorage.setItem("tossDecision", tossDecision);
-
-        speakCommentary(`${tossWinner} won the toss and chose to ${tossDecision.toLowerCase()} first.`);
-        confetti();
-      }, 1000);
-    }
-
-    function resetToss() {
-      document.getElementById("tossResultText").innerText = "";
-      document.getElementById("coin").classList.remove("flip-animation");
-      speakCommentary("Re-toss the coin.");
-    }
-
-    function skipToss() {
-      teamA = document.getElementById("teamA").value.trim() || "Team A";
+    if (userCall === tossResult) {
       tossWinner = teamA;
-      tossDecision = "Bat";
-      document.getElementById("tossResultText").innerText = `${tossWinner} skips toss and chooses to bat first.`;
-      speakCommentary(`${tossWinner} skips the toss and chooses to bat first.`);
+      tossDecision = userChoice;
+    } else {
+      tossWinner = teamB;
+      tossDecision = Math.random() < 0.5 ? "Bat" : "Bowl";
     }
+
+    resultText.innerText += `\n🏆 ${tossWinner} won the toss and chose to ${tossDecision} first.`;
+    localStorage.setItem("tossWinner", tossWinner);
+    localStorage.setItem("tossDecision", tossDecision);
+
+    speakCommentary(`${tossWinner} won the toss and chose to ${tossDecision.toLowerCase()} first.`);
+    confetti();
+  }, 1000);
+}
 let totalWickets = 10;
 let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
 let inning = 1;
@@ -1477,6 +1487,7 @@ document.addEventListener("DOMContentLoaded", () => {
   <audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
   <audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
   <audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
+  <audio id="soundToss" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.wav"></audio>
 
 </body>
 </html>

@@ -83,7 +83,7 @@
       <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
       <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
       <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
-      <button id="showMatchInningsBtn" onclick="showMatchInnings()">Show Match Innings</button>
+      <button id="showMatchInningsBtn" onclick="showMatchInnings()" class="btn bg-yellow-500 hover:bg-yellow-600">Show Match Innings</button>
       <button id="startSecondInningsBtn" onclick="startSecondInnings()" class="btn bg-green-500 hover:bg-green-600 hidden">
   ➡️ Start Second Innings
 </button>
@@ -665,12 +665,12 @@ function checkOverComplete() {
     currentBowlerIndex = bowlers.length - 1;
   }
 }
-   function showmatchInnings() {
+ function showMatchInnings() {
   const container = document.getElementById("matchInnings");
-  container.innerHTML = ""; // Clear previous highlights
+  container.innerHTML = "";  // Clear previous highlights
 
   inningsHistory.forEach((innings, index) => {
-    if (!innings || innings.length === 0) return;  // ✅ Skip empty innings
+    if (!innings || innings.length === 0) return;  // Skip empty innings
 
     const section = document.createElement("div");
     section.className = "bg-white p-4 rounded shadow border mb-4";
@@ -696,6 +696,7 @@ function checkOverComplete() {
     `;
 
     const tbody = table.querySelector("tbody");
+
     innings.forEach(event => {
       const overBall = `${event.over}.${event.ball}`;
       const type = event.type === "run" ? `${event.runs} run(s)` :
@@ -718,6 +719,9 @@ function checkOverComplete() {
     section.appendChild(table);
     container.appendChild(section);
   });
+
+  // ✅ Optional: Scroll to the highlights section when showing
+  container.scrollIntoView({ behavior: "smooth" });
 }
 function renderOverSummary() {
   const overContainer = document.getElementById("overSummary");

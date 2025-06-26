@@ -83,7 +83,7 @@
       <button onclick="enableAudio()" class="btn bg-green-600 hover:bg-green-700">🔊 Enable Audio</button>
       <button onclick="toggleMute()" id="muteBtn" class="btn bg-gray-600 hover:bg-gray-700">🔊 Mute</button>
       <button onclick="clearHistory()" class="btn bg-red-500 hover:bg-red-600">🗑️ Clear History</button>
-      <button onclick="Matchinnings()" id="toggleHighlightsBtn" class="bg-yellow-500 px-4 py-2 rounded">Show Match Innings</button>
+      <button id="showMatchInningsBtn" onclick="showMatchInnings()" class="btn bg-yellow-500 hover:bg-yellow-600" disabled>Show Match Innings</button>
       <button id="startSecondInningsBtn" onclick="startSecondInnings()" class="btn bg-green-500 hover:bg-green-600 hidden">
   ➡️ Start Second Innings
 </button>
@@ -114,7 +114,7 @@
     </div>
     <div class="space-x-2 mt-4">
       <button onclick="undoLastBall()" class="btn bg-gray-400">Undo</button>
-      <button onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700">End Match</button>
+      <button id="endMatchBtn" onclick="endMatch()" class="btn bg-gray-600 hover:bg-gray-700" disabled>End Match</button>
     </div>
   </div>
 

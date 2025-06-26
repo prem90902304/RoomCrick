@@ -25,14 +25,132 @@
   animation: umpirePop 0.8s ease;
 }
 
-<style>
-@keyframes flipCoin {
-  0% { transform: rotateY(0deg); }
-  100% { transform: rotateY(1080deg); }
+/* ===== RoomCrick Green Stadium Theme ===== */
+
+body {
+  background: linear-gradient(to bottom, #3b8d4c, #1b5e20);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
 }
-.animate-flip {
-  animation: flipCoin 1.2s ease-in-out forwards;
+
+/* Headings and General Text */
+h1, h2, h3, h4, h5, label, span, div, p, th, td {
+  color: #ffffff !important;
 }
-</style>
+
+/* Inputs and Selects */
+input, select, option {
+  background-color: #e8f5e9 !important;
+  color: #1b5e20 !important;
+  border: 2px solid #66bb6a;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+/* Buttons */
+button, .btn {
+  background-color: #388e3c;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover, .btn:hover {
+  background-color: #2e7d32;
+}
+
+/* Wide Button Colors (like Wide, Leg Bye, etc) */
+button.bg-yellow-400 {
+  background-color: #facc15 !important;
+  color: #1b1b1b !important;
+}
+
+button.bg-green-400 {
+  background-color: #34d399 !important;
+  color: #1b1b1b !important;
+}
+
+button.bg-red-500, button.bg-red-600 {
+  background-color: #ef4444 !important;
+}
+
+button.bg-blue-600, button.bg-blue-700 {
+  background-color: #2563eb !important;
+}
+
+/* Panel Backgrounds */
+.bg-white,
+#matchPanel,
+#scoreboard,
+#summary,
+#history,
+#overSummary,
+#matchInnings {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Toss Result Text */
+#tossResultText {
+  color: #ffeb3b !important;
+  font-weight: bold;
+}
+
+/* Target Info, Run Rate, Overs Left */
+#targetInfo,
+#runRate,
+#oversLeft {
+  color: #ffeb3b !important;
+  font-weight: bold;
+}
+
+/* Table Borders */
+table th,
+table td {
+  border: 1px solid #4caf50 !important;
+  padding: 0.4rem;
+  text-align: center;
+}
+
+/* Footer */
+footer {
+  color: #c8e6c9;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 2rem;
+}
+
+/* Umpire Call Messages */
+#umpireCall,
+#maidenMessage {
+  font-weight: bold;
+  color: #ffeb3b !important;
+}
+
+/* Over Summary Boxes */
+#overSummary div {
+  background-color: #1f2937 !important;
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: white !important;
+}
+
+/* Over Summary Dot Balls */
+#overSummary .bg-gray-800 {
+  background-color: #374151 !important;
+}
+
+/* Hide unwanted text-gray Tailwind defaults */
+.text-gray-700,
+.text-gray-800,
+.text-gray-900 {
+  color: #ffffff !important;
+}
+
 
 

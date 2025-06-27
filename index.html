@@ -236,8 +236,8 @@
 </body>
 </html>
 <script>
-  let teamA = "", teamB = "", tossWinner = "", tossDecision = "";
-  function simulateToss() {
+ let teamA = "", teamB = "", tossWinner = "", tossDecision = "";
+ function simulateToss() {
   const coin = document.getElementById("coin");
   const resultText = document.getElementById("tossResultText");
 
@@ -248,12 +248,10 @@
     tossSound.play();
   }
 
-  // ✅ Trigger Coin Flip Animation
   coin.classList.remove("flip-animation");
-  void coin.offsetWidth;  // Force reflow for re-triggering animation
+  void coin.offsetWidth;
   coin.classList.add("flip-animation");
 
-  // ✅ Get team names
   teamA = document.getElementById("teamA").value.trim() || "Team A";
   teamB = document.getElementById("teamB").value.trim() || "Team B";
 
@@ -261,7 +259,6 @@
   const userChoice = document.getElementById("userChoice").value;
   const tossResult = Math.random() < 0.5 ? "Heads" : "Tails";
 
-  // ✅ Show Toss Result after delay (after animation)
   setTimeout(() => {
     resultText.innerText = `🪙 It's ${tossResult}!`;
 
@@ -274,15 +271,10 @@
     }
 
     resultText.innerText += `\n🏆 ${tossWinner} won the toss and chose to ${tossDecision} first.`;
-
-    // ✅ Save toss result
     localStorage.setItem("tossWinner", tossWinner);
     localStorage.setItem("tossDecision", tossDecision);
 
-    // ✅ Speak Toss Result using commentary
     speakCommentary(`${tossWinner} won the toss and chose to ${tossDecision.toLowerCase()} first.`);
-
-    // ✅ Confetti celebration
     confetti();
   }, 1000);
 }
@@ -429,6 +421,10 @@ function startMatch() {
 
 function addRun(runs) {
   if (isInningsOver()) return alert("Innings is over.");
+  if (inning === 2 && score >= firstInningsScore + 1) {
+  alert("Target already reached. No more scoring allowed.");
+  return;
+}
 
   const striker = batsmen[currentBatsmanIndex];
   const bowler = bowlers[currentBowlerIndex];
@@ -496,6 +492,10 @@ function addRun(runs) {
 }
 function addWide() {
   if (isInningsOver()) return alert("Innings is over.");
+  if (inning === 2 && score >= firstInningsScore + 1) {
+  alert("Target already reached. No more scoring allowed.");
+  return;
+}
 
   score++;
   extras++;
@@ -554,6 +554,10 @@ function addWide() {
 }
 function addLegBye() {
   if (isInningsOver()) return alert("Innings is over.");
+  if (inning === 2 && score >= firstInningsScore + 1) {
+  alert("Target already reached. No more scoring allowed.");
+  return;
+}
 
   legByeCount++;
   const bowler = bowlers[currentBowlerIndex];
@@ -659,6 +663,10 @@ function addLegBye() {
 
 function addWicket() {
   if (isInningsOver()) return alert("Innings is over.");
+  if (inning === 2 && score >= firstInningsScore + 1) {
+  alert("Target already reached. No more scoring allowed.");
+  return;
+}
 
   wickets++;
   balls++;

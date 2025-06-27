@@ -1117,7 +1117,6 @@ function endMatch() {
       congrats.textContent = "🎉 Congratulations to " + winningTeam + "!";
       summaryDiv.appendChild(congrats);
       confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
-      document.getElementById("victorySound").volume = 1;
      const victorySound = document.getElementById("victorySound");
 if (victorySound) {
   victorySound.currentTime = 0;

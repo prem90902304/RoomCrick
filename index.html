@@ -210,6 +210,8 @@
 
   <!-- Inning-wise Highlights -->
   <div id="matchInnings" class="mt-6 space-y-4"></div>
+  
+  <div id="highlights"></div>
 
   <!-- Match Summary -->
   <div id="summary" class="mt-6 hidden">
@@ -320,6 +322,10 @@ let currentBowlerIndex = 0;
 let ballHistory = [];
 let inningsHistory = [[], []];
 let currentInnings = 0;
+let firstInningsBatsmen = [];
+let firstInningsBowlers = [];
+let secondInningsBatsmen = [];
+let secondInningsBowlers = [];
 
 // Load match state
 window.onload = function () {
@@ -1012,17 +1018,21 @@ function endMatch() {
   const teamB = document.getElementById("teamB").value.trim();
 
   if (inning === 1) {
-    // 🏁 Switch to second innings
+    // ✅ Save First Innings Details
     firstInningsScore = score;
-    inning = 2;
-    currentInnings = 1;  // ✅ Ensure all 2nd innings events go to inningsHistory[1]
+    firstInningsWickets = wickets;
+    firstInningsOvers = balls / 6;
+    firstInningsBatsmen = [...batsmen];
+    firstInningsBowlers = [...bowlers];
 
-    // ✅ Initialize second innings history array
+    // ✅ Switch to Second Innings
+    inning = 2;
+    currentInnings = 1;
     inningsHistory[currentInnings] = [];
 
     localStorage.removeItem('crickMatchState');
 
-    // Reset stats for 2nd innings
+    // ✅ Reset stats for 2nd innings
     score = 0;
     wickets = 0;
     balls = 0;
@@ -1035,10 +1045,9 @@ function endMatch() {
     currentBatsmanIndex = 0;
     currentBowlerIndex = 0;
 
-    let striker = prompt("Enter name of batsman for 2nd Innings:");
-    if (!striker) striker = "Batsman 1";
-    let bowlerName = prompt("Enter name of opening bowler for 2nd Innings:");
-    if (!bowlerName) bowlerName = "Bowler 1";
+    // ✅ Prompt for new batsman and bowler
+    let striker = prompt("Enter name of batsman for 2nd Innings:") || "Batsman 1";
+    let bowlerName = prompt("Enter name of opening bowler for 2nd Innings:") || "Bowler 1";
 
     batsmen.push({ name: striker, runs: 0, balls: 0, fours: 0, sixes: 0, dotBalls: 0, out: false });
     bowlers.push({ name: bowlerName, balls: 0, runs: 0, dotBalls: 0, wickets: 0 });
@@ -1051,8 +1060,13 @@ function endMatch() {
     renderScoreboard();
     clearMatchState();
     document.getElementById("summary").classList.add("hidden");
+
   } else {
-    // ✅ Match ends after second innings
+    // ✅ Save Second Innings Data
+    secondInningsBatsmen = [...batsmen];
+    secondInningsBowlers = [...bowlers];
+
+    // ✅ Calculate winner
     let winnerText = "";
     if (score > firstInningsScore) {
       winnerText = `${teamB} won by ${totalWickets - wickets} wicket(s)!`;
@@ -1062,6 +1076,11 @@ function endMatch() {
       winnerText = "Match tied!";
     }
 
+    document.getElementById("winner").textContent = winnerText;
+    document.getElementById("summary").classList.remove("hidden");
+
+    // ✅ Call Highlights
+    showMatchHighlights();
     const matchSummary = {
       teams: `${teamA} vs ${teamB}`,
       score1: `${firstInningsScore}/10 (max overs)`,
@@ -1117,8 +1136,7 @@ function endMatch() {
       location.reload();
     };
     playAgainContainer.appendChild(playAgainBtn);
-      // Show Highlights
-    showMatchHighlights();
+     
     renderHistory();
     showMatchInnings();
     renderOverSummary();

@@ -811,7 +811,7 @@ function checkOverComplete() {
     section.className = "bg-white p-4 rounded shadow border mb-4";
 
     const title = document.createElement("h4");
-    title.textContent = `🏏 Innings ${index + 1} Highlights`;
+    title.textContent = `🏏 Innings ${index + 1} `;
     title.className = "text-lg font-bold mb-2 text-blue-700";
     section.appendChild(title);
 
@@ -1117,43 +1117,73 @@ function endMatch() {
       location.reload();
     };
     playAgainContainer.appendChild(playAgainBtn);
-
-    // 📌 Dot balls info
-    summaryDiv.querySelectorAll("p.dot-info").forEach(p => p.remove());
-    const dotInfo = document.createElement("p");
-    dotInfo.className = "dot-info";
-    dotInfo.textContent = `Total dot balls in match: ${dots}`;
-    summaryDiv.appendChild(dotInfo);
-
-    // 🏆 Highlights
-    const topBatsman = batsmen.reduce((max, b) => b.runs > max.runs ? b : max, batsmen[0]);
-    const topBowler = bowlers.reduce((max, b) => b.wickets > max.wickets ? b : max, bowlers[0]);
-    const mostDotBowler = bowlers.reduce((max, b) => b.dotBalls > max.dotBalls ? b : max, bowlers[0]);
-
-    let maidenOvers = 0;
-    for (let i = 0; i < ballHistory.length; i += 6) {
-      const over = ballHistory.slice(i, i + 6);
-      if (over.length === 6 && over.every(b => (b.type === 'run' && b.runs === 0) || b.type === 'legbye')) {
-        maidenOvers++;
-      }
-    }
-
-    const highlights = document.getElementById("highlights");
-    highlights.innerHTML = `
-      <h4 class="text-lg font-semibold mb-1">🏆 Match Highlights</h4>
-      <ul class="list-disc ml-5 space-y-1">
-        <li><strong>Top Batsman:</strong> ${topBatsman.name} - ${topBatsman.runs} runs (${topBatsman.balls} balls)</li>
-        <li><strong>Top Bowler:</strong> ${topBowler.name} - ${topBowler.wickets} wickets</li>
-        <li><strong>Most Dot Balls (Bowler):</strong> ${mostDotBowler.name} - ${mostDotBowler.dotBalls} dots</li>
-        <li><strong>Total Dot Balls in Match:</strong> ${dots}</li>
-        <li><strong>Maiden Overs:</strong> ${maidenOvers}</li>
-      </ul>
-    `;
-
+      // Show Highlights
+    showMatchHighlights();
     renderHistory();
     showMatchInnings();
     renderOverSummary();
   }
+}
+  function showMatchHighlights() {
+  const highlights = document.getElementById("highlights");
+
+  function getTopBatsman(batsmen) {
+    return batsmen.reduce((top, p) => (p.runs > (top.runs || 0) ? p : top), {});
+  }
+
+  function getTopBowler(bowlers) {
+    return bowlers.reduce((top, p) => (p.wickets > (top.wickets || 0) ? p : top), {});
+  }
+
+  function getTotalFours(batsmen) {
+    return batsmen.reduce((total, p) => total + (p.fours || 0), 0);
+  }
+
+  function getTotalSixes(batsmen) {
+    return batsmen.reduce((total, p) => total + (p.sixes || 0), 0);
+  }
+
+  function getTotalDots(bowlers) {
+    return bowlers.reduce((total, p) => total + (p.dotBalls || 0), 0);
+  }
+
+  function getMaidenOvers(bowlers) {
+    return bowlers.reduce((total, p) => total + (p.maidens || 0), 0);
+  }
+
+  const topBat1 = getTopBatsman(firstInningsBatsmen);
+  const topBowler1 = getTopBowler(firstInningsBowlers);
+  const fours1 = getTotalFours(firstInningsBatsmen);
+  const sixes1 = getTotalSixes(firstInningsBatsmen);
+  const dots1 = getTotalDots(firstInningsBowlers);
+  const maidens1 = getMaidenOvers(firstInningsBowlers);
+
+  const topBat2 = getTopBatsman(secondInningsBatsmen);
+  const topBowler2 = getTopBowler(secondInningsBowlers);
+  const fours2 = getTotalFours(secondInningsBatsmen);
+  const sixes2 = getTotalSixes(secondInningsBatsmen);
+  const dots2 = getTotalDots(secondInningsBowlers);
+  const maidens2 = getMaidenOvers(secondInningsBowlers);
+
+  highlights.innerHTML = `
+    <h4 class="text-lg font-bold mb-2">🏏 Match Highlights</h4>
+
+    <h5 class="font-semibold">First Innings: ${teamA}</h5>
+    <ul class="list-disc ml-5 mb-2">
+      <li>Score: ${firstInningsScore}/${firstInningsWickets} (${firstInningsOvers.toFixed(1)} overs)</li>
+      <li>Top Batsman: ${topBat1.name || "N/A"} - ${topBat1.runs || 0} runs</li>
+      <li>Top Bowler: ${topBowler1.name || "N/A"} - ${topBowler1.wickets || 0} wickets</li>
+      <li>4s: ${fours1}, 6s: ${sixes1}, Dot Balls: ${dots1}, Maidens: ${maidens1}</li>
+    </ul>
+
+    <h5 class="font-semibold">Second Innings: ${teamB}</h5>
+    <ul class="list-disc ml-5">
+      <li>Score: ${score}/${wickets} (${(balls / 6).toFixed(1)} overs)</li>
+      <li>Top Batsman: ${topBat2.name || "N/A"} - ${topBat2.runs || 0} runs</li>
+      <li>Top Bowler: ${topBowler2.name || "N/A"} - ${topBowler2.wickets || 0} wickets</li>
+      <li>4s: ${fours2}, 6s: ${sixes2}, Dot Balls: ${dots2}, Maidens: ${maidens2}</li>
+    </ul>
+  `;
 }
 
 function updateDisplay() {
@@ -1499,7 +1529,7 @@ document.addEventListener("DOMContentLoaded", () => {
   <audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
   <audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
   <audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
-  <audio id="soundToss" src="https://assets.mixkit.co/sfx/preview/mixkit-coin-flip-1991.wav"></audio>
+  <audio id="soundToss" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
 </body>
 </html>

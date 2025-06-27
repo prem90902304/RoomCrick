@@ -241,6 +241,7 @@
   const coin = document.getElementById("coin");
   const resultText = document.getElementById("tossResultText");
 
+  // ✅ Play Real Coin Sound
   const tossSound = document.getElementById("soundToss");
   if (tossSound && !isMuted) {
     tossSound.currentTime = 0;
@@ -274,7 +275,9 @@
     localStorage.setItem("tossWinner", tossWinner);
     localStorage.setItem("tossDecision", tossDecision);
 
+    // ✅ Speak Toss Result
     speakCommentary(`${tossWinner} won the toss and chose to ${tossDecision.toLowerCase()} first.`);
+
     confetti();
   }, 1000);
 }
@@ -1314,7 +1317,7 @@ function toggleMute() {
     audio.muted = isMuted;
   });
 }
-    function speakCommentary(messageKey) {
+    function speakCommentary(messageKeyOrText) {
   const lang = document.getElementById("voiceLang").value;
 
   const commentaryMessages = {
@@ -1355,33 +1358,38 @@ function toggleMute() {
       "te-IN": "వికెట్ పడిపోయింది!"
     },
     "wide": {
-  "en-US": "That's a wide ball.",
-  "hi-IN": "यह वाइड बॉल है।",
-  "ta-IN": "அது அகல பந்து.",
-  "te-IN": "అది వైడ్ బాల్."
-},
-"legbye": {
-  "en-US": "Lbw",
-  "hi-IN": "लेग बाय!",
-  "ta-IN": "லெக் விக்கெட் !",
-  "te-IN": "లెగ్!"
-},
+      "en-US": "That's a wide ball.",
+      "hi-IN": "यह वाइड बॉल है।",
+      "ta-IN": "அது அகல பந்து.",
+      "te-IN": "అది వైడ్ బాల్."
+    },
+    "legbye": {
+      "en-US": "Lbw",
+      "hi-IN": "लेग बाय!",
+      "ta-IN": "லெக் விக்கெட் !",
+      "te-IN": "లెగ்!"
+    },
     "maiden": {
-  "en-US": "That's a maiden over!",
-  "hi-IN": "यह मेडन ओवर है!",
-  "ta-IN": "இது ஒரு மேடன் ஓவர்!",
-  "te-IN": "ఇది ఒక మెయిడెన్ ఓవర్!"
-},
+      "en-US": "That's a maiden over!",
+      "hi-IN": "यह मेडन ओवर है!",
+      "ta-IN": "இது ஒரு மேடன் ஓவர்!",
+      "te-IN": "ఇది ఒక మెయిడెన్ ఓవర్!"
+    },
   };
 
-  const message = commentaryMessages[messageKey]?.[lang];
-  if (!message) return;
+  let message = commentaryMessages[messageKeyOrText]?.[lang];
+
+  // ✅ If key not found, treat as direct text
+  if (!message) {
+    message = messageKeyOrText;
+  }
 
   const utterance = new SpeechSynthesisUtterance(message);
   utterance.lang = lang;
   utterance.volume = 1;
   utterance.pitch = 1;
   utterance.rate = 1;
+
   if (!isMuted) window.speechSynthesis.speak(utterance);
 }
     function showUmpireCall(type) {
@@ -1491,7 +1499,7 @@ document.addEventListener("DOMContentLoaded", () => {
   <audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
   <audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
   <audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
-  <audio id="soundToss" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="soundToss" src="https://assets.mixkit.co/sfx/preview/mixkit-coin-flip-1991.wav"></audio>
 
 </body>
 </html>

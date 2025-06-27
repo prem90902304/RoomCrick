@@ -241,10 +241,10 @@
   const coin = document.getElementById("coin");
   const resultText = document.getElementById("tossResultText");
 
-  // ✅ Play Toss Sound
   const tossSound = document.getElementById("soundToss");
   if (tossSound && !isMuted) {
     tossSound.currentTime = 0;
+    tossSound.volume = 1;
     tossSound.play();
   }
 
@@ -277,6 +277,25 @@
     speakCommentary(`${tossWinner} won the toss and chose to ${tossDecision.toLowerCase()} first.`);
     confetti();
   }, 1000);
+}
+  function skipToss() {
+  teamA = document.getElementById("teamA").value.trim() || "Team A";
+  teamB = document.getElementById("teamB").value.trim() || "Team B";
+
+  tossWinner = teamA;
+  tossDecision = "Bat";
+
+  document.getElementById("tossResultText").innerText = `${tossWinner} skips the toss and chooses to bat first.`;
+
+  localStorage.setItem("tossWinner", tossWinner);
+  localStorage.setItem("tossDecision", tossDecision);
+
+  speakCommentary(`${tossWinner} skips the toss and chooses to bat first.`);
+}
+  function resetToss() {
+  document.getElementById("tossResultText").innerText = "";
+  document.getElementById("coin").classList.remove("flip-animation");
+  speakCommentary("Re-toss the coin.");
 }
 let totalWickets = 10;
 let history = JSON.parse(localStorage.getItem('crickHistory') || '[]');
@@ -1472,8 +1491,7 @@ document.addEventListener("DOMContentLoaded", () => {
   <audio id="soundLegBye" src="https://assets.mixkit.co/sfx/preview/mixkit-cartoon-slide-whistle-2400.mp3"></audio>
   <audio id="soundWicket" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.mp3"></audio>
   <audio id="soundMaiden" src="https://assets.mixkit.co/sfx/preview/mixkit-fantasy-win-notification-2368.mp3"></audio>
-<audio id="soundToss" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.wav"></audio>
-
+  <audio id="soundToss" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
 
 </body>
 </html>

@@ -1025,13 +1025,14 @@ function endMatch() {
     firstInningsBatsmen = [...batsmen];
     firstInningsBowlers = [...bowlers];
 
-    // ✅ Start Second Innings
+    // ✅ Prepare for Second Innings
     inning = 2;
     currentInnings = 1;
     inningsHistory[currentInnings] = [];
 
     localStorage.removeItem('crickMatchState');
 
+    // ✅ Reset Stats
     score = 0;
     wickets = 0;
     balls = 0;
@@ -1080,10 +1081,10 @@ function endMatch() {
     // ✅ Show Match Highlights
     showMatchHighlights();
 
-    // ✅ Save to History
+    // ✅ Save Match History
     const matchSummary = {
       teams: `${teamA} vs ${teamB}`,
-      score1: `${firstInningsScore}/10 (max overs)`,
+      score1: `${firstInningsScore}/${firstInningsWickets}`,
       score2: `${score}/${wickets}`,
       winner: winnerText,
       date: new Date().toLocaleString()
@@ -1091,7 +1092,7 @@ function endMatch() {
     history.unshift(matchSummary);
     localStorage.setItem('crickHistory', JSON.stringify(history));
 
-    // ✅ Winner Commentary
+    // ✅ Voice Commentary for Winner
     const winnerName = (score > firstInningsScore) ? teamB : (score < firstInningsScore) ? teamA : null;
     if (winnerName) {
       const selectedLang = document.getElementById("voiceLang").value;
@@ -1106,7 +1107,7 @@ function endMatch() {
       window.speechSynthesis.speak(msg);
     }
 
-    // ✅ Confetti and Winner UI
+    // ✅ Confetti + Winner Banner
     const summaryDiv = document.getElementById("summary");
     summaryDiv.querySelectorAll(".text-2xl.text-green-600").forEach(el => el.remove());
     if (!winnerText.includes("tied")) {
@@ -1116,9 +1117,12 @@ function endMatch() {
       congrats.textContent = "🎉 Congratulations to " + winningTeam + "!";
       summaryDiv.appendChild(congrats);
       confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
-      if (!isMuted) document.getElementById("victorySound")?.play();
-    }
-
+      document.getElementById("victorySound").volume = 1;
+     const victorySound = document.getElementById("victorySound");
+if (victorySound) {
+  victorySound.currentTime = 0;
+  victorySound.play();
+}
     // ✅ Play Again Button
     const playAgainContainer = document.getElementById("playAgainContainer");
     playAgainContainer.innerHTML = "";

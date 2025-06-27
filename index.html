@@ -1018,21 +1018,20 @@ function endMatch() {
   const teamB = document.getElementById("teamB").value.trim();
 
   if (inning === 1) {
-    // ✅ Save First Innings Details
+    // ✅ Save First Innings Data
     firstInningsScore = score;
     firstInningsWickets = wickets;
     firstInningsOvers = balls / 6;
     firstInningsBatsmen = [...batsmen];
     firstInningsBowlers = [...bowlers];
 
-    // ✅ Switch to Second Innings
+    // ✅ Start Second Innings
     inning = 2;
     currentInnings = 1;
     inningsHistory[currentInnings] = [];
 
     localStorage.removeItem('crickMatchState');
 
-    // ✅ Reset stats for 2nd innings
     score = 0;
     wickets = 0;
     balls = 0;
@@ -1045,7 +1044,6 @@ function endMatch() {
     currentBatsmanIndex = 0;
     currentBowlerIndex = 0;
 
-    // ✅ Prompt for new batsman and bowler
     let striker = prompt("Enter name of batsman for 2nd Innings:") || "Batsman 1";
     let bowlerName = prompt("Enter name of opening bowler for 2nd Innings:") || "Bowler 1";
 
@@ -1066,7 +1064,7 @@ function endMatch() {
     secondInningsBatsmen = [...batsmen];
     secondInningsBowlers = [...bowlers];
 
-    // ✅ Calculate winner
+    // ✅ Decide Winner
     let winnerText = "";
     if (score > firstInningsScore) {
       winnerText = `${teamB} won by ${totalWickets - wickets} wicket(s)!`;
@@ -1079,8 +1077,10 @@ function endMatch() {
     document.getElementById("winner").textContent = winnerText;
     document.getElementById("summary").classList.remove("hidden");
 
-    // ✅ Call Highlights
+    // ✅ Show Match Highlights
     showMatchHighlights();
+
+    // ✅ Save to History
     const matchSummary = {
       teams: `${teamA} vs ${teamB}`,
       score1: `${firstInningsScore}/10 (max overs)`,
@@ -1090,10 +1090,8 @@ function endMatch() {
     };
     history.unshift(matchSummary);
     localStorage.setItem('crickHistory', JSON.stringify(history));
-    document.getElementById("summary").classList.remove("hidden");
-    document.getElementById("winner").textContent = winnerText;
 
-    // 🗣️ Voice Commentary
+    // ✅ Winner Commentary
     const winnerName = (score > firstInningsScore) ? teamB : (score < firstInningsScore) ? teamA : null;
     if (winnerName) {
       const selectedLang = document.getElementById("voiceLang").value;
@@ -1105,13 +1103,10 @@ function endMatch() {
 
       const msg = new SpeechSynthesisUtterance(message);
       msg.lang = selectedLang;
-      msg.volume = 1.0;
-      msg.rate = 1.0;
-      msg.pitch = 1.0;
       window.speechSynthesis.speak(msg);
     }
 
-    // 🎉 Winner UI
+    // ✅ Confetti and Winner UI
     const summaryDiv = document.getElementById("summary");
     summaryDiv.querySelectorAll(".text-2xl.text-green-600").forEach(el => el.remove());
     if (!winnerText.includes("tied")) {
@@ -1124,7 +1119,7 @@ function endMatch() {
       if (!isMuted) document.getElementById("victorySound")?.play();
     }
 
-    // 🔁 Play Again Button
+    // ✅ Play Again Button
     const playAgainContainer = document.getElementById("playAgainContainer");
     playAgainContainer.innerHTML = "";
     const playAgainBtn = document.createElement("button");
@@ -1136,7 +1131,7 @@ function endMatch() {
       location.reload();
     };
     playAgainContainer.appendChild(playAgainBtn);
-     
+
     renderHistory();
     showMatchInnings();
     renderOverSummary();
